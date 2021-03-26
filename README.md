@@ -1,4 +1,5 @@
 # DAW project
 
-Please edit this document with the students names and numbers.
-
+Diogo Sousa (46008)
+Tiago David (46078)
+João Moura (46107)
