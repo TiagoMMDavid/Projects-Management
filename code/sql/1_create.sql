@@ -4,6 +4,7 @@ CREATE TABLE PROJECT
     description VARCHAR(256) NOT NULL
 );
 
+-- Unique names per project is assured via a trigger
 CREATE TABLE STATE
 (
     sid         INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -42,14 +43,16 @@ CREATE TABLE COMMENT
 
 CREATE TABLE LABEL
 (
-    lid         INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    project     VARCHAR(64) REFERENCES PROJECT(name) NOT NULL,
-    name        VARCHAR(64) NOT NULL
+    name        VARCHAR(64),
+    project     VARCHAR(64) REFERENCES PROJECT(name),
+    PRIMARY KEY (project, name)
 );
 
 CREATE TABLE ISSUE_LABEL
 (
     iid         INT REFERENCES ISSUE(iid),
-    lid         INT REFERENCES LABEL(lid),
-    PRIMARY KEY (iid, lid)
+    label_name  VARCHAR(64),
+    label_proj  VARCHAR(64),
+    PRIMARY KEY (iid, label_name, label_proj),
+    FOREIGN KEY (label_name, label_proj) REFERENCES LABEL(name, project)
 );
