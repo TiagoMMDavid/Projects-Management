@@ -24,6 +24,7 @@ dependencies {
 
 	runtimeOnly("org.postgresql:postgresql")
 	implementation("org.jdbi:jdbi3-core:3.18.0")
+	implementation("org.jdbi:jdbi3-kotlin:3.18.0")
 
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 }

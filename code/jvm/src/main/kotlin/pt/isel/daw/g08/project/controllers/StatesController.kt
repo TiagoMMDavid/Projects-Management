@@ -9,27 +9,27 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestBody
 
 data class StateOutputModel(
-        val name: String,
-        val isStartState: Boolean,
-        val transitions: List<String>,
+    val name: String,
+    val isStartState: Boolean,
+    val nextStates: List<String>,
 )
 
 data class StatesOutputModel(
-        val states: List<StateOutputModel>,
+    val states: List<StateOutputModel>,
 )
 
 data class StateInputModel(
-        val isStartState: Boolean?,
-        val transitions: List<String>?,
+    val isStartState: Boolean?,
+    val nextStates: List<String>?,
 )
 
 data class StatePutResponseModel(
-        val status: String,             // Created or Modified
-        val stateDetails: String,
+    val status: String,             // Created or Modified
+    val stateDetails: String,
 )
 
 data class StateDeleteResponseModel(
-        val status: String,             // Deleted
+    val status: String,             // Deleted
 )
 
 @RestController

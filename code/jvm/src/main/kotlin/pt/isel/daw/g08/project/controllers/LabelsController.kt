@@ -8,20 +8,20 @@ import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.PathVariable
 
 data class LabelOutputModel(
-        val name: String,
+    val name: String,
 )
 
 data class LabelsOutputModel(
-        val projects: List<LabelOutputModel>,
+    val projects: List<LabelOutputModel>,
 )
 
 data class LabelPutResponseModel(
-        val status: String,             // Created or Modified
-        val labelDetails: String,
+    val status: String,             // Created or Modified
+    val labelDetails: String,
 )
 
 data class LabelDeleteResponseModel(
-        val status: String,             // Deleted
+    val status: String,             // Deleted
 )
 
 @RestController

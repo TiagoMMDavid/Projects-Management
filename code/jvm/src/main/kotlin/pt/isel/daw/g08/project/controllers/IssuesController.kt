@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.RequestBody
 import java.util.Date
 
 data class IssueOutputModel(
-        val id: Int,
-        val name: String,
-        val description: String,
-        val project: String,
-        val state: String,
-        val creationDate: Date,
-        val closeDate: Date?,
+    val id: Int,
+    val name: String,
+    val description: String,
+    val project: String,
+    val state: String,
+    val creationDate: Date,
+    val closeDate: Date?,
 )
 
 data class IssuesOutputModel(
