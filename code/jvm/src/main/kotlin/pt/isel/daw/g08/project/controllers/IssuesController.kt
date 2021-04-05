@@ -64,6 +64,7 @@ class IssuesController {
             @PathVariable projectName: String,
     ): IssuesOutputModel {
         TODO()
+
     }
 
     @PostMapping()

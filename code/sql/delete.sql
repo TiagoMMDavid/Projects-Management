@@ -11,4 +11,3 @@ DELETE FROM PROJECT;
 ALTER SEQUENCE STATE_sid_seq restart;
 ALTER SEQUENCE ISSUE_iid_seq restart;
 ALTER SEQUENCE COMMENT_cid_seq restart;
-ALTER SEQUENCE LABEL_lid_seq restart;

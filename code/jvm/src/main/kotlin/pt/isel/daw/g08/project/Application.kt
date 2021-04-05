@@ -11,10 +11,15 @@ import pt.isel.daw.g08.project.dao.StateDao
 @SpringBootApplication
 class Application {
 	@Bean
-	fun getJdbi() = Jdbi.create("jdbc:postgresql://localhost:5432/changeit", "changeit", "changeit")
+	fun getJdbi() : Jdbi {
+		val jdbi = Jdbi.create("jdbc:postgresql://localhost:5433/daw-db", "daw", "123macaco")
 			.installPlugin(KotlinPlugin())
-			.registerRowMapper(IssueDao::class.java, IssueDao::getRowMapper)
-			.registerRowMapper(StateDao::class.java, StateDao::getRowMapper)
+
+		jdbi
+			.registerRowMapper(IssueDao::class.java) { rs, ctx -> IssueDao.mapRow(rs, ctx, jdbi) }
+			.registerRowMapper(StateDao::class.java) { rs, ctx -> StateDao.mapRow(rs, ctx, jdbi) }
+		return jdbi
+	}
 }
 
 fun main(args: Array<String>) {
