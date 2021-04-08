@@ -16,7 +16,6 @@ DELETE /api/projects/{project-name}                                     => Delet
 GET    /api/projects/{project-name}/labels                              => Get all project labels
 
 PUT    /api/projects/{project-name}/labels                              => Create label for project
-PUT    /api/projects/{project-name}/labels/{label-name}                 => Edit label for project
 DELETE /api/projects/{project-name}/labels/{label-name}                 => Delete label for project
 ```
 

@@ -1,53 +1,54 @@
 package pt.isel.daw.g08.project.controllers
 
-import org.springframework.web.bind.annotation.RestController
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.PathVariable
-
-data class LabelOutputModel(
-    val name: String,
-)
-
-data class LabelsOutputModel(
-    val projects: List<LabelOutputModel>,
-)
-
-data class LabelPutResponseModel(
-    val status: String,             // Created or Modified
-    val labelDetails: String,
-)
-
-data class LabelDeleteResponseModel(
-    val status: String,             // Deleted
-)
+import org.jdbi.v3.core.Jdbi
+import org.springframework.web.bind.annotation.*
+import pt.isel.daw.g08.project.controllers.models.LabelDeleteOutputModel
+import pt.isel.daw.g08.project.controllers.models.LabelInputModel
+import pt.isel.daw.g08.project.controllers.models.LabelCreateOutputModel
+import pt.isel.daw.g08.project.controllers.models.LabelsOutputModel
 
 @RestController
-@RequestMapping("/api/projects/{projectName}/labels")
-class LabelsController {
+@RequestMapping("/api/projects/{projectName}")
+class LabelsController(val jdbi: Jdbi) {
 
-    @GetMapping()
+    @GetMapping("labels")
     fun getAllLabels(
-            @PathVariable projectName: String,
+        @PathVariable projectName: String,
     ): LabelsOutputModel {
         TODO()
     }
 
-    @PutMapping("{labelName}")
-    fun putLabel(
-            @PathVariable projectName: String,
-            @PathVariable labelName: String,
-    ): LabelPutResponseModel {
+    @PutMapping("labels")
+    fun createLabel(
+        @PathVariable projectName: String,
+        @RequestBody input: LabelInputModel,
+    ): LabelCreateOutputModel {
         TODO()
     }
 
-    @DeleteMapping("{labelName}")
+    @DeleteMapping("labels/{labelName}")
     fun deleteLabel(
-            @PathVariable projectName: String,
-            @PathVariable labelName: String,
-    ): LabelDeleteResponseModel {
+        @PathVariable projectName: String,
+        @PathVariable labelName: String,
+    ): LabelDeleteOutputModel {
+        TODO()
+    }
+
+    @PutMapping("issues/{issueId}/labels")
+    fun addLabelToIssue(
+        @PathVariable projectName: String,
+        @PathVariable issueId: Int,
+        @RequestBody input: LabelInputModel,
+    ): LabelCreateOutputModel {
+        TODO()
+    }
+
+    @DeleteMapping("issues/{issueId}/labels/{labelName}")
+    fun deleteLabelFromIssue(
+        @PathVariable projectName: String,
+        @PathVariable issueId: Int,
+        @PathVariable labelName: String,
+    ): LabelDeleteOutputModel {
         TODO()
     }
 }

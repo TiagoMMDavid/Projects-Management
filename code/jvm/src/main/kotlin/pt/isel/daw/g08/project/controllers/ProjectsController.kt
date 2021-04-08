@@ -7,46 +7,36 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestBody
-
-data class ProjectOutputModel(
-    val name: String,
-    val description: String,
-)
-
-data class ProjectsOutputModel(
-    val projects: List<ProjectOutputModel>,
-)
-
-data class ProjectInputModel(
-    val description: String,
-)
-
-data class ProjectPutResponseModel(
-    val status: String,             // Created or Modified
-    val projectDetails: String,
-)
+import pt.isel.daw.g08.project.controllers.models.*
 
 @RestController
 @RequestMapping("/api/projects")
 class ProjectsController(val jdbi: Jdbi) {
 
-    @GetMapping()
+    @GetMapping
     fun getAllProjects(): ProjectsOutputModel {
         TODO()
     }
 
     @GetMapping("{projectName}")
-    fun getProject (
-            @PathVariable projectName: String,
+    fun getProject(
+        @PathVariable projectName: String,
     ): ProjectOutputModel {
         TODO()
     }
 
+    @PutMapping
+    fun createProject(
+        @RequestBody input: ProjectCreateInputModel,
+    ): ProjectCreateOutputModel {
+        TODO()
+    }
+
     @PutMapping("{projectName}")
-    fun putProject(
-            @PathVariable projectName: String,
-            @RequestBody input: ProjectInputModel,
-    ): ProjectPutResponseModel {
+    fun editProject(
+        @PathVariable projectName: String,
+        @RequestBody input: ProjectEditInputModel,
+    ): ProjectCreateOutputModel {
         TODO()
     }
 }

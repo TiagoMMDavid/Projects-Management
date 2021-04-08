@@ -3,16 +3,20 @@ package pt.isel.daw.g08.project
 import org.jdbi.v3.core.Jdbi
 import org.jdbi.v3.core.kotlin.KotlinPlugin
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.context.properties.ConfigurationProperties
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan
+import org.springframework.boot.context.properties.ConstructorBinding
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
 import pt.isel.daw.g08.project.dao.IssueDao
 import pt.isel.daw.g08.project.dao.StateDao
 
+@ConfigurationPropertiesScan
 @SpringBootApplication
-class Application {
+class Application(private val configProperties: ConfigProperties) {
 	@Bean
 	fun getJdbi() : Jdbi {
-		val jdbi = Jdbi.create("jdbc:postgresql://localhost:5433/daw-db", "daw", "123macaco")
+		val jdbi = Jdbi.create(configProperties.dbConnectionString)
 			.installPlugin(KotlinPlugin())
 
 		jdbi
