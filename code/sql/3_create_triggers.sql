@@ -22,3 +22,9 @@ CREATE TRIGGER trig_check_issue_update
 BEFORE UPDATE ON ISSUE
 FOR EACH ROW
 EXECUTE PROCEDURE func_check_issue_update();
+
+-- Trigger to check if comment can be inserted (issue state is not 'archived')
+CREATE TRIGGER trig_check_comment_validity
+BEFORE INSERT ON COMMENT
+FOR EACH ROW
+EXECUTE PROCEDURE func_check_comment_validity();

@@ -97,3 +97,24 @@ $$
     END;
 $$
 LANGUAGE 'plpgsql';
+
+-- Function to check if comment can be inserted (issue state is not 'archived')
+CREATE FUNCTION func_check_comment_validity()
+RETURNS TRIGGER AS
+$$
+    DECLARE
+        stateName VARCHAR(64);
+    BEGIN
+        -- Check issue state
+        SELECT STATE.name into stateName
+        FROM STATE JOIN ISSUE ON (STATE.sid = ISSUE.state)
+        WHERE ISSUE.iid = NEW.iid;
+
+        IF stateName = 'archived' THEN
+            RAISE 'Cannot add a comment to an archived issue!';
+        END IF;
+        
+        RETURN NEW;
+    END;
+$$
+LANGUAGE 'plpgsql';
