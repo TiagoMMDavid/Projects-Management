@@ -1,7 +1,10 @@
 package pt.isel.daw.g08.project.controllers.models
 
+import java.sql.Timestamp
+
 data class CommentOutputModel(
     val comment: String,
+    val createdAt: Timestamp,
 )
 
 data class CommentsOutputModel(

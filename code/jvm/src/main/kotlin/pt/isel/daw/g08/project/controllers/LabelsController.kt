@@ -2,20 +2,35 @@ package pt.isel.daw.g08.project.controllers
 
 import org.jdbi.v3.core.Jdbi
 import org.springframework.web.bind.annotation.*
-import pt.isel.daw.g08.project.controllers.models.LabelDeleteOutputModel
-import pt.isel.daw.g08.project.controllers.models.LabelInputModel
-import pt.isel.daw.g08.project.controllers.models.LabelCreateOutputModel
-import pt.isel.daw.g08.project.controllers.models.LabelsOutputModel
+import pt.isel.daw.g08.project.controllers.models.*
+import pt.isel.daw.g08.project.dao.LabelDao
+import pt.isel.daw.g08.project.utils.urlDecode
+
+private const val GET_LABELS_QUERY = "SELECT name, project FROM LABEL WHERE project = :projectName"
 
 @RestController
 @RequestMapping("/api/projects/{projectName}")
-class LabelsController(val jdbi: Jdbi) {
+class LabelsController(val jdbi: Jdbi) : BaseController() {
+
+    // URL roots
+    fun getLabelsRoot(projectName: String) = "${env.getBaseUrl()}/api/projects/${projectName}/labels"
 
     @GetMapping("labels")
     fun getAllLabels(
         @PathVariable projectName: String,
     ): LabelsOutputModel {
-        TODO()
+        val labels = jdbi.withHandle<List<LabelDao>, Exception> {
+            it.createQuery(GET_LABELS_QUERY)
+                .bind("projectName", projectName.urlDecode())
+                .mapTo(LabelDao::class.java)
+                .list()
+        }
+
+        return LabelsOutputModel(labels.map {
+            LabelOutputModel(
+                name = it.name,
+            )
+        })
     }
 
     @PutMapping("labels")

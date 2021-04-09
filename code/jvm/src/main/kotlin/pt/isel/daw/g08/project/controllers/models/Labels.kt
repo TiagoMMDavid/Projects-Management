@@ -5,7 +5,7 @@ data class LabelOutputModel(
 )
 
 data class LabelsOutputModel(
-    val projects: List<LabelOutputModel>,
+    val labels: List<LabelOutputModel>,
 )
 
 data class LabelInputModel(

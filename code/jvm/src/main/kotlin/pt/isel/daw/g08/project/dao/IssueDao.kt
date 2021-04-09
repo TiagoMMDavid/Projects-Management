@@ -2,7 +2,6 @@ package pt.isel.daw.g08.project.dao
 
 import org.jdbi.v3.core.Jdbi
 import org.jdbi.v3.core.statement.StatementContext
-import java.lang.Exception
 import java.sql.ResultSet
 import java.sql.Timestamp
 

@@ -7,6 +7,9 @@ data class ProjectsOutputModel(
 data class ProjectOutputModel(
     val name: String,
     val description: String,
+    val labelsUrl: String,
+    val issuesUrl: String,
+    val statesUrl: String,
 )
 
 data class ProjectCreateInputModel(

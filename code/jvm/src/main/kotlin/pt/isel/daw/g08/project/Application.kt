@@ -3,9 +3,7 @@ package pt.isel.daw.g08.project
 import org.jdbi.v3.core.Jdbi
 import org.jdbi.v3.core.kotlin.KotlinPlugin
 import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan
-import org.springframework.boot.context.properties.ConstructorBinding
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
 import pt.isel.daw.g08.project.dao.IssueDao
