@@ -1,16 +1,39 @@
 package pt.isel.daw.g08.project.controllers.models
 
-data class ProjectsOutputModel(
-    val projects: List<ProjectOutputModel>,
-)
+import pt.isel.daw.g08.project.responses.Hal
 
-data class ProjectOutputModel(
-    val name: String,
-    val description: String,
-    val labelsUrl: String,
-    val issuesUrl: String,
-    val statesUrl: String,
-)
+class ProjectOutputModel(
+    name: String,
+    description: String,
+    selfUrl: String,
+    labelsUrl: String,
+    issuesUrl: String,
+    statesUrl: String,
+    projectsUrl: String,
+) : Hal(selfUrl) {
+    init {
+        super
+            .addLink("labels", labelsUrl)
+            .addLink("issues", issuesUrl)
+            .addLink("states", statesUrl)
+            .addLink("projects", projectsUrl)
+            .addProperty("name", name)
+            .addProperty("description", description)
+    }
+}
+
+class ProjectsOutputModel(
+    selfUrl: String,
+    totalProjects: Int,
+    projects: List<ProjectOutputModel>,
+) : Hal(selfUrl) {
+
+    init {
+        super
+            .addEmbedded("projects", projects)
+            .addProperty("totalProjects", totalProjects)
+    }
+}
 
 data class ProjectCreateInputModel(
     val name: String,

@@ -10,11 +10,8 @@ private const val GET_ALL_STATES_QUERY = "SELECT sid, project, name, is_start FR
 private const val GET_STATE_QUERY = "SELECT sid, project, name, is_start FROM STATE WHERE project = :projectName AND name = :stateName"
 
 @RestController
-@RequestMapping("/api/projects/{projectName}/states")
-class StatesController(val jdbi: Jdbi) : BaseController() {
-
-    // URL roots
-    fun getStatesRoot(projectName: String) = "${env.getBaseUrl()}/api/projects/${projectName}/states"
+@RequestMapping("${PROJECTS_HREF}/{projectName}/states")
+class StatesController(val jdbi: Jdbi) {
 
     @GetMapping
     fun getAllStates(
@@ -27,13 +24,16 @@ class StatesController(val jdbi: Jdbi) : BaseController() {
                 .list()
         }
 
-        return StatesOutputModel(states.map {
-            StateOutputModel(
-                name = it.name,
-                isStartState = it.isStart,
-                nextStates = it.nextStates,
-            )
-        })
+        return StatesOutputModel(
+            PROJECTS_HREF,
+            states.map {
+                StateOutputListModel(
+                    name = it.name,
+                    isStartState = it.isStart,
+                    nextStates = it.nextStates,
+                )
+            }
+        )
     }
 
     @GetMapping("{stateName}")
@@ -53,6 +53,8 @@ class StatesController(val jdbi: Jdbi) : BaseController() {
             name = state.name,
             isStartState = state.isStart,
             nextStates = state.nextStates,
+            statesUrl = "${PROJECTS_HREF}/${projectName}/states",
+            projectUrl = "${PROJECTS_HREF}/${projectName}",
         )
     }
 

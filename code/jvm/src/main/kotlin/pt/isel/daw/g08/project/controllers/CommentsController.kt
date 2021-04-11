@@ -8,11 +8,8 @@ import pt.isel.daw.g08.project.dao.CommentDao
 private const val GET_COMMENTS_QUERY = "SELECT cid, iid, text, create_date FROM COMMENT WHERE iid = :iid"
 
 @RestController
-@RequestMapping("/api/projects/{projectName}/issues/{issueId}/comments")
-class CommentsController(val jdbi: Jdbi) : BaseController() {
-
-    // URL roots
-    fun getCommentsRoot(projectName: String) = "${env.getBaseUrl()}/api/projects/${projectName}"
+@RequestMapping("${PROJECTS_HREF}/{projectName}/issues/{issueId}/comments")
+class CommentsController(val jdbi: Jdbi) {
 
     @GetMapping
     fun getIssueComments(

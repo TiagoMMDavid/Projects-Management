@@ -1,11 +1,12 @@
 package pt.isel.daw.g08.project.controllers.models
 
-data class LabelOutputModel(
+data class LabelOutputListModel(
     val name: String,
 )
 
 data class LabelsOutputModel(
-    val labels: List<LabelOutputModel>,
+    val projectUrl: String,
+    val labels: List<LabelOutputListModel>,
 )
 
 data class LabelInputModel(

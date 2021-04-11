@@ -4,10 +4,19 @@ data class StateOutputModel(
     val name: String,
     val isStartState: Boolean,
     val nextStates: List<String>,
+    val statesUrl: String,
+    val projectUrl: String,
+)
+
+data class StateOutputListModel(
+    val name: String,
+    val isStartState: Boolean,
+    val nextStates: List<String>,
 )
 
 data class StatesOutputModel(
-    val states: List<StateOutputModel>,
+    val projectUrl: String,
+    val states: List<StateOutputListModel>,
 )
 
 data class StateInputModel(

@@ -10,11 +10,8 @@ private const val GET_ALL_ISSUES_QUERY = "SELECT iid, state, project, name, desc
 private const val GET_ISSUE_QUERY = "SELECT iid, state, project, name, description, create_date, close_date FROM ISSUE WHERE iid = :iid"
 
 @RestController
-@RequestMapping("/api/projects/{projectName}/issues")
-class IssuesController(val jdbi: Jdbi) : BaseController() {
-
-    // URL roots
-    fun getIssuesRoot(projectName: String) = "${env.getBaseUrl()}/api/projects/${projectName}"
+@RequestMapping("${PROJECTS_HREF}/{projectName}/issues")
+class IssuesController(val jdbi: Jdbi) {
 
     @GetMapping
     fun getAllIssues(

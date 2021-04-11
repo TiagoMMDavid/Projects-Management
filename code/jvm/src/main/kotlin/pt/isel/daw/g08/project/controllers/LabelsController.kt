@@ -9,11 +9,8 @@ import pt.isel.daw.g08.project.utils.urlDecode
 private const val GET_LABELS_QUERY = "SELECT name, project FROM LABEL WHERE project = :projectName"
 
 @RestController
-@RequestMapping("/api/projects/{projectName}")
-class LabelsController(val jdbi: Jdbi) : BaseController() {
-
-    // URL roots
-    fun getLabelsRoot(projectName: String) = "${env.getBaseUrl()}/api/projects/${projectName}/labels"
+@RequestMapping("${PROJECTS_HREF}/{projectName}")
+class LabelsController(val jdbi: Jdbi) {
 
     @GetMapping("labels")
     fun getAllLabels(
@@ -26,11 +23,14 @@ class LabelsController(val jdbi: Jdbi) : BaseController() {
                 .list()
         }
 
-        return LabelsOutputModel(labels.map {
-            LabelOutputModel(
-                name = it.name,
-            )
-        })
+        return LabelsOutputModel(
+            PROJECTS_HREF,
+            labels.map {
+                LabelOutputListModel(
+                    name = it.name,
+                )
+            }
+        )
     }
 
     @PutMapping("labels")
