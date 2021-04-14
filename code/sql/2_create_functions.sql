@@ -6,8 +6,8 @@ $$
         id1 INT;
         id2 INT;
     BEGIN
-        INSERT INTO STATE(project, name, is_start) VALUES(NEW.name, 'closed', FALSE) RETURNING sid INTO id1;
-        INSERT INTO STATE(project, name, is_start) VALUES(NEW.name, 'archived', FALSE) RETURNING sid INTO id2;
+        INSERT INTO STATE(project, name, is_start, author) VALUES(NEW.pid, 'closed', FALSE, NEW.author) RETURNING sid INTO id1;
+        INSERT INTO STATE(project, name, is_start, author) VALUES(NEW.pid, 'archived', FALSE, NEW.author) RETURNING sid INTO id2;
         INSERT INTO STATETRANSITION VALUES(id1, id2);
         RETURN NEW;
     END;
@@ -36,21 +36,13 @@ $$
 $$
 LANGUAGE 'plpgsql';
 
--- Function to check if it's a duplicate state and if there is another start state
-CREATE FUNCTION func_check_state()
+-- Function to check if there is another start state
+CREATE FUNCTION func_validate_start_state()
 RETURNS TRIGGER AS
 $$
     DECLARE
         oldStartState INT;
     BEGIN
-        PERFORM sid
-        FROM STATE
-        WHERE name = NEW.name AND project = NEW.project;
-        
-        IF FOUND THEN
-            RAISE 'Name already defined in this project states!';
-        END IF;
-        
         IF NEW.is_start THEN
             SELECT sid INTO oldStartState
             FROM STATE

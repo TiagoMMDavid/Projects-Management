@@ -1,16 +1,28 @@
-CREATE TABLE PROJECT
+CREATE TABLE USERS
 (
-    name        VARCHAR(64) PRIMARY KEY,
-    description VARCHAR(256) NOT NULL
+    uid         INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    username    VARCHAR(16) UNIQUE NOT NULL,
+    pass        VARCHAR(128) NOT NULL -- hashed
 );
 
--- Unique names per project is assured via a trigger
+CREATE TABLE PROJECT
+(
+    pid         INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name        VARCHAR(64) UNIQUE NOT NULL,
+    description VARCHAR(256) NOT NULL,
+    
+    author      INT REFERENCES USERS(uid) NOT NULL
+);
+
 CREATE TABLE STATE
 (
     sid         INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    project     VARCHAR(64) REFERENCES PROJECT(name) NOT NULL,
+    project     INT REFERENCES PROJECT(pid) NOT NULL,
     name        VARCHAR(64) NOT NULL,
-    is_start    BOOLEAN NOT NULL DEFAULT FALSE
+    is_start    BOOLEAN NOT NULL DEFAULT false,
+    
+    author      INT REFERENCES USERS(uid) NOT NULL,
+    UNIQUE (name, project)
 );
 
 CREATE TABLE STATETRANSITION
@@ -24,12 +36,14 @@ CREATE TABLE ISSUE
 (
     iid         INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     state       INT REFERENCES STATE(sid) NOT NULL,
-    project     VARCHAR(64) REFERENCES PROJECT(name) NOT NULL,
+    project     INT REFERENCES PROJECT(pid) NOT NULL,
     
     name        VARCHAR(64) NOT NULL,
     description VARCHAR(256) NOT NULL,
     create_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    close_date  TIMESTAMP
+    close_date  TIMESTAMP,
+    
+    author      INT REFERENCES USERS(uid) NOT NULL
 );
 
 CREATE TABLE COMMENT
@@ -38,21 +52,24 @@ CREATE TABLE COMMENT
     iid         INT REFERENCES ISSUE(iid) NOT NULL,
     
     text        VARCHAR(256) NOT NULL,
-    create_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    create_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    
+    author      INT REFERENCES USERS(uid) NOT NULL
 );
 
 CREATE TABLE LABEL
 (
-    name        VARCHAR(64),
-    project     VARCHAR(64) REFERENCES PROJECT(name),
-    PRIMARY KEY (project, name)
+    lid         INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name        VARCHAR(64) NOT NULL,
+    project     INT REFERENCES PROJECT(pid),
+    
+    author      INT REFERENCES USERS(uid) NOT NULL,
+    UNIQUE (name, project)
 );
 
 CREATE TABLE ISSUE_LABEL
 (
     iid         INT REFERENCES ISSUE(iid),
-    label_name  VARCHAR(64),
-    label_proj  VARCHAR(64),
-    PRIMARY KEY (iid, label_name, label_proj),
-    FOREIGN KEY (label_name, label_proj) REFERENCES LABEL(name, project)
+    lid         INT REFERENCES LABEL(lid),
+    PRIMARY KEY (iid, lid)
 );

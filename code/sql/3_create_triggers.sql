@@ -10,12 +10,12 @@ BEFORE INSERT ON ISSUE
 FOR EACH ROW
 EXECUTE PROCEDURE func_insert_start_state();
 
--- Trigger to check if it's a duplicate state and if there is another start state
-CREATE TRIGGER trig_check_state
+-- Trigger to check if there is another start state
+CREATE TRIGGER trig_validate_start_state
 BEFORE INSERT OR UPDATE ON STATE
 FOR EACH ROW
 WHEN (pg_trigger_depth() = 0)
-EXECUTE PROCEDURE func_check_state();
+EXECUTE PROCEDURE func_validate_start_state();
 
 -- Trigger to update close_date when state changes to 'closed' and check if transition is valid
 CREATE TRIGGER trig_check_issue_update
