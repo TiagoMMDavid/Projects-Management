@@ -1,22 +1,20 @@
 package pt.isel.daw.g08.project.controllers
 
-import org.jdbi.v3.core.Jdbi
 import org.springframework.web.bind.annotation.*
 import pt.isel.daw.g08.project.controllers.models.*
-import pt.isel.daw.g08.project.dao.IssueDao
-import pt.isel.daw.g08.project.utils.urlDecode
 
 private const val GET_ALL_ISSUES_QUERY = "SELECT iid, state, project, name, description, create_date, close_date FROM ISSUE WHERE project = :projectName"
 private const val GET_ISSUE_QUERY = "SELECT iid, state, project, name, description, create_date, close_date FROM ISSUE WHERE iid = :iid"
 
 @RestController
 @RequestMapping("${PROJECTS_HREF}/{projectName}/issues")
-class IssuesController(val jdbi: Jdbi) {
+class IssuesController : BaseController() {
 
     @GetMapping
     fun getAllIssues(
         @PathVariable projectName: String,
     ): IssuesOutputModel {
+        /*
         val issues = jdbi.withHandle<List<IssueDao>, Exception> {
             it.createQuery(GET_ALL_ISSUES_QUERY)
                 .bind("projectName", projectName.urlDecode())
@@ -35,6 +33,8 @@ class IssuesController(val jdbi: Jdbi) {
                 closeDate = it.closeDate,
             )
         })
+         */
+        TODO()
     }
 
     @GetMapping("{issueId}")
@@ -42,6 +42,7 @@ class IssuesController(val jdbi: Jdbi) {
         @PathVariable projectName: String,
         @PathVariable issueId: Int,
     ): IssueOutputModel {
+        /*
         val issue = jdbi.withHandle<IssueDao, Exception> {
             it.createQuery(GET_ISSUE_QUERY)
                 .bind("iid", issueId)
@@ -58,6 +59,8 @@ class IssuesController(val jdbi: Jdbi) {
             creationDate = issue.createDate,
             closeDate = issue.closeDate,
         )
+        */
+        TODO()
     }
 
     @PostMapping

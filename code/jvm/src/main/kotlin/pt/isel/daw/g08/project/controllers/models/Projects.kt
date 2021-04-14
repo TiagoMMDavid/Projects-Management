@@ -1,8 +1,11 @@
 package pt.isel.daw.g08.project.controllers.models
 
-import pt.isel.daw.g08.project.responses.Hal
+import pt.isel.daw.g08.project.responses.Siren
+import pt.isel.daw.g08.project.responses.SirenClass.collection
+import pt.isel.daw.g08.project.responses.SirenClass.project
 
 class ProjectOutputModel(
+    id: Int,
     name: String,
     description: String,
     selfUrl: String,
@@ -10,13 +13,15 @@ class ProjectOutputModel(
     issuesUrl: String,
     statesUrl: String,
     projectsUrl: String,
-) : Hal(selfUrl) {
+) : Siren(selfUrl, project) {
     init {
+        // TODO: Rel
         super
-            .addLink("labels", labelsUrl)
-            .addLink("issues", issuesUrl)
-            .addLink("states", statesUrl)
-            .addLink("projects", projectsUrl)
+            .addLink(false, labelsUrl, "labels")
+            .addLink(false, issuesUrl,"issues")
+            .addLink(false, statesUrl,"states")
+            .addLink(false, projectsUrl, "projects")
+            .addProperty("id", id)
             .addProperty("name", name)
             .addProperty("description", description)
     }
@@ -26,11 +31,13 @@ class ProjectsOutputModel(
     selfUrl: String,
     totalProjects: Int,
     projects: List<ProjectOutputModel>,
-) : Hal(selfUrl) {
+) : Siren(selfUrl, project, collection) {
 
     init {
+        projects.forEach {
+            addEntity(it.getJsonProperties())
+        }
         super
-            .addEmbedded("projects", projects)
             .addProperty("totalProjects", totalProjects)
     }
 }

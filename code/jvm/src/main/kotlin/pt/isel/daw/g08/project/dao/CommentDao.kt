@@ -4,7 +4,12 @@ import java.sql.Timestamp
 
 data class CommentDao(
     val cid: Int,
-    val iid: Int,
     val text: String,
-    val createDate: Timestamp,
+    val create_date: Timestamp,
+
+    val issue_id: Int,
+    val issue_name: String,
+
+    val author_id: Int,
+    val author_name: String,
 )

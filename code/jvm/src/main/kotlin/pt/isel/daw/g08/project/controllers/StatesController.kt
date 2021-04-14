@@ -1,22 +1,20 @@
 package pt.isel.daw.g08.project.controllers
 
-import org.jdbi.v3.core.Jdbi
 import org.springframework.web.bind.annotation.*
 import pt.isel.daw.g08.project.controllers.models.*
-import pt.isel.daw.g08.project.dao.StateDao
-import pt.isel.daw.g08.project.utils.urlDecode
 
 private const val GET_ALL_STATES_QUERY = "SELECT sid, project, name, is_start FROM STATE WHERE project = :projectName"
 private const val GET_STATE_QUERY = "SELECT sid, project, name, is_start FROM STATE WHERE project = :projectName AND name = :stateName"
 
 @RestController
 @RequestMapping("${PROJECTS_HREF}/{projectName}/states")
-class StatesController(val jdbi: Jdbi) {
+class StatesController : BaseController() {
 
     @GetMapping
     fun getAllStates(
         @PathVariable projectName: String,
     ): StatesOutputModel {
+        /*
         val states = jdbi.withHandle<List<StateDao>, Exception> {
             it.createQuery(GET_ALL_STATES_QUERY)
                 .bind("projectName", projectName.urlDecode())
@@ -34,6 +32,9 @@ class StatesController(val jdbi: Jdbi) {
                 )
             }
         )
+
+         */
+        TODO()
     }
 
     @GetMapping("{stateName}")
@@ -41,6 +42,7 @@ class StatesController(val jdbi: Jdbi) {
         @PathVariable projectName: String,
         @PathVariable stateName: String,
     ): StateOutputModel {
+        /*
         val state = jdbi.withHandle<StateDao, Exception> {
             it.createQuery(GET_STATE_QUERY)
                 .bind("projectName", projectName.urlDecode())
@@ -56,6 +58,9 @@ class StatesController(val jdbi: Jdbi) {
             statesUrl = "${PROJECTS_HREF}/${projectName}/states",
             projectUrl = "${PROJECTS_HREF}/${projectName}",
         )
+
+         */
+        TODO()
     }
 
     @PutMapping

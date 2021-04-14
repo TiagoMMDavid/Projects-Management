@@ -1,20 +1,18 @@
 package pt.isel.daw.g08.project.controllers
 
-import org.jdbi.v3.core.Jdbi
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import pt.isel.daw.g08.project.controllers.models.*
 import pt.isel.daw.g08.project.dao.ProjectDao
 import pt.isel.daw.g08.project.responses.Response
-import pt.isel.daw.g08.project.utils.urlDecode
 import pt.isel.daw.g08.project.utils.urlEncode
 
-private const val GET_ALL_PROJECTS_QUERY = "SELECT name, description FROM PROJECT"
+private const val GET_ALL_PROJECTS_QUERY = "SELECT pid, name, description, uid, username FROM V_PROJECT"
 private const val GET_PROJECT_QUERY = "SELECT name, description FROM PROJECT WHERE name = :name"
 
 @RestController
 @RequestMapping(PROJECTS_HREF)
-class ProjectsController(val jdbi: Jdbi) {
+class ProjectsController : BaseController() {
 
     @GetMapping
     fun getAllProjects(): ResponseEntity<Response> {
@@ -24,13 +22,14 @@ class ProjectsController(val jdbi: Jdbi) {
                 .list()
         }
 
-        return ControllerHelper.createResponseEntity(
+        return createResponseEntity(
             ProjectsOutputModel(
                 selfUrl = PROJECTS_HREF,
                 totalProjects = projects.size,
                 projects = projects.map { project ->
                 val encodedProject = project.name.urlEncode()
                     ProjectOutputModel(
+                        id = project.pid,
                         name = project.name,
                         description = project.description,
                         selfUrl = "${PROJECTS_HREF}/${encodedProject}",
@@ -48,6 +47,7 @@ class ProjectsController(val jdbi: Jdbi) {
     fun getProject(
         @PathVariable projectName: String,
     ): ResponseEntity<Response> {
+        /*
         val project = jdbi.withHandle<ProjectDao, Exception> {
             it.createQuery(GET_PROJECT_QUERY)
                 .bind("name", projectName.urlDecode())
@@ -68,6 +68,9 @@ class ProjectsController(val jdbi: Jdbi) {
             ),
             200
         )
+
+         */
+        TODO()
     }
 
     @PutMapping

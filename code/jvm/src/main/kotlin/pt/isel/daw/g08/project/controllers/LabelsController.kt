@@ -1,21 +1,22 @@
 package pt.isel.daw.g08.project.controllers
 
-import org.jdbi.v3.core.Jdbi
 import org.springframework.web.bind.annotation.*
-import pt.isel.daw.g08.project.controllers.models.*
-import pt.isel.daw.g08.project.dao.LabelDao
-import pt.isel.daw.g08.project.utils.urlDecode
+import pt.isel.daw.g08.project.controllers.models.LabelCreateOutputModel
+import pt.isel.daw.g08.project.controllers.models.LabelDeleteOutputModel
+import pt.isel.daw.g08.project.controllers.models.LabelInputModel
+import pt.isel.daw.g08.project.controllers.models.LabelsOutputModel
 
 private const val GET_LABELS_QUERY = "SELECT name, project FROM LABEL WHERE project = :projectName"
 
 @RestController
 @RequestMapping("${PROJECTS_HREF}/{projectName}")
-class LabelsController(val jdbi: Jdbi) {
+class LabelsController : BaseController() {
 
     @GetMapping("labels")
     fun getAllLabels(
         @PathVariable projectName: String,
     ): LabelsOutputModel {
+        /*
         val labels = jdbi.withHandle<List<LabelDao>, Exception> {
             it.createQuery(GET_LABELS_QUERY)
                 .bind("projectName", projectName.urlDecode())
@@ -31,6 +32,9 @@ class LabelsController(val jdbi: Jdbi) {
                 )
             }
         )
+
+         */
+        TODO()
     }
 
     @PutMapping("labels")

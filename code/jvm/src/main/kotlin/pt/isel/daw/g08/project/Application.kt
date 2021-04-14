@@ -6,22 +6,18 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
-import pt.isel.daw.g08.project.dao.IssueDao
-import pt.isel.daw.g08.project.dao.StateDao
+import pt.isel.daw.g08.project.utils.EnvironmentInfo
 
 @ConfigurationPropertiesScan
 @SpringBootApplication
 class Application(private val configProperties: ConfigProperties) {
 	@Bean
-	fun getJdbi() : Jdbi {
-		val jdbi = Jdbi.create(configProperties.dbConnectionString)
-			.installPlugin(KotlinPlugin())
+	fun getJdbi() = Jdbi
+		.create(configProperties.dbConnectionString)
+		.installPlugin(KotlinPlugin())
 
-		jdbi
-			.registerRowMapper(IssueDao::class.java) { rs, ctx -> IssueDao.mapRow(rs, ctx, jdbi) }
-			.registerRowMapper(StateDao::class.java) { rs, ctx -> StateDao.mapRow(rs, ctx, jdbi) }
-		return jdbi
-	}
+	@Bean
+	fun getEnv() = EnvironmentInfo()
 }
 
 fun main(args: Array<String>) {
