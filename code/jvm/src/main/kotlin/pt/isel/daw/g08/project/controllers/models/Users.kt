@@ -3,36 +3,24 @@ package pt.isel.daw.g08.project.controllers.models
 import pt.isel.daw.g08.project.responses.siren.Siren
 import pt.isel.daw.g08.project.responses.siren.SirenClass.*
 
-class StateOutputModel(
+class UserOutputModel(
     id: Int,
     name: String,
-    isStartState: Boolean,
-    projectName: String,
-    authorName: String,
     selfUrl: String,
-    authorUrl: String,
-    projectUrl: String,
-    nextStatesUrl: String,
-    statesUrl: String,
+    usersUrl: String,
     isCollectionItem: Boolean = false
-) : Siren(selfUrl, state) {
+) : Siren(selfUrl, user) {
     init {
         super
             .addProperty("id", id)
             .addProperty("name", name)
-            .addProperty("isStartState", isStartState)
-            .addProperty("project", projectName)
-            .addProperty("author", authorName)
-            .addLink(authorUrl, false, "author")
-            .addLink(projectUrl, false, "project")
-            .addLink(nextStatesUrl, false, "nextStates")
-            .addLink(statesUrl, false, "states")
+            .addLink(usersUrl, false, "users")
 
         if (isCollectionItem) super.addRelation("item")
     }
 }
 
-class StatesOutputModel(
+class UsersOutputModel(
     collectionSize: Int,
     pageIndex: Int,
     pageSize: Int,
@@ -40,10 +28,10 @@ class StatesOutputModel(
     templateUrl: String,
     nextUrl: String,
     prevUrl: String,
-    states: List<StateOutputModel>,
-) : Siren(selfUrl, state, collection) {
+    users: List<UserOutputModel>,
+) : Siren(selfUrl, user, collection) {
     init {
-        states.forEach {
+        users.forEach {
             addEntity(it.getJsonProperties())
         }
         super
@@ -61,8 +49,3 @@ class StatesOutputModel(
         }
     }
 }
-
-data class StateInputModel(
-    val isStartState: Boolean?,
-    val nextStates: List<String>?,
-)

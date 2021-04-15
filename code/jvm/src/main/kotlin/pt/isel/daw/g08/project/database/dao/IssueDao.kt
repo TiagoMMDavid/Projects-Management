@@ -1,4 +1,4 @@
-package pt.isel.daw.g08.project.dao
+package pt.isel.daw.g08.project.database.dao
 
 import java.sql.Timestamp
 

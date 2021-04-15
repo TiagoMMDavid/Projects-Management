@@ -1,6 +1,7 @@
-package pt.isel.daw.g08.project.responses
+package pt.isel.daw.g08.project.responses.siren
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter
+import pt.isel.daw.g08.project.responses.Response
 
 abstract class Siren : Response {
 
@@ -13,9 +14,9 @@ abstract class Siren : Response {
         jsonProperties["rel"] = mutableListOf<String>()
         jsonProperties["properties"] = LinkedHashMap<String, Any>()
         jsonProperties["entities"] = mutableListOf<HashMap<String, Any>>()
-        jsonProperties["actions"] = mutableListOf<HashMap<String, Any>>()
+        jsonProperties["actions"] = mutableListOf<SirenAction>()
         jsonProperties["links"] = mutableListOf<HashMap<String, Any>>()
-        addLink(false, self, "self")
+        addLink(self, false, "self")
     }
 
     fun addRelation(rel: String): Siren {
@@ -44,11 +45,16 @@ abstract class Siren : Response {
         return this
     }
 
-    fun addAction() {
-        TODO()
+    fun addAction(action: SirenAction): Siren {
+        if (isFinal) throw IllegalStateException("Cannot add elements after getting JSON properties")
+
+        val actionList = jsonProperties["rel"] as MutableList<SirenAction>
+        actionList.add(action)
+
+        return this
     }
 
-    fun addLink(isTemplate: Boolean, href: String, vararg rels: String) : Siren {
+    fun addLink(href: String, isTemplate: Boolean, vararg rels: String): Siren {
         if (isFinal) throw IllegalStateException("Cannot add elements after getting JSON properties")
 
         val linksList = jsonProperties["links"] as MutableList<HashMap<String, Any>>
@@ -72,7 +78,7 @@ abstract class Siren : Response {
         if ((jsonProperties["rel"] as List<String>).isEmpty()) jsonProperties.remove("rel")
         if ((jsonProperties["properties"] as LinkedHashMap<String, Any>).isEmpty()) jsonProperties.remove("properties")
         if ((jsonProperties["entities"] as List<HashMap<String, Any>>).isEmpty()) jsonProperties.remove("entities")
-        if ((jsonProperties["actions"] as List<HashMap<String, Any>>).isEmpty()) jsonProperties.remove("actions")
+        if ((jsonProperties["actions"] as List<SirenAction>).isEmpty()) jsonProperties.remove("actions")
 
         return jsonProperties
     }

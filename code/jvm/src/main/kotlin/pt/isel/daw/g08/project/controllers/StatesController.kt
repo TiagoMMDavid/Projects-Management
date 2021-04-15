@@ -1,73 +1,120 @@
 package pt.isel.daw.g08.project.controllers
 
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import pt.isel.daw.g08.project.controllers.models.*
-
-private const val GET_ALL_STATES_QUERY = "SELECT sid, project, name, is_start FROM STATE WHERE project = :projectName"
-private const val GET_STATE_QUERY = "SELECT sid, project, name, is_start FROM STATE WHERE project = :projectName AND name = :stateName"
+import pt.isel.daw.g08.project.database.dbs.StatesDb
+import pt.isel.daw.g08.project.responses.Response
 
 @RestController
-@RequestMapping("${PROJECTS_HREF}/{projectName}/states")
-class StatesController : BaseController() {
+@RequestMapping("${PROJECTS_HREF}/{projectId}/states")
+class StatesController(val db: StatesDb) : BaseController() {
 
     @GetMapping
     fun getAllStates(
-        @PathVariable projectName: String,
-    ): StatesOutputModel {
-        /*
-        val states = jdbi.withHandle<List<StateDao>, Exception> {
-            it.createQuery(GET_ALL_STATES_QUERY)
-                .bind("projectName", projectName.urlDecode())
-                .mapTo(StateDao::class.java)
-                .list()
-        }
+        @PathVariable projectId: Int,
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "10") count: Int
+    ): ResponseEntity<Response> {
+        val states = db.getAllStates(page, count, projectId)
+        val collectionSize = db.getStatesCount(projectId)
 
-        return StatesOutputModel(
-            PROJECTS_HREF,
-            states.map {
-                StateOutputListModel(
-                    name = it.name,
-                    isStartState = it.isStart,
-                    nextStates = it.nextStates,
-                )
-            }
+        return createResponseEntity(
+            StatesOutputModel(
+                selfUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states?page=${page}&count=${count}",
+                prevUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states?page=${page - 1}&count=${count}",
+                nextUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states?page=${page + 1}&count=${count}",
+                templateUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states{?pageIndex,pageSize}",
+                collectionSize = collectionSize,
+                pageIndex = page,
+                pageSize = states.size,
+                states = states.map {
+                    StateOutputModel(
+                        id = it.sid,
+                        name = it.name,
+                        isStartState = it.is_start,
+                        projectName = it.project_name,
+                        authorName = it.author_name,
+                        selfUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states/${it.sid}",
+                        authorUrl = "${env.getBaseUrl()}/${USERS_HREF}/${it.author_id}",
+                        projectUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}",
+                        nextStatesUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states/${it.sid}/nextStates",
+                        statesUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states",
+                        isCollectionItem = true
+                    )
+                }),
+            200
         )
-
-         */
-        TODO()
     }
 
-    @GetMapping("{stateName}")
+    @GetMapping("{stateId}")
     fun getState(
-        @PathVariable projectName: String,
-        @PathVariable stateName: String,
-    ): StateOutputModel {
-        /*
-        val state = jdbi.withHandle<StateDao, Exception> {
-            it.createQuery(GET_STATE_QUERY)
-                .bind("projectName", projectName.urlDecode())
-                .bind("stateName", stateName.urlDecode())
-                .mapTo(StateDao::class.java)
-                .one()
-        }
+        @PathVariable projectId: Int,
+        @PathVariable stateId: Int,
+    ): ResponseEntity<Response> {
+        //TODO: Exceptions (404 when not found)
+        val state = db.getState(stateId)
 
-        return StateOutputModel(
-            name = state.name,
-            isStartState = state.isStart,
-            nextStates = state.nextStates,
-            statesUrl = "${PROJECTS_HREF}/${projectName}/states",
-            projectUrl = "${PROJECTS_HREF}/${projectName}",
+        return createResponseEntity(
+            StateOutputModel(
+                id = state.sid,
+                name = state.name,
+                isStartState = state.is_start,
+                projectName = state.project_name,
+                authorName = state.author_name,
+                selfUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states/${state.sid}",
+                authorUrl = "${env.getBaseUrl()}/${USERS_HREF}/${state.author_id}",
+                projectUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}",
+                nextStatesUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states/${state.sid}/nextStates",
+                statesUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states",
+            ),
+            200
         )
+    }
 
-         */
-        TODO()
+    @GetMapping("{stateId}/nextStates")
+    fun getNextStates(
+        @PathVariable projectId: Int,
+        @PathVariable stateId: Int,
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "10") count: Int
+    ): ResponseEntity<Response> {
+        val states = db.getNextStates(page, count, stateId)
+        val collectionSize = db.getNextStatesCount(stateId)
+
+        return createResponseEntity(
+            StatesOutputModel(
+                selfUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states?page=${page}&count=${count}",
+                prevUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states?page=${page - 1}&count=${count}",
+                nextUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states?page=${page + 1}&count=${count}",
+                templateUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states{?pageIndex,pageSize}",
+                collectionSize = collectionSize,
+                pageIndex = page,
+                pageSize = states.size,
+                states = states.map {
+                    StateOutputModel(
+                        id = it.sid,
+                        name = it.name,
+                        isStartState = it.is_start,
+                        projectName = it.project_name,
+                        authorName = it.author_name,
+                        selfUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states/${it.sid}",
+                        authorUrl = "${env.getBaseUrl()}/${USERS_HREF}/${it.author_id}",
+                        projectUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}",
+                        nextStatesUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states/${it.sid}/nextStates",
+                        statesUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states",
+                        isCollectionItem = true
+                    )
+                }),
+            200
+        )
     }
 
     @PutMapping
     fun createState(
         @PathVariable projectName: String,
         @RequestBody input: StateInputModel,
-    ): StateCreateOutputModel {
+    ): ResponseEntity<Any> {
         TODO()
     }
 
@@ -76,7 +123,7 @@ class StatesController : BaseController() {
         @PathVariable projectName: String,
         @PathVariable stateName: String,
         @RequestBody input: StateInputModel,
-    ): StateCreateOutputModel {
+    ): ResponseEntity<Any> {
         TODO()
     }
 
@@ -84,7 +131,7 @@ class StatesController : BaseController() {
     fun deleteState(
         @PathVariable projectName: String,
         @PathVariable stateName: String,
-    ): StateDeleteOutputModel {
+    ): ResponseEntity<Any> {
         TODO()
     }
 }

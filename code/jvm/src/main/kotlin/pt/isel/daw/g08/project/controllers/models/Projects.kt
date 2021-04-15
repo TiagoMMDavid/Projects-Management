@@ -1,35 +1,46 @@
 package pt.isel.daw.g08.project.controllers.models
 
-import pt.isel.daw.g08.project.responses.Siren
-import pt.isel.daw.g08.project.responses.SirenClass.collection
-import pt.isel.daw.g08.project.responses.SirenClass.project
+import pt.isel.daw.g08.project.responses.siren.Siren
+import pt.isel.daw.g08.project.responses.siren.SirenClass.collection
+import pt.isel.daw.g08.project.responses.siren.SirenClass.project
 
 class ProjectOutputModel(
     id: Int,
     name: String,
     description: String,
+    authorName: String,
     selfUrl: String,
     labelsUrl: String,
     issuesUrl: String,
     statesUrl: String,
+    authorUrl: String,
     projectsUrl: String,
+    isCollectionItem: Boolean = false
 ) : Siren(selfUrl, project) {
     init {
-        // TODO: Rel
         super
-            .addLink(false, labelsUrl, "labels")
-            .addLink(false, issuesUrl,"issues")
-            .addLink(false, statesUrl,"states")
-            .addLink(false, projectsUrl, "projects")
             .addProperty("id", id)
             .addProperty("name", name)
             .addProperty("description", description)
+            .addProperty("author", authorName)
+            .addLink(labelsUrl, false, "labels")
+            .addLink(issuesUrl, false, "issues")
+            .addLink(statesUrl, false, "states")
+            .addLink(authorUrl, false, "author")
+            .addLink(projectsUrl, false, "projects")
+
+        if (isCollectionItem) super.addRelation("item")
     }
 }
 
 class ProjectsOutputModel(
+    collectionSize: Int,
+    pageIndex: Int,
+    pageSize: Int,
     selfUrl: String,
-    totalProjects: Int,
+    templateUrl: String,
+    nextUrl: String,
+    prevUrl: String,
     projects: List<ProjectOutputModel>,
 ) : Siren(selfUrl, project, collection) {
 
@@ -38,7 +49,18 @@ class ProjectsOutputModel(
             addEntity(it.getJsonProperties())
         }
         super
-            .addProperty("totalProjects", totalProjects)
+            .addProperty("collectionSize", collectionSize)
+            .addProperty("pageIndex", pageIndex)
+            .addProperty("pageSize", pageSize)
+            .addLink(templateUrl, true, "page")
+
+        if (pageIndex > 0) {
+            super.addLink(prevUrl, false, "previous")
+        }
+
+        if (collectionSize != ((pageIndex + 1) * pageSize)) {
+            super.addLink(nextUrl, false, "next")
+        }
     }
 }
 
@@ -48,10 +70,6 @@ data class ProjectCreateInputModel(
 )
 
 data class ProjectEditInputModel(
+    val name: String,
     val description: String,
-)
-
-data class ProjectCreateOutputModel(
-    val status: String,             // Created or Modified
-    val projectDetails: String,     // URL to project
 )

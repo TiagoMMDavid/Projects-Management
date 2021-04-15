@@ -1,9 +1,8 @@
-package pt.isel.daw.g08.project.dao
+package pt.isel.daw.g08.project.database.dao
 
-data class StateDao(
-    val sid: Int,
+data class LabelDao(
+    val lid: Int,
     val name: String,
-    val is_start: Boolean,
 
     val project_id: Int,
     val project_name: String,

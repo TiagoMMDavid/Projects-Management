@@ -1,4 +1,4 @@
-package pt.isel.daw.g08.project.responses
+package pt.isel.daw.g08.project.responses.siren
 
 enum class SirenClass {
     project,
