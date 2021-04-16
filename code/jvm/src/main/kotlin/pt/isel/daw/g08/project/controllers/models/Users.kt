@@ -1,7 +1,8 @@
 package pt.isel.daw.g08.project.controllers.models
 
 import pt.isel.daw.g08.project.responses.siren.Siren
-import pt.isel.daw.g08.project.responses.siren.SirenClass.*
+import pt.isel.daw.g08.project.responses.siren.SirenClass.collection
+import pt.isel.daw.g08.project.responses.siren.SirenClass.user
 
 class UserOutputModel(
     id: Int,

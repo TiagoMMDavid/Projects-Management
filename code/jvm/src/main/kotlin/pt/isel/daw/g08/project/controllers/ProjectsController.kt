@@ -2,8 +2,11 @@ package pt.isel.daw.g08.project.controllers
 
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import pt.isel.daw.g08.project.controllers.models.*
-import pt.isel.daw.g08.project.database.dbs.ProjectsDb
+import pt.isel.daw.g08.project.controllers.models.ProjectCreateInputModel
+import pt.isel.daw.g08.project.controllers.models.ProjectEditInputModel
+import pt.isel.daw.g08.project.controllers.models.ProjectOutputModel
+import pt.isel.daw.g08.project.controllers.models.ProjectsOutputModel
+import pt.isel.daw.g08.project.database.helpers.ProjectsDb
 import pt.isel.daw.g08.project.responses.Response
 
 @RestController
@@ -12,21 +15,21 @@ class ProjectsController(val db: ProjectsDb) : BaseController() {
 
     @GetMapping
     fun getAllProjects(
-        @RequestParam(defaultValue = "0") page: Int,
-        @RequestParam(defaultValue = "10") count: Int
+        @RequestParam(defaultValue = PAGE_DEFAULT_VALUE) page: Int,
+        @RequestParam(defaultValue = COUNT_DEFAULT_VALUE) count: Int
     ): ResponseEntity<Response> {
         val projects = db.getAllProjects(page, count)
         val collectionSize = db.getProjectsCount()
 
         return createResponseEntity(
             ProjectsOutputModel(
+                collectionSize = collectionSize,
+                pageIndex = page,
+                pageSize = projects.size,
                 selfUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}?page=${page}&count=${count}",
                 prevUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}?page=${page - 1}&count=${count}",
                 nextUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}?page=${page + 1}&count=${count}",
                 templateUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}{?pageIndex,pageSize}",
-                collectionSize = collectionSize,
-                pageIndex = page,
-                pageSize = projects.size,
                 projects = projects.map {
                     ProjectOutputModel(
                         id = it.pid,
@@ -51,7 +54,7 @@ class ProjectsController(val db: ProjectsDb) : BaseController() {
         @PathVariable projectId: Int,
     ): ResponseEntity<Response> {
         //TODO: Exceptions (404 when not found)
-        val project = db.getProject(projectId)
+        val project = db.getProjectById(projectId)
 
         return createResponseEntity(
             ProjectOutputModel(

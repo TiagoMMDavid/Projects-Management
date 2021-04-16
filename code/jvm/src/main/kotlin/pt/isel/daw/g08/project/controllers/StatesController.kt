@@ -2,8 +2,10 @@ package pt.isel.daw.g08.project.controllers
 
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import pt.isel.daw.g08.project.controllers.models.*
-import pt.isel.daw.g08.project.database.dbs.StatesDb
+import pt.isel.daw.g08.project.controllers.models.StateInputModel
+import pt.isel.daw.g08.project.controllers.models.StateOutputModel
+import pt.isel.daw.g08.project.controllers.models.StatesOutputModel
+import pt.isel.daw.g08.project.database.helpers.StatesDb
 import pt.isel.daw.g08.project.responses.Response
 
 @RestController
@@ -13,21 +15,21 @@ class StatesController(val db: StatesDb) : BaseController() {
     @GetMapping
     fun getAllStates(
         @PathVariable projectId: Int,
-        @RequestParam(defaultValue = "0") page: Int,
-        @RequestParam(defaultValue = "10") count: Int
+        @RequestParam(defaultValue = PAGE_DEFAULT_VALUE) page: Int,
+        @RequestParam(defaultValue = COUNT_DEFAULT_VALUE) count: Int
     ): ResponseEntity<Response> {
-        val states = db.getAllStates(page, count, projectId)
+        val states = db.getAllStatesFromProject(page, count, projectId)
         val collectionSize = db.getStatesCount(projectId)
 
         return createResponseEntity(
             StatesOutputModel(
+                collectionSize = collectionSize,
+                pageIndex = page,
+                pageSize = states.size,
                 selfUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states?page=${page}&count=${count}",
                 prevUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states?page=${page - 1}&count=${count}",
                 nextUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states?page=${page + 1}&count=${count}",
                 templateUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states{?pageIndex,pageSize}",
-                collectionSize = collectionSize,
-                pageIndex = page,
-                pageSize = states.size,
                 states = states.map {
                     StateOutputModel(
                         id = it.sid,
@@ -53,7 +55,7 @@ class StatesController(val db: StatesDb) : BaseController() {
         @PathVariable stateId: Int,
     ): ResponseEntity<Response> {
         //TODO: Exceptions (404 when not found)
-        val state = db.getState(stateId)
+        val state = db.getStateById(stateId)
 
         return createResponseEntity(
             StateOutputModel(

@@ -1,4 +1,4 @@
-package pt.isel.daw.g08.project.database.dbs
+package pt.isel.daw.g08.project.database.helpers
 
 import org.springframework.stereotype.Component
 import pt.isel.daw.g08.project.database.dao.StateDao
@@ -14,11 +14,11 @@ private const val GET_NEXT_STATES_COUNT = "SELECT COUNT(to_sid) as count FROM ST
 
 @Component
 class StatesDb : DatabaseHelper() {
-    fun getAllStates(page: Int, perPage: Int, projectId: Int) =
+    fun getAllStatesFromProject(page: Int, perPage: Int, projectId: Int) =
         boundedGetList(page, perPage, GET_STATES_FROM_PROJECT_QUERY, "pid", projectId, StateDao::class.java)
 
     fun getStatesCount(projectId: Int) = boundedGetOne("pid", projectId, GET_STATES_COUNT, Int::class.java)
-    fun getState(stateId: Int) = boundedGetOne("sid", stateId, GET_STATE_QUERY, StateDao::class.java)
+    fun getStateById(stateId: Int) = boundedGetOne("sid", stateId, GET_STATE_QUERY, StateDao::class.java)
 
 
     fun getNextStates(page: Int, perPage: Int, stateId: Int) =

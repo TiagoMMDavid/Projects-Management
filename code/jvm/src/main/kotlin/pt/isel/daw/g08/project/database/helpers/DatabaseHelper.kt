@@ -1,4 +1,4 @@
-package pt.isel.daw.g08.project.database.dbs
+package pt.isel.daw.g08.project.database.helpers
 
 import org.jdbi.v3.core.Jdbi
 import org.springframework.beans.factory.annotation.Autowired

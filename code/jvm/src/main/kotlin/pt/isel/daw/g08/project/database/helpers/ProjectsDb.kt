@@ -1,4 +1,4 @@
-package pt.isel.daw.g08.project.database.dbs
+package pt.isel.daw.g08.project.database.helpers
 
 import org.springframework.stereotype.Component
 import pt.isel.daw.g08.project.database.dao.ProjectDao
@@ -11,5 +11,5 @@ private const val GET_PROJECT_QUERY = "$GET_ALL_PROJECTS_QUERY WHERE pid = :pid"
 class ProjectsDb : DatabaseHelper() {
     fun getAllProjects(page: Int, perPage: Int) = getList(page, perPage, GET_ALL_PROJECTS_QUERY, ProjectDao::class.java)
     fun getProjectsCount(): Int = getOne(GET_PROJECTS_COUNT, Int::class.java)
-    fun getProject(projectId: Int): ProjectDao = boundedGetOne("pid", projectId, GET_PROJECT_QUERY, ProjectDao::class.java)
+    fun getProjectById(projectId: Int): ProjectDao = boundedGetOne("pid", projectId, GET_PROJECT_QUERY, ProjectDao::class.java)
 }

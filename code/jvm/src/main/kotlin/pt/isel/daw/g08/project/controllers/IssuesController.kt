@@ -1,82 +1,102 @@
 package pt.isel.daw.g08.project.controllers
 
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import pt.isel.daw.g08.project.controllers.models.*
-
-private const val GET_ALL_ISSUES_QUERY = "SELECT iid, state, project, name, description, create_date, close_date FROM ISSUE WHERE project = :projectName"
-private const val GET_ISSUE_QUERY = "SELECT iid, state, project, name, description, create_date, close_date FROM ISSUE WHERE iid = :iid"
+import pt.isel.daw.g08.project.controllers.models.IssueCreateInputModel
+import pt.isel.daw.g08.project.controllers.models.IssueEditInputModel
+import pt.isel.daw.g08.project.controllers.models.IssueOutputModel
+import pt.isel.daw.g08.project.controllers.models.IssuesOutputModel
+import pt.isel.daw.g08.project.database.helpers.IssuesDb
+import pt.isel.daw.g08.project.responses.Response
 
 @RestController
-@RequestMapping("${PROJECTS_HREF}/{projectName}/issues")
-class IssuesController : BaseController() {
+@RequestMapping("${PROJECTS_HREF}/{projectId}/issues")
+class IssuesController(val db: IssuesDb) : BaseController() {
 
     @GetMapping
     fun getAllIssues(
-        @PathVariable projectName: String,
-    ): IssuesOutputModel {
-        /*
-        val issues = jdbi.withHandle<List<IssueDao>, Exception> {
-            it.createQuery(GET_ALL_ISSUES_QUERY)
-                .bind("projectName", projectName.urlDecode())
-                .mapTo(IssueDao::class.java)
-                .list()
-        }
+        @PathVariable projectId: Int,
+        @RequestParam(defaultValue = PAGE_DEFAULT_VALUE) page: Int,
+        @RequestParam(defaultValue = COUNT_DEFAULT_VALUE) count: Int
+    ): ResponseEntity<Response> {
+        val issues = db.getAllIssuesFromProject(page, count, projectId)
+        val collectionSize = db.getIssuesCount(projectId)
 
-        return IssuesOutputModel(issues.map {
-            IssueOutputModel(
-                id = it.iid,
-                name = it.name,
-                description = it.description,
-                project = it.project,
-                state = it.state,
-                creationDate = it.createDate,
-                closeDate = it.closeDate,
-            )
-        })
-         */
-        TODO()
+        return createResponseEntity(
+            IssuesOutputModel(
+                collectionSize = collectionSize,
+                pageIndex = page,
+                pageSize = issues.size,
+                selfUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/issues?page=${page}&count=${count}",
+                prevUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/issues?page=${page - 1}&count=${count}",
+                nextUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/issues?page=${page + 1}&count=${count}",
+                templateUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/issues{?pageIndex,pageSize}",
+                issues = issues.map {
+                    IssueOutputModel(
+                        id = it.iid,
+                        name = it.name,
+                        description = it.description,
+                        createDate = it.create_date,
+                        closeDate = it.close_date,
+                        stateName = it.state_name,
+                        projectName = it.project_name,
+                        authorName = it.author_name,
+                        selfUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/issues/${it.iid}",
+                        stateUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states/${it.state_id}",
+                        commentsUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/issues/${it.iid}/comments",
+                        authorUrl = "${env.getBaseUrl()}/${USERS_HREF}/${it.author_id}",
+                        projectUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}",
+                        issuesUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/issues",
+                        isCollectionItem = true
+                    )
+                }),
+            200
+        )
     }
 
     @GetMapping("{issueId}")
     fun getIssue(
-        @PathVariable projectName: String,
+        @PathVariable projectId: Int,
         @PathVariable issueId: Int,
-    ): IssueOutputModel {
-        /*
-        val issue = jdbi.withHandle<IssueDao, Exception> {
-            it.createQuery(GET_ISSUE_QUERY)
-                .bind("iid", issueId)
-                .mapTo(IssueDao::class.java)
-                .one()
-        }
+    ): ResponseEntity<Response> {
+        //TODO: Exceptions (404 when not found)
+        val issue = db.getIssueById(issueId)
 
-        return IssueOutputModel(
-            id = issue.iid,
-            name = issue.name,
-            description = issue.description,
-            project = issue.project,
-            state = issue.state,
-            creationDate = issue.createDate,
-            closeDate = issue.closeDate,
+        return createResponseEntity(
+            IssueOutputModel(
+                id = issue.iid,
+                name = issue.name,
+                description = issue.description,
+                createDate = issue.create_date,
+                closeDate = issue.close_date,
+                stateName = issue.state_name,
+                projectName = issue.project_name,
+                authorName = issue.author_name,
+                selfUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/issues/${issue.iid}",
+                stateUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states/${issue.state_id}",
+                commentsUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/issues/${issue.iid}/comments",
+                authorUrl = "${env.getBaseUrl()}/${USERS_HREF}/${issue.author_id}",
+                projectUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}",
+                issuesUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/issues"
+            ),
+            200
         )
-        */
-        TODO()
     }
 
     @PostMapping
     fun createIssue(
-        @PathVariable projectName: String,
+        @PathVariable projectId: Int,
         @RequestBody input: IssueCreateInputModel,
-    ): IssueCreateResponseModel {
+    ): ResponseEntity<Response> {
         TODO()
     }
 
     @PutMapping("{issueId}")
     fun editIssue(
-        @PathVariable projectName: String,
+        @PathVariable projectId: Int,
         @PathVariable issueId: Int,
         @RequestBody input: IssueEditInputModel,
-    ): IssueEditResponseModel {
+    ): ResponseEntity<Response> {
         TODO()
     }
 }

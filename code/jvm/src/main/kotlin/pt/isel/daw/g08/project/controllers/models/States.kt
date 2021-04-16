@@ -1,7 +1,8 @@
 package pt.isel.daw.g08.project.controllers.models
 
 import pt.isel.daw.g08.project.responses.siren.Siren
-import pt.isel.daw.g08.project.responses.siren.SirenClass.*
+import pt.isel.daw.g08.project.responses.siren.SirenClass.collection
+import pt.isel.daw.g08.project.responses.siren.SirenClass.state
 
 class StateOutputModel(
     id: Int,
@@ -23,9 +24,9 @@ class StateOutputModel(
             .addProperty("isStartState", isStartState)
             .addProperty("project", projectName)
             .addProperty("author", authorName)
-            .addLink(authorUrl, false, "author")
-            .addLink(projectUrl, false, "project")
             .addLink(nextStatesUrl, false, "nextStates")
+            .addLink(projectUrl, false, "project")
+            .addLink(authorUrl, false, "author")
             .addLink(statesUrl, false, "states")
 
         if (isCollectionItem) super.addRelation("item")

@@ -4,7 +4,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import pt.isel.daw.g08.project.controllers.models.UserOutputModel
 import pt.isel.daw.g08.project.controllers.models.UsersOutputModel
-import pt.isel.daw.g08.project.database.dbs.UsersDb
+import pt.isel.daw.g08.project.database.helpers.UsersDb
 import pt.isel.daw.g08.project.responses.Response
 
 @RestController
@@ -13,21 +13,21 @@ class UsersController(val db: UsersDb) : BaseController() {
 
     @GetMapping
     fun getAllUsers(
-        @RequestParam(defaultValue = "0") page: Int,
-        @RequestParam(defaultValue = "10") count: Int
+        @RequestParam(defaultValue = PAGE_DEFAULT_VALUE) page: Int,
+        @RequestParam(defaultValue = COUNT_DEFAULT_VALUE) count: Int
     ): ResponseEntity<Response> {
         val users = db.getAllUsers(page, count)
         val collectionSize = db.getUsersCount()
 
         return createResponseEntity(
             UsersOutputModel(
+                collectionSize = collectionSize,
+                pageIndex = page,
+                pageSize = users.size,
                 selfUrl = "${env.getBaseUrl()}/${USERS_HREF}?page=${page}&count=${count}",
                 prevUrl = "${env.getBaseUrl()}/${USERS_HREF}?page=${page - 1}&count=${count}",
                 nextUrl = "${env.getBaseUrl()}/${USERS_HREF}?page=${page + 1}&count=${count}",
                 templateUrl = "${env.getBaseUrl()}/${USERS_HREF}{?pageIndex,pageSize}",
-                collectionSize = collectionSize,
-                pageIndex = page,
-                pageSize = users.size,
                 users = users.map {
                     UserOutputModel(
                         id = it.uid,
@@ -46,7 +46,7 @@ class UsersController(val db: UsersDb) : BaseController() {
         @PathVariable userId: Int,
     ): ResponseEntity<Response> {
         //TODO: Exceptions (404 when not found)
-        val user = db.getUser(userId)
+        val user = db.getUserById(userId)
 
         return createResponseEntity(
             UserOutputModel(
