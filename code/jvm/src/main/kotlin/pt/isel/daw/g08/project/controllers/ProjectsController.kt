@@ -1,5 +1,6 @@
 package pt.isel.daw.g08.project.controllers
 
+import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import pt.isel.daw.g08.project.controllers.models.ProjectCreateInputModel
@@ -8,6 +9,12 @@ import pt.isel.daw.g08.project.controllers.models.ProjectOutputModel
 import pt.isel.daw.g08.project.controllers.models.ProjectsOutputModel
 import pt.isel.daw.g08.project.database.helpers.ProjectsDb
 import pt.isel.daw.g08.project.responses.Response
+import pt.isel.daw.g08.project.responses.siren.SirenAction
+import pt.isel.daw.g08.project.responses.siren.SirenActionField
+import pt.isel.daw.g08.project.responses.siren.SirenFieldType.hidden
+import pt.isel.daw.g08.project.responses.siren.SirenFieldType.text
+import pt.isel.daw.g08.project.responses.siren.SirenLink
+import java.net.URI
 
 @RestController
 @RequestMapping(PROJECTS_HREF)
@@ -18,33 +25,51 @@ class ProjectsController(val db: ProjectsDb) : BaseController() {
         @RequestParam(defaultValue = PAGE_DEFAULT_VALUE) page: Int,
         @RequestParam(defaultValue = COUNT_DEFAULT_VALUE) count: Int
     ): ResponseEntity<Response> {
-        val projects = db.getAllProjects(page, count)
+        val projectsDao = db.getAllProjects(page, count)
         val collectionSize = db.getProjectsCount()
+        val projects = ProjectsOutputModel(
+            collectionSize = collectionSize,
+            pageIndex = page,
+            pageSize = projectsDao.size
+        )
+
+        val baseUri = "${env.getBaseUrl()}/${PROJECTS_HREF}"
 
         return createResponseEntity(
-            ProjectsOutputModel(
-                collectionSize = collectionSize,
-                pageIndex = page,
-                pageSize = projects.size,
-                selfUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}?page=${page}&count=${count}",
-                prevUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}?page=${page - 1}&count=${count}",
-                nextUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}?page=${page + 1}&count=${count}",
-                templateUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}{?pageIndex,pageSize}",
-                projects = projects.map {
+            projects.toSirenObject(
+                entities = projectsDao.map { projectDao ->
                     ProjectOutputModel(
-                        id = it.pid,
-                        name = it.name,
-                        description = it.description,
-                        authorName = it.author_name,
-                        selfUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${it.pid}",
-                        labelsUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${it.pid}/labels",
-                        issuesUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${it.pid}/issues",
-                        statesUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${it.pid}/states",
-                        authorUrl = "${env.getBaseUrl()}/${USERS_HREF}/${it.author_id}",
-                        projectsUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}",
-                        isCollectionItem = true
+                        id = projectDao.pid,
+                        name = projectDao.name,
+                        description = projectDao.description,
+                        author = projectDao.author_name
+                    ).toSirenObject(
+                        rel = listOf("item"),
+                        links = listOf(
+                            SirenLink(rel = listOf("self"), href = URI("${baseUri}/${projectDao.pid}")),
+                            SirenLink(rel = listOf("labels"), href = URI("${baseUri}/${projectDao.pid}/labels")),
+                            SirenLink(rel = listOf("issues"), href = URI("${baseUri}/${projectDao.pid}/issues")),
+                            SirenLink(rel = listOf("states"), href = URI("${baseUri}/${projectDao.pid}/states")),
+                            SirenLink(rel = listOf("author"), href = URI("${env.getBaseUrl()}/${USERS_HREF}/${projectDao.author_id}")),
+                            SirenLink(rel = listOf("projects"), href = URI(baseUri))
+                        ),
                     )
-            }),
+                },
+                actions = listOf(
+                    SirenAction(
+                        name = "create-project",
+                        title = "Create Project",
+                        method = HttpMethod.PUT,
+                        href = URI(baseUri),
+                        type = INPUT_CONTENT_TYPE,
+                        fields = listOf(
+                            SirenActionField(name = "name", type = text),
+                            SirenActionField(name = "description", type = text)
+                        )
+                    )
+                ),
+                links = createUriListForPagination(baseUri, page, projects.pageSize, count, collectionSize)
+            ),
             200
         )
     }
@@ -54,20 +79,49 @@ class ProjectsController(val db: ProjectsDb) : BaseController() {
         @PathVariable projectId: Int,
     ): ResponseEntity<Response> {
         //TODO: Exceptions (404 when not found)
-        val project = db.getProjectById(projectId)
+        val projectDao = db.getProjectById(projectId)
+        val project = ProjectOutputModel(
+            id = projectDao.pid,
+            name = projectDao.name,
+            description = projectDao.description,
+            author = projectDao.author_name
+        )
+        val selfUri = URI("${env.getBaseUrl()}/${PROJECTS_HREF}/${project.id}")
+        val baseUri = "${env.getBaseUrl()}/${PROJECTS_HREF}"
 
         return createResponseEntity(
-            ProjectOutputModel(
-                id = project.pid,
-                name = project.name,
-                description = project.description,
-                authorName = project.author_name,
-                selfUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${project.pid}",
-                labelsUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${project.pid}/labels",
-                issuesUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${project.pid}/issues",
-                statesUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${project.pid}/states",
-                authorUrl = "${env.getBaseUrl()}/${USERS_HREF}/${project.author_id}",
-                projectsUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}"
+            project.toSirenObject(
+                actions = listOf(
+                    SirenAction(
+                        name = "edit-project",
+                        title = "Edit Project",
+                        method = HttpMethod.PUT,
+                        href = selfUri,
+                        type = INPUT_CONTENT_TYPE,
+                        fields = listOf(
+                            SirenActionField(name = "projectId", type = hidden, value = project.id),
+                            SirenActionField(name = "name", type = text),
+                            SirenActionField(name = "description", type = text),
+                        )
+                    ),
+                    SirenAction(
+                        name = "delete-project",
+                        title = "Delete Project",
+                        method = HttpMethod.DELETE,
+                        href = selfUri,
+                        fields = listOf(
+                            SirenActionField(name = "projectId", type = hidden, value = project.id),
+                        )
+                    )
+                ),
+                links = listOf(
+                    SirenLink(rel = listOf("self"), href = selfUri),
+                    SirenLink(rel = listOf("labels"), href = URI("${baseUri}/${project.id}/labels")),
+                    SirenLink(rel = listOf("issues"), href = URI("${baseUri}/${project.id}/states")),
+                    SirenLink(rel = listOf("states"), href = URI("${baseUri}/${project.id}/issues")),
+                    SirenLink(rel = listOf("author"), href = URI("${env.getBaseUrl()}/${USERS_HREF}/${projectDao.author_id}")),
+                    SirenLink(rel = listOf("projects"), href = URI(baseUri))
+                ),
             ),
             200
         )
@@ -82,7 +136,7 @@ class ProjectsController(val db: ProjectsDb) : BaseController() {
 
     @PutMapping("{projectId}")
     fun editProject(
-        @PathVariable projectName: String,
+        @PathVariable projectId: String,
         @RequestBody input: ProjectEditInputModel,
     ): ResponseEntity<Any> {
         TODO()
