@@ -1,5 +1,6 @@
 package pt.isel.daw.g08.project.controllers
 
+import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import pt.isel.daw.g08.project.controllers.models.IssueCreateInputModel
@@ -8,6 +9,11 @@ import pt.isel.daw.g08.project.controllers.models.IssueOutputModel
 import pt.isel.daw.g08.project.controllers.models.IssuesOutputModel
 import pt.isel.daw.g08.project.database.helpers.IssuesDb
 import pt.isel.daw.g08.project.responses.Response
+import pt.isel.daw.g08.project.responses.siren.SirenAction
+import pt.isel.daw.g08.project.responses.siren.SirenActionField
+import pt.isel.daw.g08.project.responses.siren.SirenFieldType
+import pt.isel.daw.g08.project.responses.siren.SirenLink
+import java.net.URI
 
 @RestController
 @RequestMapping("${PROJECTS_HREF}/{projectId}/issues")
@@ -19,37 +25,56 @@ class IssuesController(val db: IssuesDb) : BaseController() {
         @RequestParam(defaultValue = PAGE_DEFAULT_VALUE) page: Int,
         @RequestParam(defaultValue = COUNT_DEFAULT_VALUE) count: Int
     ): ResponseEntity<Response> {
-        val issues = db.getAllIssuesFromProject(page, count, projectId)
+        val issuesDao = db.getAllIssuesFromProject(page, count, projectId)
         val collectionSize = db.getIssuesCount(projectId)
+        val issues = IssuesOutputModel(
+            collectionSize = collectionSize,
+            pageIndex = page,
+            pageSize = issuesDao.size,
+        )
+        val issuesUri = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/issues"
 
         return createResponseEntity(
-            IssuesOutputModel(
-                collectionSize = collectionSize,
-                pageIndex = page,
-                pageSize = issues.size,
-                selfUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/issues?page=${page}&count=${count}",
-                prevUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/issues?page=${page - 1}&count=${count}",
-                nextUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/issues?page=${page + 1}&count=${count}",
-                templateUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/issues{?pageIndex,pageSize}",
-                issues = issues.map {
+            issues.toSirenObject(
+                entities = issuesDao.map {
                     IssueOutputModel(
                         id = it.iid,
                         name = it.name,
                         description = it.description,
                         createDate = it.create_date,
                         closeDate = it.close_date,
-                        stateName = it.state_name,
-                        projectName = it.project_name,
-                        authorName = it.author_name,
-                        selfUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/issues/${it.iid}",
-                        stateUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states/${it.state_id}",
-                        commentsUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/issues/${it.iid}/comments",
-                        authorUrl = "${env.getBaseUrl()}/${USERS_HREF}/${it.author_id}",
-                        projectUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}",
-                        issuesUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/issues",
-                        isCollectionItem = true
+                        state = it.state_name,
+                        project = it.project_name,
+                        author = it.author_name,
+                    ).toSirenObject(
+                        rel = listOf("item"),
+                        links = listOf(
+                            SirenLink(listOf("self"), URI("${issuesUri}/${it.iid}")),
+                            SirenLink(listOf("state"), URI("${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states/${it.state_id}")),
+                            SirenLink(listOf("comments"), URI("${issuesUri}/${it.iid}/comments")),
+                            SirenLink(listOf("labels"), URI("${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/issues/${it.iid}/labels")),
+                            SirenLink(listOf("author"), URI("${env.getBaseUrl()}/${USERS_HREF}/${it.author_id}")),
+                            SirenLink(listOf("project"), URI("${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}")),
+                            SirenLink(listOf("issues"), URI(issuesUri)),
+                        )
                     )
-                }),
+                },
+                actions = listOf(
+                    SirenAction(
+                        name = "create-issue",
+                        title = "Create Issue",
+                        method = HttpMethod.PUT,
+                        href = URI(issuesUri),
+                        type = INPUT_CONTENT_TYPE,
+                        fields = listOf(
+                            SirenActionField(name = "projectId", type = SirenFieldType.hidden, value = projectId),
+                            SirenActionField(name = "name", type = SirenFieldType.text),
+                            SirenActionField(name = "description", type = SirenFieldType.text)
+                        )
+                    )
+                ),
+                links = createUriListForPagination(issuesUri, page, issues.pageSize, count, issues.collectionSize)
+            ),
             200
         )
     }
@@ -60,24 +85,57 @@ class IssuesController(val db: IssuesDb) : BaseController() {
         @PathVariable issueId: Int,
     ): ResponseEntity<Response> {
         //TODO: Exceptions (404 when not found)
-        val issue = db.getIssueById(issueId)
+        val issueDao = db.getIssueById(issueId)
+        val issue = IssueOutputModel(
+            id = issueDao.iid,
+            name = issueDao.name,
+            description = issueDao.description,
+            createDate = issueDao.create_date,
+            closeDate = issueDao.close_date,
+            state = issueDao.state_name,
+            project = issueDao.project_name,
+            author = issueDao.author_name,
+        )
+
+        val selfUri = URI("${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/issues/${issue.id}")
 
         return createResponseEntity(
-            IssueOutputModel(
-                id = issue.iid,
-                name = issue.name,
-                description = issue.description,
-                createDate = issue.create_date,
-                closeDate = issue.close_date,
-                stateName = issue.state_name,
-                projectName = issue.project_name,
-                authorName = issue.author_name,
-                selfUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/issues/${issue.iid}",
-                stateUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states/${issue.state_id}",
-                commentsUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/issues/${issue.iid}/comments",
-                authorUrl = "${env.getBaseUrl()}/${USERS_HREF}/${issue.author_id}",
-                projectUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}",
-                issuesUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/issues"
+            issue.toSirenObject(
+                actions = listOf(
+                    SirenAction(
+                        name = "edit-issue",
+                        title = "Edit Issue",
+                        method = HttpMethod.PUT,
+                        href = selfUri,
+                        type = INPUT_CONTENT_TYPE,
+                        fields = listOf(
+                            SirenActionField(name = "projectId", type = SirenFieldType.hidden, value = projectId),
+                            SirenActionField(name = "issueId", type = SirenFieldType.hidden, value = issue.id),
+                            SirenActionField(name = "name", type = SirenFieldType.text),
+                            SirenActionField(name = "description", type = SirenFieldType.text),
+                            SirenActionField(name = "state", type = SirenFieldType.text),
+                        )
+                    ),
+                    SirenAction(
+                        name = "delete-issue",
+                        title = "Delete Issue",
+                        method = HttpMethod.DELETE,
+                        href = selfUri,
+                        fields = listOf(
+                            SirenActionField(name = "projectId", type = SirenFieldType.hidden, value = projectId),
+                            SirenActionField(name = "issueId", type = SirenFieldType.hidden, value = issue.id),
+                        )
+                    )
+                ),
+                links = listOf(
+                    SirenLink(listOf("self"), selfUri),
+                    SirenLink(listOf("state"), URI("${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states/${issueDao.state_id}")),
+                    SirenLink(listOf("comments"), URI("${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/issues/${issue.id}/comments")),
+                    SirenLink(listOf("labels"), URI("${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/issues/${issue.id}/labels")),
+                    SirenLink(listOf("author"), URI("${env.getBaseUrl()}/${USERS_HREF}/${issueDao.author_id}")),
+                    SirenLink(listOf("project"), URI("${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}")),
+                    SirenLink(listOf("issues"), URI("${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/issues")),
+                )
             ),
             200
         )
