@@ -33,7 +33,7 @@ class ProjectsController(val db: ProjectsDb) : BaseController() {
             pageSize = projectsDao.size
         )
 
-        val baseUri = "${env.getBaseUrl()}/${PROJECTS_HREF}"
+        val projectsUri = "${env.getBaseUrl()}/${PROJECTS_HREF}"
 
         return createResponseEntity(
             projects.toSirenObject(
@@ -46,12 +46,12 @@ class ProjectsController(val db: ProjectsDb) : BaseController() {
                     ).toSirenObject(
                         rel = listOf("item"),
                         links = listOf(
-                            SirenLink(rel = listOf("self"), href = URI("${baseUri}/${projectDao.pid}")),
-                            SirenLink(rel = listOf("labels"), href = URI("${baseUri}/${projectDao.pid}/labels")),
-                            SirenLink(rel = listOf("issues"), href = URI("${baseUri}/${projectDao.pid}/issues")),
-                            SirenLink(rel = listOf("states"), href = URI("${baseUri}/${projectDao.pid}/states")),
+                            SirenLink(rel = listOf("self"), href = URI("${projectsUri}/${projectDao.pid}")),
+                            SirenLink(rel = listOf("labels"), href = URI("${projectsUri}/${projectDao.pid}/labels")),
+                            SirenLink(rel = listOf("issues"), href = URI("${projectsUri}/${projectDao.pid}/issues")),
+                            SirenLink(rel = listOf("states"), href = URI("${projectsUri}/${projectDao.pid}/states")),
                             SirenLink(rel = listOf("author"), href = URI("${env.getBaseUrl()}/${USERS_HREF}/${projectDao.author_id}")),
-                            SirenLink(rel = listOf("projects"), href = URI(baseUri))
+                            SirenLink(rel = listOf("projects"), href = URI(projectsUri))
                         ),
                     )
                 },
@@ -60,7 +60,7 @@ class ProjectsController(val db: ProjectsDb) : BaseController() {
                         name = "create-project",
                         title = "Create Project",
                         method = HttpMethod.PUT,
-                        href = URI(baseUri),
+                        href = URI(projectsUri),
                         type = INPUT_CONTENT_TYPE,
                         fields = listOf(
                             SirenActionField(name = "name", type = text),
@@ -68,7 +68,7 @@ class ProjectsController(val db: ProjectsDb) : BaseController() {
                         )
                     )
                 ),
-                links = createUriListForPagination(baseUri, page, projects.pageSize, count, collectionSize)
+                links = createUriListForPagination(projectsUri, page, projects.pageSize, count, collectionSize)
             ),
             200
         )
