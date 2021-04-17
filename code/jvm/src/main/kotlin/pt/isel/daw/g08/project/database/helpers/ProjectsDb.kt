@@ -3,9 +3,10 @@ package pt.isel.daw.g08.project.database.helpers
 import org.springframework.stereotype.Component
 import pt.isel.daw.g08.project.database.dao.ProjectDao
 
-private const val GET_ALL_PROJECTS_QUERY = "SELECT pid, name, description, author_id, author_name FROM V_PROJECT"
+private const val GET_PROJECTS_BASE = "SELECT pid, name, description, author_id, author_name FROM V_PROJECT"
+private const val GET_ALL_PROJECTS_QUERY = "$GET_PROJECTS_BASE ORDER BY pid"
 private const val GET_PROJECTS_COUNT = "SELECT COUNT(pid) as count FROM PROJECT"
-private const val GET_PROJECT_QUERY = "$GET_ALL_PROJECTS_QUERY WHERE pid = :pid"
+private const val GET_PROJECT_QUERY = "$GET_PROJECTS_BASE WHERE pid = :pid"
 
 @Component
 class ProjectsDb : DatabaseHelper() {

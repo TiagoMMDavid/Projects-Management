@@ -2,7 +2,14 @@ package pt.isel.daw.g08.project.controllers
 
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 import pt.isel.daw.g08.project.controllers.models.StateInputModel
 import pt.isel.daw.g08.project.controllers.models.StateOutputModel
 import pt.isel.daw.g08.project.controllers.models.StatesOutputModel
@@ -10,7 +17,10 @@ import pt.isel.daw.g08.project.database.helpers.StatesDb
 import pt.isel.daw.g08.project.responses.Response
 import pt.isel.daw.g08.project.responses.siren.SirenAction
 import pt.isel.daw.g08.project.responses.siren.SirenActionField
-import pt.isel.daw.g08.project.responses.siren.SirenFieldType.*
+import pt.isel.daw.g08.project.responses.siren.SirenFieldType.checkbox
+import pt.isel.daw.g08.project.responses.siren.SirenFieldType.hidden
+import pt.isel.daw.g08.project.responses.siren.SirenFieldType.number
+import pt.isel.daw.g08.project.responses.siren.SirenFieldType.text
 import pt.isel.daw.g08.project.responses.siren.SirenLink
 import java.net.URI
 
@@ -41,7 +51,7 @@ class StatesController(val db: StatesDb) : BaseController() {
                        id = stateDao.sid,
                        name = stateDao.name,
                        isStartState = stateDao.is_start,
-                       projectName = stateDao.project_name,
+                       project = stateDao.project_name,
                        author = stateDao.author_name,
                    ).toSirenObject(
                        rel = listOf("item"),
@@ -86,7 +96,7 @@ class StatesController(val db: StatesDb) : BaseController() {
             id = stateDao.sid,
             name = stateDao.name,
             isStartState = stateDao.is_start,
-            projectName = stateDao.project_name,
+            project = stateDao.project_name,
             author = stateDao.author_name,
         )
 
@@ -156,7 +166,7 @@ class StatesController(val db: StatesDb) : BaseController() {
                         id = stateDao.sid,
                         name = stateDao.name,
                         isStartState = stateDao.is_start,
-                        projectName = stateDao.project_name,
+                        project = stateDao.project_name,
                         author = stateDao.author_name,
                     ).toSirenObject(
                         rel = listOf("item"),

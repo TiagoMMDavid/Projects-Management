@@ -1,6 +1,7 @@
 package pt.isel.daw.g08.project.controllers.models
 
-import pt.isel.daw.g08.project.responses.siren.SirenClass.*
+import pt.isel.daw.g08.project.responses.siren.SirenClass.collection
+import pt.isel.daw.g08.project.responses.siren.SirenClass.label
 
 class LabelOutputModel(
     val id: Int,
@@ -18,7 +19,7 @@ class LabelsOutputModel(
     val pageSize: Int,
 ) : OutputModel() {
 
-    override fun getSirenClasses() = listOf(user, collection)
+    override fun getSirenClasses() = listOf(label, collection)
 }
 
 data class LabelInputModel(

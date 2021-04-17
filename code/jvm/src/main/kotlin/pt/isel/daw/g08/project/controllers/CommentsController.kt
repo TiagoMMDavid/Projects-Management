@@ -2,7 +2,15 @@ package pt.isel.daw.g08.project.controllers
 
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 import pt.isel.daw.g08.project.controllers.models.CommentCreateInputModel
 import pt.isel.daw.g08.project.controllers.models.CommentEditInputModel
 import pt.isel.daw.g08.project.controllers.models.CommentOutputModel
@@ -34,14 +42,14 @@ class CommentsController(val db: CommentsDb) : BaseController() {
             pageSize = commentsDao.size
         )
 
-        val commentsUri = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/issues/${issueId}/comments/"
+        val commentsUri = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/issues/${issueId}/comments"
 
         return createResponseEntity(
             comments.toSirenObject(
                 entities = commentsDao.map {
                     CommentOutputModel(
                         id = it.cid,
-                        text = it.text,
+                        content = it.text,
                         createDate = it.create_date,
                         issue = it.issue_name,
                         author = it.author_name,
@@ -65,7 +73,7 @@ class CommentsController(val db: CommentsDb) : BaseController() {
                         fields = listOf(
                             SirenActionField(name = "projectId", type = SirenFieldType.hidden, value = projectId),
                             SirenActionField(name = "issueId", type = SirenFieldType.hidden, value = issueId),
-                            SirenActionField(name = "text", type = SirenFieldType.text)
+                            SirenActionField(name = "content", type = SirenFieldType.text)
                         )
                     )
                 ),
@@ -85,7 +93,7 @@ class CommentsController(val db: CommentsDb) : BaseController() {
         val commentDao = db.getCommentById(commentId)
         val comment = CommentOutputModel(
             id = commentDao.cid,
-            text = commentDao.text,
+            content = commentDao.text,
             createDate = commentDao.create_date,
             issue = commentDao.issue_name,
             author = commentDao.author_name,
@@ -106,7 +114,7 @@ class CommentsController(val db: CommentsDb) : BaseController() {
                             SirenActionField(name = "projectId", type = SirenFieldType.hidden, value = projectId),
                             SirenActionField(name = "issueId", type = SirenFieldType.hidden, value = issueId),
                             SirenActionField(name = "commentId", type = SirenFieldType.hidden, value = comment.id),
-                            SirenActionField(name = "text", type = SirenFieldType.text)
+                            SirenActionField(name = "content", type = SirenFieldType.text)
                         )
                     ),
                     SirenAction(

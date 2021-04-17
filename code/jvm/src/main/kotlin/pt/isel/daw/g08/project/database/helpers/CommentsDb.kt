@@ -5,7 +5,7 @@ import pt.isel.daw.g08.project.database.dao.CommentDao
 
 private const val GET_ALL_COMMENTS_QUERY = "SELECT cid, text, create_date, issue_id, issue_name, author_id, author_name FROM V_COMMENT"
 
-private const val GET_COMMENTS_FROM_ISSUE_QUERY = "$GET_ALL_COMMENTS_QUERY WHERE issue_id = :iid"
+private const val GET_COMMENTS_FROM_ISSUE_QUERY = "$GET_ALL_COMMENTS_QUERY WHERE issue_id = :iid ORDER BY cid"
 private const val GET_COMMENTS_COUNT = "SELECT COUNT(cid) as count FROM COMMENT WHERE iid = :iid"
 private const val GET_COMMENT_QUERY = "$GET_ALL_COMMENTS_QUERY WHERE cid = :cid"
 

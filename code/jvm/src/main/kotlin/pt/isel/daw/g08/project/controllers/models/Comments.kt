@@ -6,7 +6,7 @@ import java.sql.Timestamp
 
 class CommentOutputModel(
     val id: Int,
-    val text: String,
+    val content: String,
     val createDate: Timestamp,
     val issue: String,
     val author: String,

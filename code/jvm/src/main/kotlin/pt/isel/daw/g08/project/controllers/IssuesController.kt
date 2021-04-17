@@ -2,7 +2,14 @@ package pt.isel.daw.g08.project.controllers
 
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 import pt.isel.daw.g08.project.controllers.models.IssueCreateInputModel
 import pt.isel.daw.g08.project.controllers.models.IssueEditInputModel
 import pt.isel.daw.g08.project.controllers.models.IssueOutputModel
@@ -113,7 +120,7 @@ class IssuesController(val db: IssuesDb) : BaseController() {
                             SirenActionField(name = "issueId", type = SirenFieldType.hidden, value = issue.id),
                             SirenActionField(name = "name", type = SirenFieldType.text),
                             SirenActionField(name = "description", type = SirenFieldType.text),
-                            SirenActionField(name = "state", type = SirenFieldType.text),
+                            SirenActionField(name = "stateId", type = SirenFieldType.number),
                         )
                     ),
                     SirenAction(

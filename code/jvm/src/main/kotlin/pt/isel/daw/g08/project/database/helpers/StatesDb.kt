@@ -3,13 +3,13 @@ package pt.isel.daw.g08.project.database.helpers
 import org.springframework.stereotype.Component
 import pt.isel.daw.g08.project.database.dao.StateDao
 
-private const val GET_ALL_STATES_QUERY = "SELECT sid, name, is_start, project_id, project_name, author_id, author_name FROM V_STATE"
+private const val GET_STATES_BASE = "SELECT sid, name, is_start, project_id, project_name, author_id, author_name FROM V_STATE"
 
-private const val GET_STATES_FROM_PROJECT_QUERY = "$GET_ALL_STATES_QUERY WHERE project_id = :pid"
+private const val GET_STATES_FROM_PROJECT_QUERY = "$GET_STATES_BASE WHERE project_id = :pid ORDER BY sid"
 private const val GET_STATES_COUNT = "SELECT COUNT(sid) as count FROM STATE WHERE project = :pid"
-private const val GET_STATE_QUERY = "$GET_ALL_STATES_QUERY WHERE sid = :sid"
+private const val GET_STATE_QUERY = "$GET_STATES_BASE WHERE sid = :sid"
 
-private const val GET_NEXT_STATES_QUERY = "$GET_ALL_STATES_QUERY WHERE sid IN (SELECT to_sid FROM STATETRANSITION WHERE from_sid = :sid)"
+private const val GET_NEXT_STATES_QUERY = "$GET_STATES_BASE WHERE sid IN (SELECT to_sid FROM STATETRANSITION WHERE from_sid = :sid) ORDER BY sid"
 private const val GET_NEXT_STATES_COUNT = "SELECT COUNT(to_sid) as count FROM STATETRANSITION WHERE from_sid = :sid"
 
 @Component

@@ -1,7 +1,11 @@
 package pt.isel.daw.g08.project.controllers
 
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 import pt.isel.daw.g08.project.controllers.models.UserOutputModel
 import pt.isel.daw.g08.project.controllers.models.UsersOutputModel
 import pt.isel.daw.g08.project.database.helpers.UsersDb
@@ -58,7 +62,7 @@ class UsersController(val db: UsersDb) : BaseController() {
             name = userDao.username
         )
         val selfUri = URI("${env.getBaseUrl()}/${USERS_HREF}/${user.id}")
-        val usersUri = URI("${env.getBaseUrl()}/${PROJECTS_HREF}")
+        val usersUri = URI("${env.getBaseUrl()}/${USERS_HREF}")
 
         return createResponseEntity(
             user.toSirenObject(

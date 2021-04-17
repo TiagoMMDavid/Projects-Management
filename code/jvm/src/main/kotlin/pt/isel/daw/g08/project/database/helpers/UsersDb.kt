@@ -3,9 +3,10 @@ package pt.isel.daw.g08.project.database.helpers
 import org.springframework.stereotype.Component
 import pt.isel.daw.g08.project.database.dao.UserDao
 
-private const val GET_ALL_USERS_QUERY = "SELECT uid, username, pass FROM USERS"
+private const val GET_USERS_BASE = "SELECT uid, username, pass FROM USERS"
+private const val GET_ALL_USERS_QUERY = "$GET_USERS_BASE ORDER BY uid"
 private const val GET_USERS_COUNT = "SELECT COUNT(uid) as count FROM USERS"
-private const val GET_USER_QUERY = "$GET_ALL_USERS_QUERY WHERE uid = :uid"
+private const val GET_USER_QUERY = "$GET_USERS_BASE WHERE uid = :uid"
 
 @Component
 class UsersDb : DatabaseHelper() {
