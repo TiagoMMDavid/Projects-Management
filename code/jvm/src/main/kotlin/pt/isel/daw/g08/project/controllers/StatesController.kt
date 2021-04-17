@@ -1,5 +1,6 @@
 package pt.isel.daw.g08.project.controllers
 
+import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import pt.isel.daw.g08.project.controllers.models.StateInputModel
@@ -7,6 +8,11 @@ import pt.isel.daw.g08.project.controllers.models.StateOutputModel
 import pt.isel.daw.g08.project.controllers.models.StatesOutputModel
 import pt.isel.daw.g08.project.database.helpers.StatesDb
 import pt.isel.daw.g08.project.responses.Response
+import pt.isel.daw.g08.project.responses.siren.SirenAction
+import pt.isel.daw.g08.project.responses.siren.SirenActionField
+import pt.isel.daw.g08.project.responses.siren.SirenFieldType.*
+import pt.isel.daw.g08.project.responses.siren.SirenLink
+import java.net.URI
 
 @RestController
 @RequestMapping("${PROJECTS_HREF}/{projectId}/states")
@@ -18,33 +24,53 @@ class StatesController(val db: StatesDb) : BaseController() {
         @RequestParam(defaultValue = PAGE_DEFAULT_VALUE) page: Int,
         @RequestParam(defaultValue = COUNT_DEFAULT_VALUE) count: Int
     ): ResponseEntity<Response> {
-        val states = db.getAllStatesFromProject(page, count, projectId)
+        val statesDao = db.getAllStatesFromProject(page, count, projectId)
         val collectionSize = db.getStatesCount(projectId)
+        val states = StatesOutputModel(
+            collectionSize = collectionSize,
+            pageIndex = page,
+            pageSize = statesDao.size
+        )
+
+        val baseUri = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}"
 
         return createResponseEntity(
-            StatesOutputModel(
-                collectionSize = collectionSize,
-                pageIndex = page,
-                pageSize = states.size,
-                selfUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states?page=${page}&count=${count}",
-                prevUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states?page=${page - 1}&count=${count}",
-                nextUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states?page=${page + 1}&count=${count}",
-                templateUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states{?pageIndex,pageSize}",
-                states = states.map {
-                    StateOutputModel(
-                        id = it.sid,
-                        name = it.name,
-                        isStartState = it.is_start,
-                        projectName = it.project_name,
-                        authorName = it.author_name,
-                        selfUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states/${it.sid}",
-                        authorUrl = "${env.getBaseUrl()}/${USERS_HREF}/${it.author_id}",
-                        projectUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}",
-                        nextStatesUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states/${it.sid}/nextStates",
-                        statesUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states",
-                        isCollectionItem = true
+            states.toSirenObject(
+                entities = statesDao.map { stateDao ->
+                   StateOutputModel(
+                       id = stateDao.sid,
+                       name = stateDao.name,
+                       isStartState = stateDao.is_start,
+                       projectName = stateDao.project_name,
+                       author = stateDao.author_name,
+                   ).toSirenObject(
+                       rel = listOf("item"),
+                       links = listOf(
+                           // self, auth,  proj,nextstates, states,
+                           SirenLink(rel = listOf("self"), href = URI("${baseUri}/states/${stateDao.sid}")),
+                           SirenLink(rel = listOf("author"), href = URI("${env.getBaseUrl()}/${USERS_HREF}/${stateDao.author_id}")),
+                           SirenLink(rel = listOf("project"), href = URI(baseUri)),
+                           SirenLink(rel = listOf("nextStates"), href = URI("${baseUri}/states/${stateDao.sid}/nextStates")),
+                           SirenLink(rel = listOf("states"), href = URI("${baseUri}/states/")),
+                       )
+                   )
+                },
+                actions = listOf(
+                    SirenAction(
+                        name = "create-state",
+                        title = "Create State",
+                        method = HttpMethod.PUT,
+                        href = URI("${baseUri}/states"),
+                        type = INPUT_CONTENT_TYPE,
+                        fields = listOf(
+                            SirenActionField(name = "projectId", type = hidden, value = projectId),
+                            SirenActionField(name = "name", type = text),
+                            SirenActionField(name = "isStart", type = checkbox),
+                        )
                     )
-                }),
+                ),
+                links = createUriListForPagination("${baseUri}/states", page, states.pageSize, count, collectionSize)
+            ),
             200
         )
     }
@@ -55,20 +81,52 @@ class StatesController(val db: StatesDb) : BaseController() {
         @PathVariable stateId: Int,
     ): ResponseEntity<Response> {
         //TODO: Exceptions (404 when not found)
-        val state = db.getStateById(stateId)
+        val stateDao = db.getStateById(stateId)
+        val state = StateOutputModel(
+            id = stateDao.sid,
+            name = stateDao.name,
+            isStartState = stateDao.is_start,
+            projectName = stateDao.project_name,
+            author = stateDao.author_name,
+        )
+
+        val baseUri = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}"
+        val selfUri = URI("${baseUri}/states/${state.id}")
 
         return createResponseEntity(
-            StateOutputModel(
-                id = state.sid,
-                name = state.name,
-                isStartState = state.is_start,
-                projectName = state.project_name,
-                authorName = state.author_name,
-                selfUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states/${state.sid}",
-                authorUrl = "${env.getBaseUrl()}/${USERS_HREF}/${state.author_id}",
-                projectUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}",
-                nextStatesUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states/${state.sid}/nextStates",
-                statesUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states",
+            state.toSirenObject(
+                actions = listOf(
+                    SirenAction(
+                        name = "edit-state",
+                        title = "Edit State",
+                        method = HttpMethod.PUT,
+                        href = selfUri,
+                        type = INPUT_CONTENT_TYPE,
+                        fields = listOf(
+                            SirenActionField(name = "projectId", type = hidden, value = projectId),
+                            SirenActionField(name = "stateId", type = hidden, value = state.id),
+                            SirenActionField(name = "name", type = text),
+                            SirenActionField(name = "isStart", type = checkbox),
+                        )
+                    ),
+                    SirenAction(
+                        name = "delete-state",
+                        title = "Delete State",
+                        method = HttpMethod.DELETE,
+                        href = selfUri,
+                        fields = listOf(
+                            SirenActionField(name = "projectId", type = hidden, value = projectId),
+                            SirenActionField(name = "stateId", type = hidden, value = stateId),
+                        )
+                    ),
+                ),
+                links = listOf(
+                    SirenLink(rel = listOf("self"), href = URI("${baseUri}/states/${stateDao.sid}")),
+                    SirenLink(rel = listOf("author"), href = URI("${env.getBaseUrl()}/${USERS_HREF}/${stateDao.author_id}")),
+                    SirenLink(rel = listOf("project"), href = URI(baseUri)),
+                    SirenLink(rel = listOf("nextStates"), href = URI("${baseUri}/states/${stateDao.sid}/nextStates")),
+                    SirenLink(rel = listOf("states"), href = URI("${baseUri}/states/")),
+                )
             ),
             200
         )
@@ -81,33 +139,65 @@ class StatesController(val db: StatesDb) : BaseController() {
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "10") count: Int
     ): ResponseEntity<Response> {
-        val states = db.getNextStates(page, count, stateId)
+        val statesDao = db.getNextStates(page, count, stateId)
         val collectionSize = db.getNextStatesCount(stateId)
+        val states = StatesOutputModel(
+            collectionSize = collectionSize,
+            pageIndex = page,
+            pageSize = statesDao.size
+        )
+
+        val baseUri = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}"
 
         return createResponseEntity(
-            StatesOutputModel(
-                selfUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states?page=${page}&count=${count}",
-                prevUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states?page=${page - 1}&count=${count}",
-                nextUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states?page=${page + 1}&count=${count}",
-                templateUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states{?pageIndex,pageSize}",
-                collectionSize = collectionSize,
-                pageIndex = page,
-                pageSize = states.size,
-                states = states.map {
+            states.toSirenObject(
+                entities = statesDao.map { stateDao ->
                     StateOutputModel(
-                        id = it.sid,
-                        name = it.name,
-                        isStartState = it.is_start,
-                        projectName = it.project_name,
-                        authorName = it.author_name,
-                        selfUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states/${it.sid}",
-                        authorUrl = "${env.getBaseUrl()}/${USERS_HREF}/${it.author_id}",
-                        projectUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}",
-                        nextStatesUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states/${it.sid}/nextStates",
-                        statesUrl = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states",
-                        isCollectionItem = true
+                        id = stateDao.sid,
+                        name = stateDao.name,
+                        isStartState = stateDao.is_start,
+                        projectName = stateDao.project_name,
+                        author = stateDao.author_name,
+                    ).toSirenObject(
+                        rel = listOf("item"),
+                        links = listOf(
+                            SirenLink(rel = listOf("self"), href = URI("${baseUri}/states/${stateDao.sid}")),
+                            SirenLink(rel = listOf("author"), href = URI("${env.getBaseUrl()}/${USERS_HREF}/${stateDao.author_id}")),
+                            SirenLink(rel = listOf("project"), href = URI(baseUri)),
+                            SirenLink(rel = listOf("nextStates"), href = URI("${baseUri}/states/${stateDao.sid}/nextStates")),
+                            SirenLink(rel = listOf("states"), href = URI("${baseUri}/states/")),
+                        ),
+                        actions = listOf(
+                            SirenAction(
+                                name = "delete-next-state",
+                                title = "Delete Next State",
+                                method = HttpMethod.DELETE,
+                                href = URI("${baseUri}/states/${stateId}/nextStates/${stateDao.sid}"),
+                                type = INPUT_CONTENT_TYPE,
+                                fields = listOf(
+                                    SirenActionField(name = "projectId", type = hidden, value = projectId),
+                                    SirenActionField(name = "stateId", type = hidden, value = stateId),
+                                )
+                            )
+                        )
                     )
-                }),
+                },
+                actions = listOf(
+                    SirenAction(
+                        name = "create-next-state",
+                        title = "Create Next State",
+                        method = HttpMethod.PUT,
+                        href = URI("${baseUri}/states/${stateId}/nextStates"),
+                        type = INPUT_CONTENT_TYPE,
+                        fields = listOf(
+                            SirenActionField(name = "projectId", type = hidden, value = projectId),
+                            SirenActionField(name = "stateId", type = hidden, value = stateId),
+                            SirenActionField(name = "nextStateId", type = number),
+                        )
+                    )
+                ),
+                links = createUriListForPagination("${baseUri}/states", page, states.pageSize, count, collectionSize)
+            ),
             200
         )
     }
