@@ -1,6 +1,5 @@
 package pt.isel.daw.g08.project.controllers.models
 
-import pt.isel.daw.g08.project.responses.siren.SirenClass
 import pt.isel.daw.g08.project.responses.siren.SirenClass.collection
 import pt.isel.daw.g08.project.responses.siren.SirenClass.project
 
@@ -20,7 +19,7 @@ class ProjectsOutputModel(
     val pageSize: Int
 ) : OutputModel() {
 
-    override fun getSirenClasses(): List<SirenClass> = listOf(project, collection)
+    override fun getSirenClasses() = listOf(project, collection)
 }
 
 data class ProjectCreateInputModel(

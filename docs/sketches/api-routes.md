@@ -15,8 +15,10 @@ DELETE /api/projects/{project-id}                                           => D
 ```
 GET    /api/projects/{project-id}/labels                                        => Get all project labels
 GET    /api/projects/{project-id}/labels/{label-id}                             => Get label details
+GET    /api/projects/{project-id}/issues/{issue-id}/labels                      => Get labels of issue
 
 PUT    /api/projects/{project-id}/labels                                        => Create label for project
+PUT    /api/projects/{project-id}/labels/{label-id}                             => Edit label for project
 DELETE /api/projects/{project-id}/labels/{label-id}                             => Delete label for project
 
 PUT    /api/projects/{project-id}/issues/{issue-id}/labels                      => Adds a label to the issue
