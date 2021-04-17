@@ -15,13 +15,13 @@ private const val GET_NEXT_STATES_COUNT = "SELECT COUNT(to_sid) as count FROM ST
 @Component
 class StatesDb : DatabaseHelper() {
     fun getAllStatesFromProject(page: Int, perPage: Int, projectId: Int) =
-        boundedGetList(page, perPage, GET_STATES_FROM_PROJECT_QUERY, "pid", projectId, StateDao::class.java)
+        getList(GET_STATES_FROM_PROJECT_QUERY, StateDao::class.java, page, perPage, Pair("pid", projectId))
 
-    fun getStatesCount(projectId: Int) = boundedGetOne("pid", projectId, GET_STATES_COUNT, Int::class.java)
-    fun getStateById(stateId: Int) = boundedGetOne("sid", stateId, GET_STATE_QUERY, StateDao::class.java)
+    fun getStatesCount(projectId: Int) = getOne(GET_STATES_COUNT, Int::class.java, Pair("pid", projectId))
+    fun getStateById(stateId: Int) = getOne(GET_STATE_QUERY, StateDao::class.java, Pair("sid", stateId))
 
 
     fun getNextStates(page: Int, perPage: Int, stateId: Int) =
-        boundedGetList(page, perPage, GET_NEXT_STATES_QUERY, "sid", stateId, StateDao::class.java)
-    fun getNextStatesCount(stateId: Int) = boundedGetOne("sid", stateId, GET_NEXT_STATES_COUNT, Int::class.java)
+        getList(GET_NEXT_STATES_QUERY, StateDao::class.java, page, perPage, Pair("sid", stateId))
+    fun getNextStatesCount(stateId: Int) = getOne(GET_NEXT_STATES_COUNT, Int::class.java, Pair("sid", stateId))
 }

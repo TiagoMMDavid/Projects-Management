@@ -1,10 +1,12 @@
 package pt.isel.daw.g08.project.controllers
 
 import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestAttribute
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -13,7 +15,10 @@ import pt.isel.daw.g08.project.controllers.models.ProjectCreateInputModel
 import pt.isel.daw.g08.project.controllers.models.ProjectEditInputModel
 import pt.isel.daw.g08.project.controllers.models.ProjectOutputModel
 import pt.isel.daw.g08.project.controllers.models.ProjectsOutputModel
+import pt.isel.daw.g08.project.database.dao.UserDao
 import pt.isel.daw.g08.project.database.helpers.ProjectsDb
+import pt.isel.daw.g08.project.pipeline.interceptors.RequiresAuth
+import pt.isel.daw.g08.project.pipeline.interceptors.USER_ATTRIBUTE
 import pt.isel.daw.g08.project.responses.Response
 import pt.isel.daw.g08.project.responses.siren.SirenAction
 import pt.isel.daw.g08.project.responses.siren.SirenActionField
@@ -133,11 +138,26 @@ class ProjectsController(val db: ProjectsDb) : BaseController() {
         )
     }
 
+    @RequiresAuth
     @PutMapping
     fun createProject(
-        @RequestBody input: ProjectCreateInputModel,
+        input: ProjectCreateInputModel,
+        @RequestAttribute(name = USER_ATTRIBUTE) user: UserDao
     ): ResponseEntity<Any> {
-        TODO()
+        if (input.name != null && input.description != null) {
+            val response = db.createProject(input.name, input.description, user.uid)
+            if (response.error != null) {
+                // TODO: Problem JSON
+            } else {
+                return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .header("Location", "${env.getBaseUrl()}/${PROJECTS_HREF}/${response.response}")
+                    .body(null)
+            }
+        } else {
+            // TODO: Problem JSON
+        }
+        return ResponseEntity(HttpStatus.OK)
     }
 
     @PutMapping("{projectId}")

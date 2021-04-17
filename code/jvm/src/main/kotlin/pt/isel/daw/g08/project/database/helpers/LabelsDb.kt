@@ -15,13 +15,13 @@ private const val GET_LABELS_COUNT_FROM_ISSUE = "SELECT COUNT(lid) as count FROM
 @Component
 class LabelsDb : DatabaseHelper() {
     fun getAllLabelsFromProject(page: Int, perPage: Int, projectId: Int) =
-        boundedGetList(page, perPage, GET_LABELS_FROM_PROJECT_QUERY, "pid", projectId, LabelDao::class.java)
+        getList(GET_LABELS_FROM_PROJECT_QUERY, LabelDao::class.java, page, perPage, Pair("pid", projectId))
 
-    fun getLabelsCountFromProject(projectId: Int) = boundedGetOne("pid", projectId, GET_LABELS_COUNT_FROM_PROJECT, Int::class.java)
-    fun getLabelById(labelId: Int) = boundedGetOne("lid", labelId, GET_LABEL_QUERY, LabelDao::class.java)
+    fun getLabelsCountFromProject(projectId: Int) = getOne(GET_LABELS_COUNT_FROM_PROJECT, Int::class.java, Pair("pid", projectId))
+    fun getLabelById(labelId: Int) = getOne(GET_LABEL_QUERY, LabelDao::class.java , Pair("lid", labelId))
 
 
     fun getAllLabelsFromIssue(page: Int, perPage: Int, issueId: Int) =
-        boundedGetList(page, perPage, GET_LABELS_FROM_ISSUE_QUERY, "iid", issueId, LabelDao::class.java)
-    fun getLabelsCountFromIssue(issueId: Int) = boundedGetOne("iid", issueId, GET_LABELS_COUNT_FROM_ISSUE, Int::class.java)
+        getList(GET_LABELS_FROM_ISSUE_QUERY, LabelDao::class.java, page, perPage, Pair("iid", issueId))
+    fun getLabelsCountFromIssue(issueId: Int) = getOne(GET_LABELS_COUNT_FROM_ISSUE, Int::class.java, Pair("iid", issueId))
 }

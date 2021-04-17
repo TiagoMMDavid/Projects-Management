@@ -12,8 +12,8 @@ private const val GET_ISSUE_QUERY = "$GET_ISSUES_BASE WHERE iid = :iid"
 @Component
 class IssuesDb : DatabaseHelper() {
     fun getAllIssuesFromProject(page: Int, perPage: Int, projectId: Int) =
-        boundedGetList(page, perPage, GET_ISSUES_FROM_PROJECT_QUERY, "pid", projectId, IssueDao::class.java)
+        getList(GET_ISSUES_FROM_PROJECT_QUERY, IssueDao::class.java, page, perPage, Pair("pid", projectId))
 
-    fun getIssuesCount(projectId: Int) = boundedGetOne("pid", projectId, GET_ISSUES_COUNT, Int::class.java)
-    fun getIssueById(issueId: Int) = boundedGetOne("iid", issueId, GET_ISSUE_QUERY, IssueDao::class.java)
+    fun getIssuesCount(projectId: Int) = getOne(GET_ISSUES_COUNT, Int::class.java, Pair("pid", projectId))
+    fun getIssueById(issueId: Int) = getOne(GET_ISSUE_QUERY, IssueDao::class.java, Pair("iid", issueId))
 }

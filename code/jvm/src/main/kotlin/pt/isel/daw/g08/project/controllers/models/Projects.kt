@@ -23,8 +23,8 @@ class ProjectsOutputModel(
 }
 
 data class ProjectCreateInputModel(
-    val name: String,
-    val description: String,
+    val name: String?,
+    val description: String?,
 )
 
 data class ProjectEditInputModel(

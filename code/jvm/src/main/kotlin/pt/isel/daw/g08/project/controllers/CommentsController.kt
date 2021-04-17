@@ -27,12 +27,13 @@ import java.net.URI
 @RequestMapping("${PROJECTS_HREF}/{projectId}/issues/{issueId}/comments")
 class CommentsController(val db: CommentsDb) : BaseController() {
 
+
     @GetMapping
     fun getIssueComments(
         @PathVariable projectId: Int,
         @PathVariable issueId: Int,
         @RequestParam(defaultValue = PAGE_DEFAULT_VALUE) page: Int,
-        @RequestParam(defaultValue = COUNT_DEFAULT_VALUE) count: Int
+        @RequestParam(defaultValue = COUNT_DEFAULT_VALUE) count: Int,
     ): ResponseEntity<Response> {
         val commentsDao = db.getAllCommentsFromIssue(page, count, issueId)
         val collectionSize = db.getCommentsCount(issueId)

@@ -1,45 +1,62 @@
 package pt.isel.daw.g08.project.database.helpers
 
 import org.jdbi.v3.core.Jdbi
+import org.jdbi.v3.core.JdbiException
 import org.springframework.beans.factory.annotation.Autowired
+import pt.isel.daw.g08.project.database.PsqlErrorCode
+import java.sql.SQLException
 
 private const val GET_PAGINATED_SUFFIX = "LIMIT :limit OFFSET :offset"
+
+data class DbResponse<T> (
+    val response: T? = null,
+    val error: PsqlErrorCode? = null,
+)
 
 abstract class DatabaseHelper {
     @Autowired
     protected lateinit var jdbi: Jdbi
 
-    protected fun <T> getList(page: Int, perPage: Int, query: String, mapTo: Class<T>): List<T> =
+    protected fun <T> getList(query: String, mapTo: Class<T>, page: Int, perPage: Int, vararg bindPairs: Pair<String, Any>): List<T> =
         jdbi.withHandle<List<T>, Exception> {
-            it.createQuery("$query $GET_PAGINATED_SUFFIX")
+            val handle = it.createQuery("$query $GET_PAGINATED_SUFFIX")
                 .bind("limit", perPage)
                 .bind("offset", page * perPage)
+            bindPairs.forEach { pair ->
+                handle.bind(pair.first, pair.second)
+            }
+            handle
                 .mapTo(mapTo)
                 .list()
         }
 
-    protected fun <T, V> boundedGetList(page: Int, perPage: Int, query: String, bindName: String, bindValue: V, mapTo: Class<T>): List<T> =
-        jdbi.withHandle<List<T>, Exception> {
-            it.createQuery("$query $GET_PAGINATED_SUFFIX")
-                .bind("limit", perPage)
-                .bind("offset", page * perPage)
-                .bind(bindName, bindValue)
-                .mapTo(mapTo)
-                .list()
-        }
-
-    protected fun <T> getOne(query: String, mapTo: Class<T>): T =
+    protected fun <T> getOne(query: String, mapTo: Class<T>, vararg bindPairs: Pair<String, Any>): T =
         jdbi.withHandle<T, Exception> {
-            it.createQuery(query)
+            val handle = it.createQuery(query)
+            bindPairs.forEach { pair ->
+                handle.bind(pair.first, pair.second)
+            }
+            handle
                 .mapTo(mapTo)
                 .one()
         }
 
-    protected fun <T, V> boundedGetOne(bindName: String, bindValue: V, query: String, mapTo: Class<T>): T =
-        jdbi.withHandle<T, Exception> {
-            it.createQuery(query)
-                .bind(bindName, bindValue)
-                .mapTo(mapTo)
-                .one()
+    protected fun <T> insertOrUpdate(query: String, generatedIdType: Class<T>, vararg bindPairs: Pair<String, Any>): DbResponse<T> =
+        try {
+            DbResponse(
+                jdbi.withHandle<T, Exception> {
+                    val handle = it.createUpdate(query)
+                    bindPairs.forEach { pair ->
+                        handle.bind(pair.first, pair.second)
+                    }
+
+                    handle
+                        .executeAndReturnGeneratedKeys()
+                        .mapTo(generatedIdType)
+                        .one()
+                }
+            )
+        } catch (e: JdbiException) {
+            DbResponse(error = PsqlErrorCode.values().find { it.code == (e.cause as SQLException).sqlState })
         }
 }
