@@ -1,0 +1,13 @@
+version: "3.3"
+services:
+  daw-db:
+    container_name: daw-db
+    build:
+      context: ..
+      dockerfile: jvm/tests/Dockerfile-daw-db
+    environment:
+      - POSTGRES_USER=daw
+      - POSTGRES_PASSWORD=changeit
+      - POSTGRES_DB=db
+    ports:
+      - 5432:5432
