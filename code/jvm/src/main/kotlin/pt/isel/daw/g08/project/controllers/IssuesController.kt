@@ -1,6 +1,7 @@
 package pt.isel.daw.g08.project.controllers
 
 import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -15,6 +16,7 @@ import pt.isel.daw.g08.project.controllers.models.IssueEditInputModel
 import pt.isel.daw.g08.project.controllers.models.IssueOutputModel
 import pt.isel.daw.g08.project.controllers.models.IssuesOutputModel
 import pt.isel.daw.g08.project.database.helpers.IssuesDb
+import pt.isel.daw.g08.project.pipeline.argumentresolvers.Pagination
 import pt.isel.daw.g08.project.responses.Response
 import pt.isel.daw.g08.project.responses.siren.SirenAction
 import pt.isel.daw.g08.project.responses.siren.SirenActionField
@@ -29,14 +31,13 @@ class IssuesController(val db: IssuesDb) : BaseController() {
     @GetMapping
     fun getAllIssues(
         @PathVariable projectId: Int,
-        @RequestParam(defaultValue = PAGE_DEFAULT_VALUE) page: Int,
-        @RequestParam(defaultValue = COUNT_DEFAULT_VALUE) count: Int
+        pagination: Pagination
     ): ResponseEntity<Response> {
-        val issuesDao = db.getAllIssuesFromProject(page, count, projectId)
+        val issuesDao = db.getAllIssuesFromProject(pagination.page, pagination.limit, projectId)
         val collectionSize = db.getIssuesCount(projectId)
         val issues = IssuesOutputModel(
             collectionSize = collectionSize,
-            pageIndex = page,
+            pageIndex = pagination.page,
             pageSize = issuesDao.size,
         )
         val issuesUri = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/issues"
@@ -80,9 +81,9 @@ class IssuesController(val db: IssuesDb) : BaseController() {
                         )
                     )
                 ),
-                links = createUriListForPagination(issuesUri, page, issues.pageSize, count, issues.collectionSize)
+                links = createUriListForPagination(issuesUri, pagination.page, issues.pageSize, pagination.limit, issues.collectionSize)
             ),
-            200
+            HttpStatus.OK
         )
     }
 
@@ -144,7 +145,7 @@ class IssuesController(val db: IssuesDb) : BaseController() {
                     SirenLink(listOf("issues"), URI("${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/issues")),
                 )
             ),
-            200
+            HttpStatus.OK
         )
     }
 

@@ -7,16 +7,15 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestAttribute
-import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import pt.isel.daw.g08.project.controllers.models.ProjectCreateInputModel
-import pt.isel.daw.g08.project.controllers.models.ProjectEditInputModel
 import pt.isel.daw.g08.project.controllers.models.ProjectOutputModel
 import pt.isel.daw.g08.project.controllers.models.ProjectsOutputModel
 import pt.isel.daw.g08.project.database.dao.UserDao
 import pt.isel.daw.g08.project.database.helpers.ProjectsDb
+import pt.isel.daw.g08.project.exceptions.InvalidInputException
+import pt.isel.daw.g08.project.pipeline.argumentresolvers.Pagination
 import pt.isel.daw.g08.project.pipeline.interceptors.RequiresAuth
 import pt.isel.daw.g08.project.pipeline.interceptors.USER_ATTRIBUTE
 import pt.isel.daw.g08.project.responses.Response
@@ -33,14 +32,13 @@ class ProjectsController(val db: ProjectsDb) : BaseController() {
 
     @GetMapping
     fun getAllProjects(
-        @RequestParam(defaultValue = PAGE_DEFAULT_VALUE) page: Int,
-        @RequestParam(defaultValue = COUNT_DEFAULT_VALUE) count: Int
+        pagination: Pagination
     ): ResponseEntity<Response> {
-        val projectsDao = db.getAllProjects(page, count)
+        val projectsDao = db.getAllProjects(pagination.page, pagination.limit)
         val collectionSize = db.getProjectsCount()
         val projects = ProjectsOutputModel(
             collectionSize = collectionSize,
-            pageIndex = page,
+            pageIndex = pagination.page,
             pageSize = projectsDao.size
         )
 
@@ -79,9 +77,9 @@ class ProjectsController(val db: ProjectsDb) : BaseController() {
                         )
                     )
                 ),
-                links = createUriListForPagination(projectsUri, page, projects.pageSize, count, collectionSize)
+                links = createUriListForPagination(projectsUri, pagination.page, projects.pageSize, pagination.limit, collectionSize)
             ),
-            200
+            HttpStatus.OK
         )
     }
 
@@ -128,13 +126,13 @@ class ProjectsController(val db: ProjectsDb) : BaseController() {
                 links = listOf(
                     SirenLink(rel = listOf("self"), href = selfUri),
                     SirenLink(rel = listOf("labels"), href = URI("${baseUri}/${project.id}/labels")),
-                    SirenLink(rel = listOf("issues"), href = URI("${baseUri}/${project.id}/states")),
-                    SirenLink(rel = listOf("states"), href = URI("${baseUri}/${project.id}/issues")),
+                    SirenLink(rel = listOf("issues"), href = URI("${baseUri}/${project.id}/issues")),
+                    SirenLink(rel = listOf("states"), href = URI("${baseUri}/${project.id}/states")),
                     SirenLink(rel = listOf("author"), href = URI("${env.getBaseUrl()}/${USERS_HREF}/${projectDao.author_id}")),
                     SirenLink(rel = listOf("projects"), href = URI(baseUri))
                 ),
             ),
-            200
+            HttpStatus.OK
         )
     }
 
@@ -145,26 +143,31 @@ class ProjectsController(val db: ProjectsDb) : BaseController() {
         @RequestAttribute(name = USER_ATTRIBUTE) user: UserDao
     ): ResponseEntity<Any> {
         if (input.name != null && input.description != null) {
-            val response = db.createProject(input.name, input.description, user.uid)
-            if (response.error != null) {
-                // TODO: Problem JSON
-            } else {
-                return ResponseEntity
-                    .status(HttpStatus.CREATED)
-                    .header("Location", "${env.getBaseUrl()}/${PROJECTS_HREF}/${response.response}")
-                    .body(null)
-            }
+            val projectId = db.createProject(input.name, input.description, user.uid)
+            return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .header("Location", "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}")
+                .body(null)
         } else {
-            // TODO: Problem JSON
+            throw InvalidInputException("Missing name and/or description")
         }
-        return ResponseEntity(HttpStatus.OK)
     }
 
+    @RequiresAuth
     @PutMapping("{projectId}")
     fun editProject(
-        @PathVariable projectId: String,
-        @RequestBody input: ProjectEditInputModel,
+        @PathVariable projectId: Int,
+        input: ProjectCreateInputModel,
+        @RequestAttribute(name = USER_ATTRIBUTE) user: UserDao
     ): ResponseEntity<Any> {
-        TODO()
+        if (input.name != null || input.description != null) {
+            db.editProject(input.name, input.description, projectId)
+            return ResponseEntity
+                .status(HttpStatus.OK)
+                .header("Location", "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}")
+                .body(null)
+        } else {
+            throw InvalidInputException("Missing new name or new description")
+        }
     }
 }

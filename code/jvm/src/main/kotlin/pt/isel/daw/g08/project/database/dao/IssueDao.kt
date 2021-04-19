@@ -1,13 +1,13 @@
 package pt.isel.daw.g08.project.database.dao
 
-import java.sql.Timestamp
+import java.time.OffsetDateTime
 
 data class IssueDao(
     val iid: Int,
     val name: String,
     val description: String,
-    val create_date: Timestamp,
-    val close_date: Timestamp?,
+    val create_date: OffsetDateTime,
+    val close_date: OffsetDateTime?,
 
     val state_id: Int,
     val state_name: String,

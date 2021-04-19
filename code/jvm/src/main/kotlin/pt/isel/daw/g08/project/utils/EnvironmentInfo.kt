@@ -2,9 +2,12 @@ package pt.isel.daw.g08.project.utils
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.env.Environment
+import org.springframework.stereotype.Component
 import java.net.InetAddress
 
+@Component
 class EnvironmentInfo {
+
     @Autowired
     lateinit var environment: Environment
 

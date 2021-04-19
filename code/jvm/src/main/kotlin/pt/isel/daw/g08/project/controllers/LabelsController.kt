@@ -1,6 +1,7 @@
 package pt.isel.daw.g08.project.controllers
 
 import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -14,6 +15,7 @@ import pt.isel.daw.g08.project.controllers.models.LabelInputModel
 import pt.isel.daw.g08.project.controllers.models.LabelOutputModel
 import pt.isel.daw.g08.project.controllers.models.LabelsOutputModel
 import pt.isel.daw.g08.project.database.helpers.LabelsDb
+import pt.isel.daw.g08.project.pipeline.argumentresolvers.Pagination
 import pt.isel.daw.g08.project.responses.Response
 import pt.isel.daw.g08.project.responses.siren.SirenAction
 import pt.isel.daw.g08.project.responses.siren.SirenActionField
@@ -28,14 +30,13 @@ class LabelsController(val db: LabelsDb) : BaseController() {
     @GetMapping("labels")
     fun getAllLabels(
         @PathVariable projectId: Int,
-        @RequestParam(defaultValue = PAGE_DEFAULT_VALUE) page: Int,
-        @RequestParam(defaultValue = COUNT_DEFAULT_VALUE) count: Int
+        pagination: Pagination
     ): ResponseEntity<Response> {
-        val labelsDao = db.getAllLabelsFromProject(page, count, projectId)
+        val labelsDao = db.getAllLabelsFromProject(pagination.page, pagination.limit, projectId)
         val collectionSize = db.getLabelsCountFromProject(projectId)
         val labels = LabelsOutputModel(
             collectionSize = collectionSize,
-            pageIndex = page,
+            pageIndex = pagination.page,
             pageSize = labelsDao.size
         )
         val labelsUri = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/labels"
@@ -71,9 +72,9 @@ class LabelsController(val db: LabelsDb) : BaseController() {
                         )
                     )
                 ),
-                links = createUriListForPagination(labelsUri, page, labels.pageSize, count, collectionSize)
+                links = createUriListForPagination(labelsUri, pagination.page, labels.pageSize, pagination.limit, collectionSize)
             ),
-            200
+            HttpStatus.OK
         )
     }
 
@@ -126,7 +127,7 @@ class LabelsController(val db: LabelsDb) : BaseController() {
                     SirenLink(rel = listOf("labels"), href = URI(labelsUri))
                 ),
             ),
-            200
+            HttpStatus.OK
         )
     }
 
@@ -150,14 +151,13 @@ class LabelsController(val db: LabelsDb) : BaseController() {
     fun getLabelsFromIssue(
         @PathVariable projectId: Int,
         @PathVariable issueId: Int,
-        @RequestParam(defaultValue = PAGE_DEFAULT_VALUE) page: Int,
-        @RequestParam(defaultValue = COUNT_DEFAULT_VALUE) count: Int
+        pagination: Pagination
     ) : ResponseEntity<Response> {
-        val labelsDao = db.getAllLabelsFromIssue(page, count, issueId)
+        val labelsDao = db.getAllLabelsFromIssue(pagination.page, pagination.limit, issueId)
         val collectionSize = db.getLabelsCountFromIssue(issueId)
         val labels = LabelsOutputModel(
             collectionSize = collectionSize,
-            pageIndex = page,
+            pageIndex = pagination.page,
             pageSize = labelsDao.size
         )
         val labelsUri = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/labels"
@@ -208,9 +208,9 @@ class LabelsController(val db: LabelsDb) : BaseController() {
                         )
                     )
                 ),
-                links = createUriListForPagination(issueLabelsUri, page, labels.pageSize, count, collectionSize)
+                links = createUriListForPagination(issueLabelsUri, pagination.page, labels.pageSize, pagination.limit, collectionSize)
             ),
-            200
+            HttpStatus.OK
         )
     }
 

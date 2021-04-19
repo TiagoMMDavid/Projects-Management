@@ -22,7 +22,7 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
-	runtimeOnly("org.postgresql:postgresql")
+	implementation("org.postgresql:postgresql:42.2.19")
 	implementation("org.jdbi:jdbi3-core:3.18.0")
 	implementation("org.jdbi:jdbi3-kotlin:3.18.0")
 

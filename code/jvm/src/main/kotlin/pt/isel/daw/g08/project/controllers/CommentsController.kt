@@ -1,6 +1,7 @@
 package pt.isel.daw.g08.project.controllers
 
 import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -16,6 +17,7 @@ import pt.isel.daw.g08.project.controllers.models.CommentEditInputModel
 import pt.isel.daw.g08.project.controllers.models.CommentOutputModel
 import pt.isel.daw.g08.project.controllers.models.CommentsOutputModel
 import pt.isel.daw.g08.project.database.helpers.CommentsDb
+import pt.isel.daw.g08.project.pipeline.argumentresolvers.Pagination
 import pt.isel.daw.g08.project.responses.Response
 import pt.isel.daw.g08.project.responses.siren.SirenAction
 import pt.isel.daw.g08.project.responses.siren.SirenActionField
@@ -32,14 +34,13 @@ class CommentsController(val db: CommentsDb) : BaseController() {
     fun getIssueComments(
         @PathVariable projectId: Int,
         @PathVariable issueId: Int,
-        @RequestParam(defaultValue = PAGE_DEFAULT_VALUE) page: Int,
-        @RequestParam(defaultValue = COUNT_DEFAULT_VALUE) count: Int,
+        pagination: Pagination
     ): ResponseEntity<Response> {
-        val commentsDao = db.getAllCommentsFromIssue(page, count, issueId)
+        val commentsDao = db.getAllCommentsFromIssue(pagination.page, pagination.limit, issueId)
         val collectionSize = db.getCommentsCount(issueId)
         val comments = CommentsOutputModel(
             collectionSize = collectionSize,
-            pageIndex = page,
+            pageIndex = pagination.page,
             pageSize = commentsDao.size
         )
 
@@ -78,9 +79,9 @@ class CommentsController(val db: CommentsDb) : BaseController() {
                         )
                     )
                 ),
-                links = createUriListForPagination(commentsUri, page, comments.pageSize, count, comments.collectionSize)
+                links = createUriListForPagination(commentsUri, pagination.page, comments.pageSize, pagination.limit, comments.collectionSize)
             ),
-            200
+            HttpStatus.OK
         )
     }
 
@@ -137,7 +138,7 @@ class CommentsController(val db: CommentsDb) : BaseController() {
                     SirenLink(listOf("comments"), URI("${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/issues/${issueId}/comments")),
                 )
             ),
-            200
+            HttpStatus.OK
         )
     }
 

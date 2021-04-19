@@ -2,14 +2,14 @@ package pt.isel.daw.g08.project.controllers.models
 
 import pt.isel.daw.g08.project.responses.siren.SirenClass.collection
 import pt.isel.daw.g08.project.responses.siren.SirenClass.issue
-import java.sql.Timestamp
+import java.time.OffsetDateTime
 
 class IssueOutputModel(
     val id: Int,
     val name: String,
     val description: String,
-    val createDate: Timestamp,
-    val closeDate: Timestamp?,
+    val createDate: OffsetDateTime,
+    val closeDate: OffsetDateTime?,
     val state: String,
     val project: String,
     val author: String,
@@ -28,12 +28,12 @@ class IssuesOutputModel(
 data class IssueCreateInputModel(
     val name: String,
     val description: String,
-    val closeDate: Timestamp?,
+    val closeDate: OffsetDateTime?,
 )
 
 data class IssueEditInputModel(
     val name: String?,
     val description: String?,
     val state: String?,
-    val closeDate: Timestamp?,
+    val closeDate: OffsetDateTime?,
 )

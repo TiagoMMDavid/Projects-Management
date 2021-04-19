@@ -1,6 +1,7 @@
 package pt.isel.daw.g08.project.controllers
 
 import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -14,6 +15,7 @@ import pt.isel.daw.g08.project.controllers.models.StateInputModel
 import pt.isel.daw.g08.project.controllers.models.StateOutputModel
 import pt.isel.daw.g08.project.controllers.models.StatesOutputModel
 import pt.isel.daw.g08.project.database.helpers.StatesDb
+import pt.isel.daw.g08.project.pipeline.argumentresolvers.Pagination
 import pt.isel.daw.g08.project.responses.Response
 import pt.isel.daw.g08.project.responses.siren.SirenAction
 import pt.isel.daw.g08.project.responses.siren.SirenActionField
@@ -31,14 +33,13 @@ class StatesController(val db: StatesDb) : BaseController() {
     @GetMapping
     fun getAllStates(
         @PathVariable projectId: Int,
-        @RequestParam(defaultValue = PAGE_DEFAULT_VALUE) page: Int,
-        @RequestParam(defaultValue = COUNT_DEFAULT_VALUE) count: Int
+        pagination: Pagination
     ): ResponseEntity<Response> {
-        val statesDao = db.getAllStatesFromProject(page, count, projectId)
+        val statesDao = db.getAllStatesFromProject(pagination.page, pagination.limit, projectId)
         val collectionSize = db.getStatesCount(projectId)
         val states = StatesOutputModel(
             collectionSize = collectionSize,
-            pageIndex = page,
+            pageIndex = pagination.page,
             pageSize = statesDao.size
         )
 
@@ -79,9 +80,9 @@ class StatesController(val db: StatesDb) : BaseController() {
                         )
                     )
                 ),
-                links = createUriListForPagination("${baseUri}/states", page, states.pageSize, count, collectionSize)
+                links = createUriListForPagination("${baseUri}/states", pagination.page, states.pageSize, pagination.limit, collectionSize)
             ),
-            200
+            HttpStatus.OK
         )
     }
 
@@ -138,7 +139,7 @@ class StatesController(val db: StatesDb) : BaseController() {
                     SirenLink(rel = listOf("states"), href = URI("${baseUri}/states/")),
                 )
             ),
-            200
+            HttpStatus.OK
         )
     }
 
@@ -146,14 +147,13 @@ class StatesController(val db: StatesDb) : BaseController() {
     fun getNextStates(
         @PathVariable projectId: Int,
         @PathVariable stateId: Int,
-        @RequestParam(defaultValue = "0") page: Int,
-        @RequestParam(defaultValue = "10") count: Int
+        pagination: Pagination
     ): ResponseEntity<Response> {
-        val statesDao = db.getNextStates(page, count, stateId)
+        val statesDao = db.getNextStates(pagination.page, pagination.limit, stateId)
         val collectionSize = db.getNextStatesCount(stateId)
         val states = StatesOutputModel(
             collectionSize = collectionSize,
-            pageIndex = page,
+            pageIndex = pagination.page,
             pageSize = statesDao.size
         )
 
@@ -206,9 +206,9 @@ class StatesController(val db: StatesDb) : BaseController() {
                         )
                     )
                 ),
-                links = createUriListForPagination("${baseUri}/states", page, states.pageSize, count, collectionSize)
+                links = createUriListForPagination("${baseUri}/states", pagination.page, states.pageSize, pagination.limit, collectionSize)
             ),
-            200
+            HttpStatus.OK
         )
     }
 

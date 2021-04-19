@@ -2,12 +2,12 @@ package pt.isel.daw.g08.project.controllers.models
 
 import pt.isel.daw.g08.project.responses.siren.SirenClass.collection
 import pt.isel.daw.g08.project.responses.siren.SirenClass.comment
-import java.sql.Timestamp
+import java.time.OffsetDateTime
 
 class CommentOutputModel(
     val id: Int,
     val content: String,
-    val createDate: Timestamp,
+    val createDate: OffsetDateTime,
     val issue: String,
     val author: String,
 ) : OutputModel() {

@@ -1,5 +1,6 @@
 package pt.isel.daw.g08.project.controllers
 
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController
 import pt.isel.daw.g08.project.controllers.models.UserOutputModel
 import pt.isel.daw.g08.project.controllers.models.UsersOutputModel
 import pt.isel.daw.g08.project.database.helpers.UsersDb
+import pt.isel.daw.g08.project.pipeline.argumentresolvers.Pagination
 import pt.isel.daw.g08.project.responses.Response
 import pt.isel.daw.g08.project.responses.siren.SirenLink
 import java.net.URI
@@ -19,14 +21,13 @@ class UsersController(val db: UsersDb) : BaseController() {
 
     @GetMapping
     fun getAllUsers(
-        @RequestParam(defaultValue = PAGE_DEFAULT_VALUE) page: Int,
-        @RequestParam(defaultValue = COUNT_DEFAULT_VALUE) count: Int
+        pagination: Pagination
     ): ResponseEntity<Response> {
-        val usersDao = db.getAllUsers(page, count)
+        val usersDao = db.getAllUsers(pagination.page, pagination.limit)
         val collectionSize = db.getUsersCount()
         val users = UsersOutputModel(
             collectionSize = collectionSize,
-            pageIndex = page,
+            pageIndex = pagination.page,
             pageSize = usersDao.size
         )
         val usersUri = "${env.getBaseUrl()}/${USERS_HREF}"
@@ -45,9 +46,9 @@ class UsersController(val db: UsersDb) : BaseController() {
                         ),
                     )
                 },
-                links = createUriListForPagination(usersUri, page, users.pageSize, count, collectionSize)
+                links = createUriListForPagination(usersUri, pagination.page, users.pageSize, pagination.limit, collectionSize)
             ),
-            200
+            HttpStatus.OK
         )
     }
 
@@ -71,7 +72,7 @@ class UsersController(val db: UsersDb) : BaseController() {
                     SirenLink(rel = listOf("users"), href = usersUri)
                 ),
             ),
-            200
+            HttpStatus.OK
         )
     }
 }
