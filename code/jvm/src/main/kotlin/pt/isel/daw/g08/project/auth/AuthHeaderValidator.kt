@@ -6,10 +6,10 @@ import pt.isel.daw.g08.project.database.dto.User
 import pt.isel.daw.g08.project.exceptions.AuthorizationException
 import java.lang.Exception
 
-const val AUTH_SCHEME = "Basic"
-const val AUTH_HEADER = "Authorization"
-
 object AuthHeaderValidator {
+    const val AUTH_SCHEME = "Basic"
+    const val AUTH_HEADER = "Authorization"
+
     private val logger = LoggerFactory.getLogger(AuthHeaderValidator::class.java)
 
     fun validate(header: String?, validateUserFunction: (username: String, password: String) -> User?): User {
