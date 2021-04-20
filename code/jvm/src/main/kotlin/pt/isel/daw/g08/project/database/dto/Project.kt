@@ -1,6 +1,6 @@
-package pt.isel.daw.g08.project.database.dao
+package pt.isel.daw.g08.project.database.dto
 
-data class ProjectDao(
+data class Project(
     val pid: Int,
     val name: String,
     val description: String,

@@ -1,6 +1,6 @@
-package pt.isel.daw.g08.project.database.dao
+package pt.isel.daw.g08.project.database.dto
 
-data class UserDao(
+data class User(
     val uid: Int,
     val username: String,
     val pass: String,

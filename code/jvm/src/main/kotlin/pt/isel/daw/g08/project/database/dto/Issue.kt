@@ -1,8 +1,8 @@
-package pt.isel.daw.g08.project.database.dao
+package pt.isel.daw.g08.project.database.dto
 
 import java.time.OffsetDateTime
 
-data class IssueDao(
+data class Issue(
     val iid: Int,
     val name: String,
     val description: String,

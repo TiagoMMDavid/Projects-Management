@@ -4,75 +4,74 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import pt.isel.daw.g08.project.Routes.USERS_HREF
+import pt.isel.daw.g08.project.Routes.USER_BY_ID_HREF
+import pt.isel.daw.g08.project.Routes.createSirenLinkListForPagination
+import pt.isel.daw.g08.project.Routes.getUserByIdUri
+import pt.isel.daw.g08.project.Routes.includeHost
 import pt.isel.daw.g08.project.controllers.models.UserOutputModel
 import pt.isel.daw.g08.project.controllers.models.UsersOutputModel
 import pt.isel.daw.g08.project.database.helpers.UsersDb
 import pt.isel.daw.g08.project.pipeline.argumentresolvers.Pagination
 import pt.isel.daw.g08.project.responses.Response
 import pt.isel.daw.g08.project.responses.siren.SirenLink
+import pt.isel.daw.g08.project.responses.toResponseEntity
 import java.net.URI
 
 @RestController
-@RequestMapping(USERS_HREF)
-class UsersController(val db: UsersDb) : BaseController() {
+class UsersController(val db: UsersDb) {
 
-    @GetMapping
+    @GetMapping(USERS_HREF)
     fun getAllUsers(
         pagination: Pagination
     ): ResponseEntity<Response> {
-        val usersDao = db.getAllUsers(pagination.page, pagination.limit)
+        val users = db.getAllUsers(pagination.page, pagination.limit)
         val collectionSize = db.getUsersCount()
-        val users = UsersOutputModel(
+        val usersModel = UsersOutputModel(
             collectionSize = collectionSize,
             pageIndex = pagination.page,
-            pageSize = usersDao.size
+            pageSize = users.size
         )
-        val usersUri = "${env.getBaseUrl()}/${USERS_HREF}"
 
-        return createResponseEntity(
-            users.toSirenObject(
-                entities = usersDao.map { userDao ->
-                    UserOutputModel(
-                        id = userDao.uid,
-                        name = userDao.username
-                    ).toSirenObject(
-                        rel = listOf("item"),
-                        links = listOf(
-                            SirenLink(rel = listOf("self"), href = URI("${usersUri}/${userDao.uid}")),
-                            SirenLink(rel = listOf("users"), href = URI(usersUri))
-                        ),
-                    )
-                },
-                links = createUriListForPagination(usersUri, pagination.page, users.pageSize, pagination.limit, collectionSize)
-            ),
-            HttpStatus.OK
-        )
+        return usersModel.toSirenObject(
+            entities = users.map {
+                UserOutputModel(
+                    id = it.uid,
+                    name = it.username
+                ).toSirenObject(
+                    rel = listOf("item"),
+                    links = listOf(
+                        SirenLink(rel = listOf("self"), href = getUserByIdUri(it.uid).includeHost()),
+                        SirenLink(rel = listOf("users"), href = URI(USERS_HREF).includeHost())
+                    ),
+                )
+            },
+            links = createSirenLinkListForPagination(
+                URI(USERS_HREF).includeHost(),
+                pagination.page,
+                usersModel.pageSize,
+                pagination.limit,
+                collectionSize
+            )
+        ).toResponseEntity(HttpStatus.OK)
     }
 
-    @GetMapping("{userId}")
+    @GetMapping(USER_BY_ID_HREF)
     fun getUser(
         @PathVariable userId: Int,
     ): ResponseEntity<Response> {
-        //TODO: Exceptions (404 when not found)
-        val userDao = db.getUserById(userId)
-        val user = UserOutputModel(
-            id = userDao.uid,
-            name = userDao.username
+        val user = db.getUserById(userId)
+        val userModel = UserOutputModel(
+            id = user.uid,
+            name = user.username
         )
-        val selfUri = URI("${env.getBaseUrl()}/${USERS_HREF}/${user.id}")
-        val usersUri = URI("${env.getBaseUrl()}/${USERS_HREF}")
 
-        return createResponseEntity(
-            user.toSirenObject(
-                links = listOf(
-                    SirenLink(rel = listOf("self"), href = selfUri),
-                    SirenLink(rel = listOf("users"), href = usersUri)
-                ),
+        return userModel.toSirenObject(
+            links = listOf(
+                SirenLink(rel = listOf("self"), href = getUserByIdUri(user.uid).includeHost()),
+                SirenLink(rel = listOf("users"), href = URI(USERS_HREF).includeHost())
             ),
-            HttpStatus.OK
-        )
+        ).toResponseEntity(HttpStatus.OK)
     }
 }

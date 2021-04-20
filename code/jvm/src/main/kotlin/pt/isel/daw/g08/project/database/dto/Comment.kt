@@ -1,8 +1,8 @@
-package pt.isel.daw.g08.project.database.dao
+package pt.isel.daw.g08.project.database.dto
 
 import java.time.OffsetDateTime
 
-data class CommentDao(
+data class Comment(
     val cid: Int,
     val text: String,
     val create_date: OffsetDateTime,

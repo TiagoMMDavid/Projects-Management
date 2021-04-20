@@ -1,6 +1,6 @@
-package pt.isel.daw.g08.project.database.dao
+package pt.isel.daw.g08.project.database.dto
 
-data class StateDao(
+data class State(
     val sid: Int,
     val name: String,
     val is_start: Boolean,

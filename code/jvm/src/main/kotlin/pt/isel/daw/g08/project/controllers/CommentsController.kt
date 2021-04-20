@@ -9,9 +9,16 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import pt.isel.daw.g08.project.Routes.COMMENTS_HREF
+import pt.isel.daw.g08.project.Routes.COMMENT_BY_ID_HREF
+import pt.isel.daw.g08.project.Routes.INPUT_CONTENT_TYPE
+import pt.isel.daw.g08.project.Routes.createSirenLinkListForPagination
+import pt.isel.daw.g08.project.Routes.getCommentByIdUri
+import pt.isel.daw.g08.project.Routes.getCommentsUri
+import pt.isel.daw.g08.project.Routes.getIssueByIdUri
+import pt.isel.daw.g08.project.Routes.getUserByIdUri
+import pt.isel.daw.g08.project.Routes.includeHost
 import pt.isel.daw.g08.project.controllers.models.CommentCreateInputModel
 import pt.isel.daw.g08.project.controllers.models.CommentEditInputModel
 import pt.isel.daw.g08.project.controllers.models.CommentOutputModel
@@ -23,126 +30,122 @@ import pt.isel.daw.g08.project.responses.siren.SirenAction
 import pt.isel.daw.g08.project.responses.siren.SirenActionField
 import pt.isel.daw.g08.project.responses.siren.SirenFieldType
 import pt.isel.daw.g08.project.responses.siren.SirenLink
+import pt.isel.daw.g08.project.responses.toResponseEntity
 import java.net.URI
 
 @RestController
-@RequestMapping("${PROJECTS_HREF}/{projectId}/issues/{issueId}/comments")
-class CommentsController(val db: CommentsDb) : BaseController() {
+class CommentsController(val db: CommentsDb) {
 
-
-    @GetMapping
+    @GetMapping(COMMENTS_HREF)
     fun getIssueComments(
         @PathVariable projectId: Int,
         @PathVariable issueId: Int,
         pagination: Pagination
     ): ResponseEntity<Response> {
-        val commentsDao = db.getAllCommentsFromIssue(pagination.page, pagination.limit, issueId)
+        val comments = db.getAllCommentsFromIssue(pagination.page, pagination.limit, issueId)
         val collectionSize = db.getCommentsCount(issueId)
-        val comments = CommentsOutputModel(
+        val commentsModel = CommentsOutputModel(
             collectionSize = collectionSize,
             pageIndex = pagination.page,
-            pageSize = commentsDao.size
+            pageSize = comments.size
         )
 
-        val commentsUri = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/issues/${issueId}/comments"
-
-        return createResponseEntity(
-            comments.toSirenObject(
-                entities = commentsDao.map {
-                    CommentOutputModel(
-                        id = it.cid,
-                        content = it.text,
-                        createDate = it.create_date,
-                        issue = it.issue_name,
-                        author = it.author_name,
-                    ).toSirenObject(
-                        rel = listOf("item"),
-                        links = listOf(
-                            SirenLink(listOf("self"), URI("${commentsUri}/${it.cid}")),
-                            SirenLink(listOf("issue"), URI("${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/issues/${issueId}")),
-                            SirenLink(listOf("author"), URI("${env.getBaseUrl()}/${USERS_HREF}/${it.author_id}")),
-                            SirenLink(listOf("comments"), URI(commentsUri)),
-                        )
+        return commentsModel.toSirenObject(
+            entities = comments.map {
+                CommentOutputModel(
+                    id = it.cid,
+                    content = it.text,
+                    createDate = it.create_date,
+                    issue = it.issue_name,
+                    author = it.author_name,
+                ).toSirenObject(
+                    rel = listOf("item"),
+                    links = listOf(
+                        SirenLink(listOf("self"), getCommentByIdUri(projectId, issueId, it.cid).includeHost()),
+                        SirenLink(listOf("issue"), getIssueByIdUri(projectId, issueId).includeHost()),
+                        SirenLink(listOf("author"), getUserByIdUri(it.author_id).includeHost()),
+                        SirenLink(listOf("comments"), getCommentsUri(projectId, issueId).includeHost()),
                     )
-                },
-                actions = listOf(
-                    SirenAction(
-                        name = "create-comment",
-                        title = "Create Comment",
-                        method = HttpMethod.PUT,
-                        href = URI(commentsUri),
-                        type = INPUT_CONTENT_TYPE,
-                        fields = listOf(
-                            SirenActionField(name = "projectId", type = SirenFieldType.hidden, value = projectId),
-                            SirenActionField(name = "issueId", type = SirenFieldType.hidden, value = issueId),
-                            SirenActionField(name = "content", type = SirenFieldType.text)
-                        )
+                )
+            },
+            actions = listOf(
+                SirenAction(
+                    name = "create-comment",
+                    title = "Create Comment",
+                    method = HttpMethod.PUT,
+                    href = URI(COMMENTS_HREF).includeHost(),
+                    type = INPUT_CONTENT_TYPE,
+                    fields = listOf(
+                        SirenActionField(name = "projectId", type = SirenFieldType.hidden, value = projectId),
+                        SirenActionField(name = "issueId", type = SirenFieldType.hidden, value = issueId),
+                        SirenActionField(name = "content", type = SirenFieldType.text)
                     )
-                ),
-                links = createUriListForPagination(commentsUri, pagination.page, comments.pageSize, pagination.limit, comments.collectionSize)
+                )
             ),
-            HttpStatus.OK
-        )
+            links = createSirenLinkListForPagination(
+                URI(COMMENTS_HREF).includeHost(),
+                pagination.page,
+                commentsModel.pageSize,
+                pagination.limit,
+                commentsModel.collectionSize
+            )
+        ).toResponseEntity(HttpStatus.OK)
     }
 
-    @GetMapping("{commentId}")
+    @GetMapping(COMMENT_BY_ID_HREF)
     fun getComment(
         @PathVariable projectId: Int,
         @PathVariable issueId: Int,
         @PathVariable commentId: Int
     ): ResponseEntity<Response> {
-        //TODO: Exceptions (404 when not found)
-        val commentDao = db.getCommentById(commentId)
-        val comment = CommentOutputModel(
-            id = commentDao.cid,
-            content = commentDao.text,
-            createDate = commentDao.create_date,
-            issue = commentDao.issue_name,
-            author = commentDao.author_name,
+        val comment = db.getCommentById(commentId)
+        val commentModel = CommentOutputModel(
+            id = comment.cid,
+            content = comment.text,
+            createDate = comment.create_date,
+            issue = comment.issue_name,
+            author = comment.author_name,
         )
 
-        val selfUri = URI("${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/issues/${issueId}/comments/${comment.id}")
+        val selfUri = getCommentByIdUri(projectId, issueId, commentId).includeHost()
 
-        return createResponseEntity(
-            comment.toSirenObject(
-                actions = listOf(
-                    SirenAction(
-                        name = "edit-comment",
-                        title = "Edit Comment",
-                        method = HttpMethod.PUT,
-                        href = selfUri,
-                        type = INPUT_CONTENT_TYPE,
-                        fields = listOf(
-                            SirenActionField(name = "projectId", type = SirenFieldType.hidden, value = projectId),
-                            SirenActionField(name = "issueId", type = SirenFieldType.hidden, value = issueId),
-                            SirenActionField(name = "commentId", type = SirenFieldType.hidden, value = comment.id),
-                            SirenActionField(name = "content", type = SirenFieldType.text)
-                        )
-                    ),
-                    SirenAction(
-                        name = "delete-comment",
-                        title = "Delete Comment",
-                        method = HttpMethod.DELETE,
-                        href = selfUri,
-                        fields = listOf(
-                            SirenActionField(name = "projectId", type = SirenFieldType.hidden, value = projectId),
-                            SirenActionField(name = "issueId", type = SirenFieldType.hidden, value = issueId),
-                            SirenActionField(name = "commentId", type = SirenFieldType.hidden, value = comment.id),
-                        )
+        return commentModel.toSirenObject(
+            actions = listOf(
+                SirenAction(
+                    name = "edit-comment",
+                    title = "Edit Comment",
+                    method = HttpMethod.PUT,
+                    href = selfUri,
+                    type = INPUT_CONTENT_TYPE,
+                    fields = listOf(
+                        SirenActionField(name = "projectId", type = SirenFieldType.hidden, value = projectId),
+                        SirenActionField(name = "issueId", type = SirenFieldType.hidden, value = issueId),
+                        SirenActionField(name = "commentId", type = SirenFieldType.hidden, value = commentModel.id),
+                        SirenActionField(name = "content", type = SirenFieldType.text)
                     )
                 ),
-                links = listOf(
-                    SirenLink(listOf("self"), selfUri),
-                    SirenLink(listOf("issue"), URI("${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/issues/${issueId}")),
-                    SirenLink(listOf("author"), URI("${env.getBaseUrl()}/${USERS_HREF}/${commentDao.author_id}")),
-                    SirenLink(listOf("comments"), URI("${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/issues/${issueId}/comments")),
+                SirenAction(
+                    name = "delete-comment",
+                    title = "Delete Comment",
+                    method = HttpMethod.DELETE,
+                    href = selfUri,
+                    fields = listOf(
+                        SirenActionField(name = "projectId", type = SirenFieldType.hidden, value = projectId),
+                        SirenActionField(name = "issueId", type = SirenFieldType.hidden, value = issueId),
+                        SirenActionField(name = "commentId", type = SirenFieldType.hidden, value = commentModel.id),
+                    )
                 )
             ),
-            HttpStatus.OK
-        )
+            links = listOf(
+                SirenLink(listOf("self"), selfUri),
+                SirenLink(listOf("issue"), getIssueByIdUri(projectId, issueId).includeHost()),
+                SirenLink(listOf("author"), getUserByIdUri(comment.author_id).includeHost()),
+                SirenLink(listOf("comments"), getCommentsUri(projectId, issueId).includeHost()),
+            )
+        ).toResponseEntity(HttpStatus.OK)
     }
 
-    @PostMapping
+    @PostMapping(COMMENTS_HREF)
     fun addComment(
         @PathVariable projectId: Int,
         @PathVariable issueId: Int,
@@ -151,7 +154,7 @@ class CommentsController(val db: CommentsDb) : BaseController() {
         TODO()
     }
 
-    @PutMapping("{commentId}")
+    @PutMapping(COMMENT_BY_ID_HREF)
     fun editComment(
         @PathVariable projectId: Int,
         @PathVariable issueId: Int,
@@ -160,7 +163,7 @@ class CommentsController(val db: CommentsDb) : BaseController() {
         TODO()
     }
 
-    @DeleteMapping("{commentId}")
+    @DeleteMapping(COMMENT_BY_ID_HREF)
     fun deleteComment(
         @PathVariable projectId: Int,
         @PathVariable issueId: Int,
