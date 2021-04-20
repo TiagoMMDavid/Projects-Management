@@ -8,9 +8,17 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import pt.isel.daw.g08.project.Routes
+import pt.isel.daw.g08.project.Routes.INPUT_CONTENT_TYPE
+import pt.isel.daw.g08.project.Routes.ISSUES_HREF
+import pt.isel.daw.g08.project.Routes.ISSUE_BY_ID_HREF
+import pt.isel.daw.g08.project.Routes.createSirenLinkListForPagination
+import pt.isel.daw.g08.project.Routes.getIssueByIdUri
+import pt.isel.daw.g08.project.Routes.getLabelsOfIssueUri
+import pt.isel.daw.g08.project.Routes.getProjectByIdUri
+import pt.isel.daw.g08.project.Routes.getStateByIdUri
+import pt.isel.daw.g08.project.Routes.getUserByIdUri
+import pt.isel.daw.g08.project.Routes.includeHost
 import pt.isel.daw.g08.project.controllers.models.IssueCreateInputModel
 import pt.isel.daw.g08.project.controllers.models.IssueEditInputModel
 import pt.isel.daw.g08.project.controllers.models.IssueOutputModel
@@ -22,134 +30,132 @@ import pt.isel.daw.g08.project.responses.siren.SirenAction
 import pt.isel.daw.g08.project.responses.siren.SirenActionField
 import pt.isel.daw.g08.project.responses.siren.SirenFieldType
 import pt.isel.daw.g08.project.responses.siren.SirenLink
+import pt.isel.daw.g08.project.responses.toResponseEntity
 import java.net.URI
 
 @RestController
-@RequestMapping("${PROJECTS_HREF}/{projectId}/issues")
-class IssuesController(val db: IssuesDb) : Routes() {
+class IssuesController(val db: IssuesDb) {
 
-    @GetMapping
+    @GetMapping(ISSUES_HREF)
     fun getAllIssues(
         @PathVariable projectId: Int,
         pagination: Pagination
     ): ResponseEntity<Response> {
-        val issuesDao = db.getAllIssuesFromProject(pagination.page, pagination.limit, projectId)
+        val issues = db.getAllIssuesFromProject(pagination.page, pagination.limit, projectId)
         val collectionSize = db.getIssuesCount(projectId)
-        val issues = IssuesOutputModel(
+        val issuesModel = IssuesOutputModel(
             collectionSize = collectionSize,
             pageIndex = pagination.page,
-            pageSize = issuesDao.size,
+            pageSize = issues.size,
         )
-        val issuesUri = "${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/issues"
 
-        return createResponseEntity(
-            issues.toSirenObject(
-                entities = issuesDao.map {
-                    IssueOutputModel(
-                        id = it.iid,
-                        name = it.name,
-                        description = it.description,
-                        createDate = it.create_date,
-                        closeDate = it.close_date,
-                        state = it.state_name,
-                        project = it.project_name,
-                        author = it.author_name,
-                    ).toSirenObject(
-                        rel = listOf("item"),
-                        links = listOf(
-                            SirenLink(listOf("self"), URI("${issuesUri}/${it.iid}")),
-                            SirenLink(listOf("state"), URI("${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states/${it.state_id}")),
-                            SirenLink(listOf("comments"), URI("${issuesUri}/${it.iid}/comments")),
-                            SirenLink(listOf("labels"), URI("${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/issues/${it.iid}/labels")),
-                            SirenLink(listOf("author"), URI("${env.getBaseUrl()}/${USERS_HREF}/${it.author_id}")),
-                            SirenLink(listOf("project"), URI("${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}")),
-                            SirenLink(listOf("issues"), URI(issuesUri)),
-                        )
+        return issuesModel.toSirenObject(
+            entities = issues.map {
+                IssueOutputModel(
+                    id = it.iid,
+                    name = it.name,
+                    description = it.description,
+                    createDate = it.create_date,
+                    closeDate = it.close_date,
+                    state = it.state_name,
+                    project = it.project_name,
+                    author = it.author_name,
+                ).toSirenObject(
+                    rel = listOf("item"),
+                    links = listOf(
+                        SirenLink(listOf("self"), getIssueByIdUri(projectId, it.iid).includeHost()),
+                        SirenLink(listOf("state"), getStateByIdUri(projectId, it.state_id).includeHost()),
+                        SirenLink(listOf("comments"), getIssueByIdUri(projectId, it.iid).includeHost()),
+                        SirenLink(listOf("labels"), getLabelsOfIssueUri(projectId, it.iid).includeHost()),
+                        SirenLink(listOf("author"), getUserByIdUri(it.author_id).includeHost()),
+                        SirenLink(listOf("project"), getProjectByIdUri(it.project_id).includeHost()),
+                        SirenLink(listOf("issues"), URI(ISSUES_HREF).includeHost()),
                     )
-                },
-                actions = listOf(
-                    SirenAction(
-                        name = "create-issue",
-                        title = "Create Issue",
-                        method = HttpMethod.PUT,
-                        href = URI(issuesUri),
-                        type = INPUT_CONTENT_TYPE,
-                        fields = listOf(
-                            SirenActionField(name = "projectId", type = SirenFieldType.hidden, value = projectId),
-                            SirenActionField(name = "name", type = SirenFieldType.text),
-                            SirenActionField(name = "description", type = SirenFieldType.text)
-                        )
+                )
+            },
+            actions = listOf(
+                SirenAction(
+                    name = "create-issue",
+                    title = "Create Issue",
+                    method = HttpMethod.PUT,
+                    href = URI(ISSUES_HREF).includeHost(),
+                    type = INPUT_CONTENT_TYPE,
+                    fields = listOf(
+                        SirenActionField(name = "projectId", type = SirenFieldType.hidden, value = projectId),
+                        SirenActionField(name = "name", type = SirenFieldType.text),
+                        SirenActionField(name = "description", type = SirenFieldType.text)
                     )
-                ),
-                links = createUriListForPagination(issuesUri, pagination.page, issues.pageSize, pagination.limit, issues.collectionSize)
+                )
             ),
-            HttpStatus.OK
-        )
+            links = createSirenLinkListForPagination(
+                URI(ISSUES_HREF).includeHost(),
+                pagination.page,
+                issuesModel.pageSize,
+                pagination.limit,
+                issuesModel.collectionSize
+            )
+        ).toResponseEntity(HttpStatus.OK)
     }
 
-    @GetMapping("{issueId}")
+    @GetMapping(ISSUE_BY_ID_HREF)
     fun getIssue(
         @PathVariable projectId: Int,
         @PathVariable issueId: Int,
     ): ResponseEntity<Response> {
-        //TODO: Exceptions (404 when not found)
-        val issueDao = db.getIssueById(issueId)
-        val issue = IssueOutputModel(
-            id = issueDao.iid,
-            name = issueDao.name,
-            description = issueDao.description,
-            createDate = issueDao.create_date,
-            closeDate = issueDao.close_date,
-            state = issueDao.state_name,
-            project = issueDao.project_name,
-            author = issueDao.author_name,
+        val issue = db.getIssueById(issueId)
+        val issueModel = IssueOutputModel(
+            id = issue.iid,
+            name = issue.name,
+            description = issue.description,
+            createDate = issue.create_date,
+            closeDate = issue.close_date,
+            state = issue.state_name,
+            project = issue.project_name,
+            author = issue.author_name,
         )
 
-        val selfUri = URI("${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/issues/${issue.id}")
+        val selfUri = getIssueByIdUri(projectId, issue.iid).includeHost()
 
-        return createResponseEntity(
-            issue.toSirenObject(
-                actions = listOf(
-                    SirenAction(
-                        name = "edit-issue",
-                        title = "Edit Issue",
-                        method = HttpMethod.PUT,
-                        href = selfUri,
-                        type = INPUT_CONTENT_TYPE,
-                        fields = listOf(
-                            SirenActionField(name = "projectId", type = SirenFieldType.hidden, value = projectId),
-                            SirenActionField(name = "issueId", type = SirenFieldType.hidden, value = issue.id),
-                            SirenActionField(name = "name", type = SirenFieldType.text),
-                            SirenActionField(name = "description", type = SirenFieldType.text),
-                            SirenActionField(name = "stateId", type = SirenFieldType.number),
-                        )
-                    ),
-                    SirenAction(
-                        name = "delete-issue",
-                        title = "Delete Issue",
-                        method = HttpMethod.DELETE,
-                        href = selfUri,
-                        fields = listOf(
-                            SirenActionField(name = "projectId", type = SirenFieldType.hidden, value = projectId),
-                            SirenActionField(name = "issueId", type = SirenFieldType.hidden, value = issue.id),
-                        )
+        return issueModel.toSirenObject(
+            actions = listOf(
+                SirenAction(
+                    name = "edit-issue",
+                    title = "Edit Issue",
+                    method = HttpMethod.PUT,
+                    href = selfUri,
+                    type = INPUT_CONTENT_TYPE,
+                    fields = listOf(
+                        SirenActionField(name = "projectId", type = SirenFieldType.hidden, value = projectId),
+                        SirenActionField(name = "issueId", type = SirenFieldType.hidden, value = issueModel.id),
+                        SirenActionField(name = "name", type = SirenFieldType.text),
+                        SirenActionField(name = "description", type = SirenFieldType.text),
+                        SirenActionField(name = "stateId", type = SirenFieldType.number),
                     )
                 ),
-                links = listOf(
-                    SirenLink(listOf("self"), selfUri),
-                    SirenLink(listOf("state"), URI("${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/states/${issueDao.state_id}")),
-                    SirenLink(listOf("comments"), URI("${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/issues/${issue.id}/comments")),
-                    SirenLink(listOf("labels"), URI("${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/issues/${issue.id}/labels")),
-                    SirenLink(listOf("author"), URI("${env.getBaseUrl()}/${USERS_HREF}/${issueDao.author_id}")),
-                    SirenLink(listOf("project"), URI("${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}")),
-                    SirenLink(listOf("issues"), URI("${env.getBaseUrl()}/${PROJECTS_HREF}/${projectId}/issues")),
+                SirenAction(
+                    name = "delete-issue",
+                    title = "Delete Issue",
+                    method = HttpMethod.DELETE,
+                    href = selfUri,
+                    fields = listOf(
+                        SirenActionField(name = "projectId", type = SirenFieldType.hidden, value = projectId),
+                        SirenActionField(name = "issueId", type = SirenFieldType.hidden, value = issueModel.id),
+                    )
                 )
             ),
-            HttpStatus.OK
-        )
+            links = listOf(
+                SirenLink(listOf("self"), selfUri),
+                SirenLink(listOf("state"), getStateByIdUri(projectId, issue.state_id).includeHost()),
+                SirenLink(listOf("comments"), getIssueByIdUri(projectId, issue.iid).includeHost()),
+                SirenLink(listOf("labels"), getLabelsOfIssueUri(projectId, issue.iid).includeHost()),
+                SirenLink(listOf("author"), getUserByIdUri(issue.author_id).includeHost()),
+                SirenLink(listOf("project"), getProjectByIdUri(issue.project_id).includeHost()),
+                SirenLink(listOf("issues"), URI(ISSUES_HREF).includeHost()),
+            )
+        ).toResponseEntity(HttpStatus.OK)
     }
 
-    @PostMapping
+    @PostMapping(ISSUES_HREF)
     fun createIssue(
         @PathVariable projectId: Int,
         @RequestBody input: IssueCreateInputModel,
@@ -157,7 +163,7 @@ class IssuesController(val db: IssuesDb) : Routes() {
         TODO()
     }
 
-    @PutMapping("{issueId}")
+    @PutMapping(ISSUE_BY_ID_HREF)
     fun editIssue(
         @PathVariable projectId: Int,
         @PathVariable issueId: Int,
