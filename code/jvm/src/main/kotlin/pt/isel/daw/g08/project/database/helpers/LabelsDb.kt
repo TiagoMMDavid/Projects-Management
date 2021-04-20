@@ -1,7 +1,8 @@
 package pt.isel.daw.g08.project.database.helpers
 
+import org.jdbi.v3.core.Jdbi
 import org.springframework.stereotype.Component
-import pt.isel.daw.g08.project.database.dao.LabelDao
+import pt.isel.daw.g08.project.database.dto.Label
 
 private const val GET_LABELS_BASE = "SELECT lid, name, project_id, project_name, author_id, author_name FROM V_LABEL"
 
@@ -13,15 +14,15 @@ private const val GET_LABELS_FROM_ISSUE_QUERY = "$GET_LABELS_BASE WHERE lid IN (
 private const val GET_LABELS_COUNT_FROM_ISSUE = "SELECT COUNT(lid) as count FROM ISSUE_LABEL WHERE iid = :iid"
 
 @Component
-class LabelsDb : DatabaseHelper() {
+class LabelsDb(val jdbi: Jdbi) {
     fun getAllLabelsFromProject(page: Int, perPage: Int, projectId: Int) =
-        getList(GET_LABELS_FROM_PROJECT_QUERY, LabelDao::class.java, page, perPage, Pair("pid", projectId))
+        jdbi.getList(GET_LABELS_FROM_PROJECT_QUERY, Label::class.java, page, perPage, mapOf("pid" to projectId))
 
-    fun getLabelsCountFromProject(projectId: Int) = getOne(GET_LABELS_COUNT_FROM_PROJECT, Int::class.java, Pair("pid", projectId))
-    fun getLabelById(labelId: Int) = getOne(GET_LABEL_QUERY, LabelDao::class.java , Pair("lid", labelId))
+    fun getLabelsCountFromProject(projectId: Int) = jdbi.getOne(GET_LABELS_COUNT_FROM_PROJECT, Int::class.java, mapOf("pid" to projectId))
+    fun getLabelById(labelId: Int) = jdbi.getOne(GET_LABEL_QUERY, Label::class.java , mapOf("lid" to labelId))
 
 
     fun getAllLabelsFromIssue(page: Int, perPage: Int, issueId: Int) =
-        getList(GET_LABELS_FROM_ISSUE_QUERY, LabelDao::class.java, page, perPage, Pair("iid", issueId))
-    fun getLabelsCountFromIssue(issueId: Int) = getOne(GET_LABELS_COUNT_FROM_ISSUE, Int::class.java, Pair("iid", issueId))
+        jdbi.getList(GET_LABELS_FROM_ISSUE_QUERY, Label::class.java, page, perPage, mapOf("iid" to issueId))
+    fun getLabelsCountFromIssue(issueId: Int) = jdbi.getOne(GET_LABELS_COUNT_FROM_ISSUE, Int::class.java, mapOf("iid" to issueId))
 }

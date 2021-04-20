@@ -1,7 +1,8 @@
 package pt.isel.daw.g08.project.database.helpers
 
+import org.jdbi.v3.core.Jdbi
 import org.springframework.stereotype.Component
-import pt.isel.daw.g08.project.database.dao.StateDao
+import pt.isel.daw.g08.project.database.dto.State
 
 private const val GET_STATES_BASE = "SELECT sid, name, is_start, project_id, project_name, author_id, author_name FROM V_STATE"
 
@@ -13,15 +14,15 @@ private const val GET_NEXT_STATES_QUERY = "$GET_STATES_BASE WHERE sid IN (SELECT
 private const val GET_NEXT_STATES_COUNT = "SELECT COUNT(to_sid) as count FROM STATETRANSITION WHERE from_sid = :sid"
 
 @Component
-class StatesDb : DatabaseHelper() {
+class StatesDb(val jdbi: Jdbi) {
     fun getAllStatesFromProject(page: Int, perPage: Int, projectId: Int) =
-        getList(GET_STATES_FROM_PROJECT_QUERY, StateDao::class.java, page, perPage, Pair("pid", projectId))
+        jdbi.getList(GET_STATES_FROM_PROJECT_QUERY, State::class.java, page, perPage, mapOf("pid" to projectId))
 
-    fun getStatesCount(projectId: Int) = getOne(GET_STATES_COUNT, Int::class.java, Pair("pid", projectId))
-    fun getStateById(stateId: Int) = getOne(GET_STATE_QUERY, StateDao::class.java, Pair("sid", stateId))
+    fun getStatesCount(projectId: Int) = jdbi.getOne(GET_STATES_COUNT, Int::class.java, mapOf("pid" to projectId))
+    fun getStateById(stateId: Int) = jdbi.getOne(GET_STATE_QUERY, State::class.java, mapOf("sid" to stateId))
 
 
     fun getNextStates(page: Int, perPage: Int, stateId: Int) =
-        getList(GET_NEXT_STATES_QUERY, StateDao::class.java, page, perPage, Pair("sid", stateId))
-    fun getNextStatesCount(stateId: Int) = getOne(GET_NEXT_STATES_COUNT, Int::class.java, Pair("sid", stateId))
+        jdbi.getList(GET_NEXT_STATES_QUERY, State::class.java, page, perPage, mapOf("sid" to stateId))
+    fun getNextStatesCount(stateId: Int) = jdbi.getOne(GET_NEXT_STATES_COUNT, Int::class.java, mapOf("sid" to stateId))
 }

@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import pt.isel.daw.g08.project.Routes
 import pt.isel.daw.g08.project.controllers.models.CommentCreateInputModel
 import pt.isel.daw.g08.project.controllers.models.CommentEditInputModel
 import pt.isel.daw.g08.project.controllers.models.CommentOutputModel
@@ -27,7 +27,7 @@ import java.net.URI
 
 @RestController
 @RequestMapping("${PROJECTS_HREF}/{projectId}/issues/{issueId}/comments")
-class CommentsController(val db: CommentsDb) : BaseController() {
+class CommentsController(val db: CommentsDb) : Routes() {
 
 
     @GetMapping

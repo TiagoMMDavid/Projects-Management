@@ -21,7 +21,8 @@ data class Pagination(
 
 class PaginationResolver : HandlerMethodArgumentResolver {
 
-    override fun supportsParameter(parameter: MethodParameter) = parameter.parameterType == Pagination::class.java
+    override fun supportsParameter(parameter: MethodParameter) =
+        parameter.parameterType == Pagination::class.java
 
     override fun resolveArgument(
         parameter: MethodParameter,

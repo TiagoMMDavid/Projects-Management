@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import pt.isel.daw.g08.project.Routes
 import pt.isel.daw.g08.project.controllers.models.LabelInputModel
 import pt.isel.daw.g08.project.controllers.models.LabelOutputModel
 import pt.isel.daw.g08.project.controllers.models.LabelsOutputModel
@@ -25,7 +25,7 @@ import java.net.URI
 
 @RestController
 @RequestMapping("${PROJECTS_HREF}/{projectId}")
-class LabelsController(val db: LabelsDb) : BaseController() {
+class LabelsController(val db: LabelsDb) : Routes() {
 
     @GetMapping("labels")
     fun getAllLabels(

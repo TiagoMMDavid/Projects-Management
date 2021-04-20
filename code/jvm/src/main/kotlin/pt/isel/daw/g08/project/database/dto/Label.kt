@@ -1,6 +1,6 @@
-package pt.isel.daw.g08.project.database.dao
+package pt.isel.daw.g08.project.database.dto
 
-data class LabelDao(
+data class Label(
     val lid: Int,
     val name: String,
 
