@@ -2,7 +2,6 @@ package pt.isel.daw.g08.project.database.helpers
 
 import org.jdbi.v3.core.Jdbi
 import pt.isel.daw.g08.project.exceptions.NotFoundException
-import java.lang.StringBuilder
 
 private const val GET_PAGINATED_SUFFIX = "LIMIT :limit OFFSET :offset"
 

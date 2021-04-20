@@ -4,7 +4,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.util.Base64Utils
 import pt.isel.daw.g08.project.database.dto.User
 import pt.isel.daw.g08.project.exceptions.AuthorizationException
-import java.lang.Exception
 
 object AuthHeaderValidator {
     const val AUTH_SCHEME = "Basic"

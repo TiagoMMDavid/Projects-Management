@@ -11,12 +11,12 @@ object Routes {
     const val SCHEME = "http"
     const val PORT = "8080"
     const val HOST = "localhost:$PORT"
-    const val BASE_URI = "api"
+    const val BASE_URI = "/api"
 
     const val PAGE_TEMPLATE_QUERY = "{?page,limit}"
     const val PAGE_QUERY = "?page={page}&limit={limit}"
 
-    const val ERROR_HREF = "$BASE_URI/error"
+    const val ERROR_HREF = "/error"
 
     // Projects
     const val PROJECTS_HREF = "$BASE_URI/projects"

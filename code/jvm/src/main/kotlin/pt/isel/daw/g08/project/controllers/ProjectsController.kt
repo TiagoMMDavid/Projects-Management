@@ -6,7 +6,6 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestAttribute
 import org.springframework.web.bind.annotation.RestController
 import pt.isel.daw.g08.project.Routes.INPUT_CONTENT_TYPE
 import pt.isel.daw.g08.project.Routes.PROJECTS_HREF
@@ -16,8 +15,8 @@ import pt.isel.daw.g08.project.Routes.getIssuesUri
 import pt.isel.daw.g08.project.Routes.getLabelsUri
 import pt.isel.daw.g08.project.Routes.getProjectByIdUri
 import pt.isel.daw.g08.project.Routes.getStatesUri
-import pt.isel.daw.g08.project.Routes.includeHost
 import pt.isel.daw.g08.project.Routes.getUserByIdUri
+import pt.isel.daw.g08.project.Routes.includeHost
 import pt.isel.daw.g08.project.controllers.models.ProjectCreateInputModel
 import pt.isel.daw.g08.project.controllers.models.ProjectOutputModel
 import pt.isel.daw.g08.project.controllers.models.ProjectsOutputModel
@@ -26,14 +25,13 @@ import pt.isel.daw.g08.project.database.helpers.ProjectsDb
 import pt.isel.daw.g08.project.exceptions.InvalidInputException
 import pt.isel.daw.g08.project.pipeline.argumentresolvers.Pagination
 import pt.isel.daw.g08.project.pipeline.interceptors.RequiresAuth
-import pt.isel.daw.g08.project.pipeline.interceptors.USER_ATTRIBUTE
 import pt.isel.daw.g08.project.responses.Response
-import pt.isel.daw.g08.project.responses.toResponseEntity
 import pt.isel.daw.g08.project.responses.siren.SirenAction
 import pt.isel.daw.g08.project.responses.siren.SirenActionField
 import pt.isel.daw.g08.project.responses.siren.SirenFieldType.hidden
 import pt.isel.daw.g08.project.responses.siren.SirenFieldType.text
 import pt.isel.daw.g08.project.responses.siren.SirenLink
+import pt.isel.daw.g08.project.responses.toResponseEntity
 import java.net.URI
 
 @RestController

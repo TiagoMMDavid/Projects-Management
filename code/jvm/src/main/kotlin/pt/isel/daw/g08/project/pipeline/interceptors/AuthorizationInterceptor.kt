@@ -2,15 +2,12 @@ package pt.isel.daw.g08.project.pipeline.interceptors
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
-import org.springframework.util.Base64Utils
 import org.springframework.web.method.HandlerMethod
 import org.springframework.web.servlet.HandlerInterceptor
 import pt.isel.daw.g08.project.auth.AuthHeaderValidator
 import pt.isel.daw.g08.project.auth.AuthHeaderValidator.AUTH_HEADER
 import pt.isel.daw.g08.project.database.dto.User
 import pt.isel.daw.g08.project.database.helpers.UsersDb
-import pt.isel.daw.g08.project.exceptions.AuthorizationException
-import java.lang.Exception
 import java.security.MessageDigest
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse

@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RestController
 import pt.isel.daw.g08.project.Routes.COMMENTS_HREF
 import pt.isel.daw.g08.project.Routes.COMMENT_BY_ID_HREF
 import pt.isel.daw.g08.project.Routes.INPUT_CONTENT_TYPE
-import pt.isel.daw.g08.project.Routes.PROJECTS_HREF
 import pt.isel.daw.g08.project.Routes.createSirenLinkListForPagination
 import pt.isel.daw.g08.project.Routes.getCommentByIdUri
+import pt.isel.daw.g08.project.Routes.getCommentsUri
 import pt.isel.daw.g08.project.Routes.getIssueByIdUri
 import pt.isel.daw.g08.project.Routes.getUserByIdUri
 import pt.isel.daw.g08.project.Routes.includeHost
@@ -64,7 +64,7 @@ class CommentsController(val db: CommentsDb) {
                         SirenLink(listOf("self"), getCommentByIdUri(projectId, issueId, it.cid).includeHost()),
                         SirenLink(listOf("issue"), getIssueByIdUri(projectId, issueId).includeHost()),
                         SirenLink(listOf("author"), getUserByIdUri(it.author_id).includeHost()),
-                        SirenLink(listOf("comments"), URI(COMMENTS_HREF).includeHost()),
+                        SirenLink(listOf("comments"), getCommentsUri(projectId, issueId).includeHost()),
                     )
                 )
             },
@@ -140,7 +140,7 @@ class CommentsController(val db: CommentsDb) {
                 SirenLink(listOf("self"), selfUri),
                 SirenLink(listOf("issue"), getIssueByIdUri(projectId, issueId).includeHost()),
                 SirenLink(listOf("author"), getUserByIdUri(comment.author_id).includeHost()),
-                SirenLink(listOf("comments"), URI(COMMENTS_HREF).includeHost()),
+                SirenLink(listOf("comments"), getCommentsUri(projectId, issueId).includeHost()),
             )
         ).toResponseEntity(HttpStatus.OK)
     }

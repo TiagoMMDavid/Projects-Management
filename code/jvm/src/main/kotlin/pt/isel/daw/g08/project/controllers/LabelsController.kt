@@ -14,7 +14,6 @@ import pt.isel.daw.g08.project.Routes.LABELS_HREF
 import pt.isel.daw.g08.project.Routes.LABELS_OF_ISSUE_HREF
 import pt.isel.daw.g08.project.Routes.LABEL_BY_ID_HREF
 import pt.isel.daw.g08.project.Routes.LABEL_BY_ID_OF_ISSUE_HREF
-import pt.isel.daw.g08.project.Routes.PROJECTS_HREF
 import pt.isel.daw.g08.project.Routes.createSirenLinkListForPagination
 import pt.isel.daw.g08.project.Routes.getIssueByIdUri
 import pt.isel.daw.g08.project.Routes.getLabelByIdOfIssue
@@ -35,7 +34,6 @@ import pt.isel.daw.g08.project.responses.siren.SirenActionField
 import pt.isel.daw.g08.project.responses.siren.SirenFieldType
 import pt.isel.daw.g08.project.responses.siren.SirenLink
 import pt.isel.daw.g08.project.responses.toResponseEntity
-import java.net.URI
 
 @RestController
 class LabelsController(val db: LabelsDb) {

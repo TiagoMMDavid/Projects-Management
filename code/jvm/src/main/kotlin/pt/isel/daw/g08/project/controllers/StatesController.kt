@@ -35,7 +35,6 @@ import pt.isel.daw.g08.project.responses.siren.SirenFieldType.number
 import pt.isel.daw.g08.project.responses.siren.SirenFieldType.text
 import pt.isel.daw.g08.project.responses.siren.SirenLink
 import pt.isel.daw.g08.project.responses.toResponseEntity
-import java.net.URI
 
 @RestController
 class StatesController(val db: StatesDb) {
@@ -54,22 +53,24 @@ class StatesController(val db: StatesDb) {
             pageSize = states.size
         )
 
+        val statesUri = getStatesUri(projectId).includeHost()
+
         return statesModel.toSirenObject(
-                entities = states.map { state ->
+                entities = states.map {
                    StateOutputModel(
-                       id = state.sid,
-                       name = state.name,
-                       isStartState = state.is_start,
-                       project = state.project_name,
-                       author = state.author_name,
+                       id = it.sid,
+                       name = it.name,
+                       isStartState = it.is_start,
+                       project = it.project_name,
+                       author = it.author_name,
                    ).toSirenObject(
                        rel = listOf("item"),
                        links = listOf(
-                           SirenLink(rel = listOf("self"), href = getStateByIdUri(projectId, state.sid).includeHost()),
-                           SirenLink(rel = listOf("author"), href = getUserByIdUri(state.author_id).includeHost()),
-                           SirenLink(rel = listOf("project"), href = getProjectByIdUri(state.project_id).includeHost()),
-                           SirenLink(rel = listOf("nextStates"), href = getNextStatesUri(projectId, state.sid).includeHost()),
-                           SirenLink(rel = listOf("states"), href = getStatesUri(projectId).includeHost()),
+                           SirenLink(rel = listOf("self"), href = getStateByIdUri(projectId, it.sid).includeHost()),
+                           SirenLink(rel = listOf("author"), href = getUserByIdUri(it.author_id).includeHost()),
+                           SirenLink(rel = listOf("project"), href = getProjectByIdUri(it.project_id).includeHost()),
+                           SirenLink(rel = listOf("nextStates"), href = getNextStatesUri(projectId, it.sid).includeHost()),
+                           SirenLink(rel = listOf("states"), href = statesUri),
                        )
                    )
                 },
@@ -78,7 +79,7 @@ class StatesController(val db: StatesDb) {
                         name = "create-state",
                         title = "Create State",
                         method = HttpMethod.PUT,
-                        href = getStatesUri(projectId),
+                        href = statesUri,
                         type = INPUT_CONTENT_TYPE,
                         fields = listOf(
                             SirenActionField(name = "projectId", type = hidden, value = projectId),
@@ -88,7 +89,7 @@ class StatesController(val db: StatesDb) {
                     )
                 ),
                 links = Routes.createSirenLinkListForPagination(
-                    URI(STATES_HREF).includeHost(),
+                    statesUri,
                     pagination.page,
                     statesModel.pageSize,
                     pagination.limit,
@@ -161,21 +162,23 @@ class StatesController(val db: StatesDb) {
             pageSize = states.size
         )
 
+        val nextStatesUri = getNextStatesUri(projectId, stateId).includeHost()
+
         return statesModel.toSirenObject(
-                entities = states.map { state ->
+                entities = states.map {
                     StateOutputModel(
-                        id = state.sid,
-                        name = state.name,
-                        isStartState = state.is_start,
-                        project = state.project_name,
-                        author = state.author_name,
+                        id = it.sid,
+                        name = it.name,
+                        isStartState = it.is_start,
+                        project = it.project_name,
+                        author = it.author_name,
                     ).toSirenObject(
                         rel = listOf("item"),
                         links = listOf(
-                            SirenLink(rel = listOf("self"), href = getStateByIdUri(projectId, state.sid).includeHost()),
-                            SirenLink(rel = listOf("author"), href = getUserByIdUri(state.author_id).includeHost()),
-                            SirenLink(rel = listOf("project"), href = getProjectByIdUri(state.project_id).includeHost()),
-                            SirenLink(rel = listOf("nextStates"), href = getNextStatesUri(projectId, state.sid).includeHost()),
+                            SirenLink(rel = listOf("self"), href = getStateByIdUri(projectId, it.sid).includeHost()),
+                            SirenLink(rel = listOf("author"), href = getUserByIdUri(it.author_id).includeHost()),
+                            SirenLink(rel = listOf("project"), href = getProjectByIdUri(it.project_id).includeHost()),
+                            SirenLink(rel = listOf("nextStates"), href = getNextStatesUri(projectId, it.sid).includeHost()),
                             SirenLink(rel = listOf("states"), href = getStatesUri(projectId).includeHost()),
                         ),
                         actions = listOf(
@@ -183,7 +186,7 @@ class StatesController(val db: StatesDb) {
                                 name = "delete-next-state",
                                 title = "Delete Next State",
                                 method = HttpMethod.DELETE,
-                                href = getNextStateByIdUri(projectId, stateId, state.sid),
+                                href = getNextStateByIdUri(projectId, stateId, it.sid),
                                 type = INPUT_CONTENT_TYPE,
                                 fields = listOf(
                                     SirenActionField(name = "projectId", type = hidden, value = projectId),
@@ -198,7 +201,7 @@ class StatesController(val db: StatesDb) {
                         name = "create-next-state",
                         title = "Create Next State",
                         method = HttpMethod.PUT,
-                        href = getNextStatesUri(projectId, stateId),
+                        href = nextStatesUri,
                         type = INPUT_CONTENT_TYPE,
                         fields = listOf(
                             SirenActionField(name = "projectId", type = hidden, value = projectId),
@@ -208,7 +211,7 @@ class StatesController(val db: StatesDb) {
                     )
                 ),
                 links = Routes.createSirenLinkListForPagination(
-                    URI(NEXT_STATES_HREF).includeHost(),
+                    nextStatesUri,
                     pagination.page,
                     statesModel.pageSize,
                     pagination.limit,
@@ -217,27 +220,27 @@ class StatesController(val db: StatesDb) {
             ).toResponseEntity(HttpStatus.OK)
     }
 
-    @PutMapping
+    @PutMapping(STATES_HREF)
     fun createState(
-        @PathVariable projectName: String,
+        @PathVariable projectId: Int,
         @RequestBody input: StateInputModel,
     ): ResponseEntity<Any> {
         TODO()
     }
 
-    @PutMapping("{stateName}")
+    @PutMapping(STATE_BY_ID_HREF)
     fun editState(
-        @PathVariable projectName: String,
-        @PathVariable stateName: String,
+        @PathVariable projectId: Int,
+        @PathVariable stateId: Int,
         @RequestBody input: StateInputModel,
     ): ResponseEntity<Any> {
         TODO()
     }
 
-    @DeleteMapping("{stateName}")
+    @DeleteMapping(STATE_BY_ID_HREF)
     fun deleteState(
-        @PathVariable projectName: String,
-        @PathVariable stateName: String,
+        @PathVariable projectId: Int,
+        @PathVariable stateId: Int,
     ): ResponseEntity<Any> {
         TODO()
     }
