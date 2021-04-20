@@ -40,14 +40,17 @@ object Routes {
     const val LABELS_HREF = "$PROJECT_BY_ID_HREF/labels"
     const val LABEL_BY_ID_HREF = "$LABELS_HREF/{labelId}"
     const val LABELS_OF_ISSUE_HREF = "$ISSUE_BY_ID_HREF/labels"
+    const val LABEL_BY_ID_OF_ISSUE_HREF = "$LABELS_OF_ISSUE_HREF/{labelId}"
 
     val LABEL_BY_ID_HREF_TEMPLATE = UriTemplate(LABEL_BY_ID_HREF)
     val LABELS_HREF_TEMPLATE = UriTemplate(LABELS_HREF)
     val LABELS_OF_ISSUE_HREF_TEMPLATE = UriTemplate(LABELS_OF_ISSUE_HREF)
+    val LABELS_BY_ID_OF_ISSUE_HREF_TEMPLATE = UriTemplate(LABEL_BY_ID_OF_ISSUE_HREF)
 
     fun getLabelsUri(projectId: Int) = LABELS_HREF_TEMPLATE.expand(projectId)
     fun getLabelByIdUri(projectId: Int, labelId: Int) = LABEL_BY_ID_HREF_TEMPLATE.expand(projectId, labelId)
     fun getLabelsOfIssueUri(projectId: Int, issueId: Int) = LABELS_OF_ISSUE_HREF_TEMPLATE.expand(projectId, issueId)
+    fun getLabelByIdOfIssue(projectId: Int, issueId: Int, labelId: Int) = LABELS_BY_ID_OF_ISSUE_HREF_TEMPLATE.expand(projectId, issueId, labelId)
 
     // States
     const val STATES_HREF = "$PROJECT_BY_ID_HREF/states"
