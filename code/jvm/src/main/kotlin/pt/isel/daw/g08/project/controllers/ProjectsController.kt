@@ -53,20 +53,20 @@ class ProjectsController(val db: ProjectsDb) {
         )
 
         return projectsModel.toSirenObject(
-            entities = projects.map { project ->
+            entities = projects.map {
                 ProjectOutputModel(
-                    id = project.pid,
-                    name = project.name,
-                    description = project.description,
-                    author = project.author_name
+                    id = it.pid,
+                    name = it.name,
+                    description = it.description,
+                    author = it.author_name
                 ).toSirenObject(
                     rel = listOf("item"),
                     links = listOf(
-                        SirenLink(rel = listOf("self"), href = getProjectByIdUri(project.pid).includeHost()),
-                        SirenLink(rel = listOf("labels"), href = getLabelsUri(project.pid).includeHost()),
-                        SirenLink(rel = listOf("issues"), href = getIssuesUri(project.pid).includeHost()),
-                        SirenLink(rel = listOf("states"), href = getStatesUri(project.pid).includeHost()),
-                        SirenLink(rel = listOf("author"), href = getUserByIdUri(project.author_id).includeHost()),
+                        SirenLink(rel = listOf("self"), href = getProjectByIdUri(it.pid).includeHost()),
+                        SirenLink(rel = listOf("labels"), href = getLabelsUri(it.pid).includeHost()),
+                        SirenLink(rel = listOf("issues"), href = getIssuesUri(it.pid).includeHost()),
+                        SirenLink(rel = listOf("states"), href = getStatesUri(it.pid).includeHost()),
+                        SirenLink(rel = listOf("author"), href = getUserByIdUri(it.author_id).includeHost()),
                         SirenLink(rel = listOf("projects"), href = URI(PROJECTS_HREF).includeHost())
                     ),
                 )
@@ -89,7 +89,8 @@ class ProjectsController(val db: ProjectsDb) {
                 pagination.page,
                 projectsModel.pageSize,
                 pagination.limit,
-                collectionSize)
+                collectionSize
+            )
         ).toResponseEntity(HttpStatus.OK)
     }
 

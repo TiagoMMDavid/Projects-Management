@@ -56,14 +56,17 @@ object Routes {
     const val STATES_HREF = "$PROJECT_BY_ID_HREF/states"
     const val STATE_BY_ID_HREF = "$STATES_HREF/{stateId}"
     const val NEXT_STATES_HREF = "$STATE_BY_ID_HREF/nextStates"
+    const val NEXT_STATE_BY_ID_HREF = "$NEXT_STATES_HREF/{nextStateId}"
 
     val STATE_BY_ID_HREF_TEMPLATE = UriTemplate(STATE_BY_ID_HREF)
     val STATES_HREF_TEMPLATE = UriTemplate(STATES_HREF)
     val NEXT_STATES_HREF_TEMPLATE = UriTemplate(NEXT_STATES_HREF)
+    val NEXT_STATE_BY_ID_HREF_TEMPLATE = UriTemplate(NEXT_STATE_BY_ID_HREF)
 
     fun getStatesUri(projectId: Int) = STATES_HREF_TEMPLATE.expand(projectId)
     fun getStateByIdUri(projectId: Int, stateId: Int) = STATE_BY_ID_HREF_TEMPLATE.expand(projectId, stateId)
     fun getNextStatesUri(projectId: Int, stateId: Int) = NEXT_STATES_HREF_TEMPLATE.expand(projectId, stateId)
+    fun getNextStateByIdUri(projectId: Int, stateId: Int, nextStateId: Int) = NEXT_STATE_BY_ID_HREF_TEMPLATE.expand(projectId, stateId, nextStateId)
     
     // Comments
     const val COMMENTS_HREF = "$ISSUE_BY_ID_HREF/comments"
