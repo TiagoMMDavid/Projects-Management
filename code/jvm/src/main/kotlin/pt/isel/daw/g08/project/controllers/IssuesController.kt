@@ -13,7 +13,9 @@ import pt.isel.daw.g08.project.Routes.INPUT_CONTENT_TYPE
 import pt.isel.daw.g08.project.Routes.ISSUES_HREF
 import pt.isel.daw.g08.project.Routes.ISSUE_BY_ID_HREF
 import pt.isel.daw.g08.project.Routes.createSirenLinkListForPagination
+import pt.isel.daw.g08.project.Routes.getCommentsUri
 import pt.isel.daw.g08.project.Routes.getIssueByIdUri
+import pt.isel.daw.g08.project.Routes.getIssuesUri
 import pt.isel.daw.g08.project.Routes.getLabelsOfIssueUri
 import pt.isel.daw.g08.project.Routes.getProjectByIdUri
 import pt.isel.daw.g08.project.Routes.getStateByIdUri
@@ -65,11 +67,11 @@ class IssuesController(val db: IssuesDb) {
                     links = listOf(
                         SirenLink(listOf("self"), getIssueByIdUri(projectId, it.iid).includeHost()),
                         SirenLink(listOf("state"), getStateByIdUri(projectId, it.state_id).includeHost()),
-                        SirenLink(listOf("comments"), getIssueByIdUri(projectId, it.iid).includeHost()),
+                        SirenLink(listOf("comments"), getCommentsUri(projectId, it.iid).includeHost()),
                         SirenLink(listOf("labels"), getLabelsOfIssueUri(projectId, it.iid).includeHost()),
                         SirenLink(listOf("author"), getUserByIdUri(it.author_id).includeHost()),
                         SirenLink(listOf("project"), getProjectByIdUri(it.project_id).includeHost()),
-                        SirenLink(listOf("issues"), URI(ISSUES_HREF).includeHost()),
+                        SirenLink(listOf("issues"), getIssuesUri(it.project_id).includeHost()),
                     )
                 )
             },
@@ -78,7 +80,7 @@ class IssuesController(val db: IssuesDb) {
                     name = "create-issue",
                     title = "Create Issue",
                     method = HttpMethod.PUT,
-                    href = URI(ISSUES_HREF).includeHost(),
+                    href = getIssuesUri(projectId).includeHost(),
                     type = INPUT_CONTENT_TYPE,
                     fields = listOf(
                         SirenActionField(name = "projectId", type = SirenFieldType.hidden, value = projectId),
@@ -88,12 +90,12 @@ class IssuesController(val db: IssuesDb) {
                 )
             ),
             links = createSirenLinkListForPagination(
-                URI(ISSUES_HREF).includeHost(),
+                getIssuesUri(projectId).includeHost(),
                 pagination.page,
                 issuesModel.pageSize,
                 pagination.limit,
                 issuesModel.collectionSize
-            )
+            ) + listOf(SirenLink(rel = listOf("project"), href = getProjectByIdUri(projectId).includeHost()))
         ).toResponseEntity(HttpStatus.OK)
     }
 
@@ -146,11 +148,11 @@ class IssuesController(val db: IssuesDb) {
             links = listOf(
                 SirenLink(listOf("self"), selfUri),
                 SirenLink(listOf("state"), getStateByIdUri(projectId, issue.state_id).includeHost()),
-                SirenLink(listOf("comments"), getIssueByIdUri(projectId, issue.iid).includeHost()),
+                SirenLink(listOf("comments"), getCommentsUri(projectId, issue.iid).includeHost()),
                 SirenLink(listOf("labels"), getLabelsOfIssueUri(projectId, issue.iid).includeHost()),
                 SirenLink(listOf("author"), getUserByIdUri(issue.author_id).includeHost()),
                 SirenLink(listOf("project"), getProjectByIdUri(issue.project_id).includeHost()),
-                SirenLink(listOf("issues"), URI(ISSUES_HREF).includeHost()),
+                SirenLink(listOf("issues"), getIssuesUri(projectId).includeHost()),
             )
         ).toResponseEntity(HttpStatus.OK)
     }

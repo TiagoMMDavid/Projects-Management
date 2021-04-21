@@ -94,7 +94,7 @@ class StatesController(val db: StatesDb) {
                     statesModel.pageSize,
                     pagination.limit,
                     collectionSize
-                )
+                ) + listOf(SirenLink(rel = listOf("project"), href = getProjectByIdUri(projectId).includeHost()))
             ).toResponseEntity(HttpStatus.OK)
     }
 
@@ -216,6 +216,9 @@ class StatesController(val db: StatesDb) {
                     statesModel.pageSize,
                     pagination.limit,
                     collectionSize
+                ) + listOf(
+                    SirenLink(rel = listOf("project"), href = getProjectByIdUri(projectId).includeHost()),
+                    SirenLink(rel = listOf("state"), href = getStateByIdUri(projectId, stateId).includeHost())
                 )
             ).toResponseEntity(HttpStatus.OK)
     }

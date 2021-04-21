@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
+import pt.isel.daw.g08.project.Routes
 import pt.isel.daw.g08.project.Routes.COMMENTS_HREF
 import pt.isel.daw.g08.project.Routes.COMMENT_BY_ID_HREF
 import pt.isel.daw.g08.project.Routes.INPUT_CONTENT_TYPE
@@ -17,6 +18,7 @@ import pt.isel.daw.g08.project.Routes.createSirenLinkListForPagination
 import pt.isel.daw.g08.project.Routes.getCommentByIdUri
 import pt.isel.daw.g08.project.Routes.getCommentsUri
 import pt.isel.daw.g08.project.Routes.getIssueByIdUri
+import pt.isel.daw.g08.project.Routes.getProjectByIdUri
 import pt.isel.daw.g08.project.Routes.getUserByIdUri
 import pt.isel.daw.g08.project.Routes.includeHost
 import pt.isel.daw.g08.project.controllers.models.CommentCreateInputModel
@@ -73,7 +75,7 @@ class CommentsController(val db: CommentsDb) {
                     name = "create-comment",
                     title = "Create Comment",
                     method = HttpMethod.PUT,
-                    href = URI(COMMENTS_HREF).includeHost(),
+                    href = getCommentsUri(projectId, issueId).includeHost(),
                     type = INPUT_CONTENT_TYPE,
                     fields = listOf(
                         SirenActionField(name = "projectId", type = SirenFieldType.hidden, value = projectId),
@@ -83,11 +85,14 @@ class CommentsController(val db: CommentsDb) {
                 )
             ),
             links = createSirenLinkListForPagination(
-                URI(COMMENTS_HREF).includeHost(),
+                getCommentsUri(projectId, issueId).includeHost(),
                 pagination.page,
                 commentsModel.pageSize,
                 pagination.limit,
                 commentsModel.collectionSize
+            ) + listOf(
+                SirenLink(rel = listOf("project"), href = getProjectByIdUri(projectId).includeHost()),
+                SirenLink(rel = listOf("issue"), href = getIssueByIdUri(projectId, issueId).includeHost()),
             )
         ).toResponseEntity(HttpStatus.OK)
     }
@@ -161,7 +166,7 @@ class CommentsController(val db: CommentsDb) {
         @RequestBody input: CommentEditInputModel,
     ): ResponseEntity<Response> {
         TODO()
-    }
+    }   
 
     @DeleteMapping(COMMENT_BY_ID_HREF)
     fun deleteComment(

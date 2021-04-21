@@ -89,7 +89,7 @@ class LabelsController(val db: LabelsDb) {
                 labelsModel.pageSize,
                 pagination.limit,
                 collectionSize
-            )
+            ) + listOf(SirenLink(rel = listOf("project"), href = getProjectByIdUri(projectId).includeHost()))
         ).toResponseEntity(HttpStatus.OK)
     }
 
@@ -225,6 +225,9 @@ class LabelsController(val db: LabelsDb) {
                 labelsModel.pageSize,
                 pagination.limit,
                 collectionSize
+            ) + listOf(
+                SirenLink(rel = listOf("project"), href = getProjectByIdUri(projectId).includeHost()),
+                SirenLink(rel = listOf("issue"), href = getIssueByIdUri(projectId, issueId).includeHost()),
             )
         ).toResponseEntity(HttpStatus.OK)
     }
