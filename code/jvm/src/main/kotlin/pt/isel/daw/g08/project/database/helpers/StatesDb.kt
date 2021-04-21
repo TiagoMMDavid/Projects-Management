@@ -12,10 +12,10 @@ private const val GET_STATE_QUERY = "$GET_STATES_BASE WHERE project_id = :projec
 
 private const val GET_NEXT_STATES_QUERY =
     "$GET_STATES_BASE WHERE sid IN (SELECT to_sid FROM STATETRANSITION WHERE from_sid IN " +
-            "(SELECT sid FROM STATE project = :projectId AND number = :stateNumber)) ORDER BY V_STATE.number"
+            "(SELECT sid FROM STATE WHERE project = :projectId AND number = :stateNumber)) ORDER BY V_STATE.number"
 
 private const val GET_NEXT_STATES_COUNT =
-    "SELECT COUNT(to_sid) as count FROM STATETRANSITION WHERE from_sid IN (SELECT sid FROM STATE project = :projectId AND number = :stateNumber)"
+    "SELECT COUNT(to_sid) as count FROM STATETRANSITION WHERE from_sid IN (SELECT sid FROM STATE WHERE project = :projectId AND number = :stateNumber)"
 
 @Component
 class StatesDb(val jdbi: Jdbi) {
