@@ -26,6 +26,7 @@ import pt.isel.daw.g08.project.controllers.models.StateOutputModel
 import pt.isel.daw.g08.project.controllers.models.StatesOutputModel
 import pt.isel.daw.g08.project.database.helpers.StatesDb
 import pt.isel.daw.g08.project.pipeline.argumentresolvers.Pagination
+import pt.isel.daw.g08.project.pipeline.interceptors.RequiresAuth
 import pt.isel.daw.g08.project.responses.Response
 import pt.isel.daw.g08.project.responses.siren.SirenAction
 import pt.isel.daw.g08.project.responses.siren.SirenActionField
@@ -39,6 +40,7 @@ import pt.isel.daw.g08.project.responses.toResponseEntity
 @RestController
 class StatesController(val db: StatesDb) {
 
+    @RequiresAuth
     @GetMapping(STATES_HREF)
     fun getAllStates(
         @PathVariable projectId: Int,
@@ -98,6 +100,7 @@ class StatesController(val db: StatesDb) {
             ).toResponseEntity(HttpStatus.OK)
     }
 
+    @RequiresAuth
     @GetMapping(STATE_BY_ID_HREF)
     fun getState(
         @PathVariable projectId: Int,
@@ -148,6 +151,7 @@ class StatesController(val db: StatesDb) {
             ).toResponseEntity(HttpStatus.OK)
     }
 
+    @RequiresAuth
     @GetMapping(NEXT_STATES_HREF)
     fun getNextStates(
         @PathVariable projectId: Int,
@@ -223,6 +227,7 @@ class StatesController(val db: StatesDb) {
             ).toResponseEntity(HttpStatus.OK)
     }
 
+    @RequiresAuth
     @PutMapping(STATES_HREF)
     fun createState(
         @PathVariable projectId: Int,
@@ -231,6 +236,7 @@ class StatesController(val db: StatesDb) {
         TODO()
     }
 
+    @RequiresAuth
     @PutMapping(STATE_BY_ID_HREF)
     fun editState(
         @PathVariable projectId: Int,
@@ -240,6 +246,7 @@ class StatesController(val db: StatesDb) {
         TODO()
     }
 
+    @RequiresAuth
     @DeleteMapping(STATE_BY_ID_HREF)
     fun deleteState(
         @PathVariable projectId: Int,

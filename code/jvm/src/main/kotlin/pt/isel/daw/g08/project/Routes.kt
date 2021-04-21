@@ -16,6 +16,7 @@ object Routes {
     const val PAGE_TEMPLATE_QUERY = "{?page,limit}"
     const val PAGE_QUERY = "?page={page}&limit={limit}"
 
+    // Error
     const val ERROR_HREF = "/error"
 
     // Projects
@@ -79,6 +80,7 @@ object Routes {
     fun getCommentByIdUri(projectId: Int, issueId: Int, commentId: Int) = COMMENT_BY_ID_HREF_TEMPLATE.expand(projectId, issueId, commentId)
 
     // Users
+    const val USER_HREF = "$BASE_URI/user"
     const val USERS_HREF = "$BASE_URI/users"
     const val USER_BY_ID_HREF = "$USERS_HREF/{userId}"
 

@@ -13,6 +13,8 @@ private const val CREATE_PROJECT_QUERY = "INSERT INTO PROJECT(name, description,
 private const val UPDATE_PROJECT_START = "UPDATE PROJECT SET"
 private const val UPDATE_PROJECT_END = "WHERE pid = :pid"
 
+private const val DELETE_PROJECT_QUERY = "DELETE FROM PROJECT WHERE pid = :pid"
+
 @Component
 class ProjectsDb(val jdbi: Jdbi) {
     fun getAllProjects(page: Int, perPage: Int) = jdbi.getList(GET_ALL_PROJECTS_QUERY, Project::class.java, page, perPage)
@@ -43,4 +45,6 @@ class ProjectsDb(val jdbi: Jdbi) {
             mapOf("pid" to projectId)
         )
     }
+
+    fun deleteProject(projectId: Int) = jdbi.delete(DELETE_PROJECT_QUERY, mapOf("pid" to projectId))
 }

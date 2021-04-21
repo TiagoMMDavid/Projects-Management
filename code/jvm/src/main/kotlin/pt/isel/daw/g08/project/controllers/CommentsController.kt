@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
-import pt.isel.daw.g08.project.Routes
 import pt.isel.daw.g08.project.Routes.COMMENTS_HREF
 import pt.isel.daw.g08.project.Routes.COMMENT_BY_ID_HREF
 import pt.isel.daw.g08.project.Routes.INPUT_CONTENT_TYPE
@@ -27,17 +26,18 @@ import pt.isel.daw.g08.project.controllers.models.CommentOutputModel
 import pt.isel.daw.g08.project.controllers.models.CommentsOutputModel
 import pt.isel.daw.g08.project.database.helpers.CommentsDb
 import pt.isel.daw.g08.project.pipeline.argumentresolvers.Pagination
+import pt.isel.daw.g08.project.pipeline.interceptors.RequiresAuth
 import pt.isel.daw.g08.project.responses.Response
 import pt.isel.daw.g08.project.responses.siren.SirenAction
 import pt.isel.daw.g08.project.responses.siren.SirenActionField
 import pt.isel.daw.g08.project.responses.siren.SirenFieldType
 import pt.isel.daw.g08.project.responses.siren.SirenLink
 import pt.isel.daw.g08.project.responses.toResponseEntity
-import java.net.URI
 
 @RestController
 class CommentsController(val db: CommentsDb) {
 
+    @RequiresAuth
     @GetMapping(COMMENTS_HREF)
     fun getIssueComments(
         @PathVariable projectId: Int,
@@ -97,6 +97,7 @@ class CommentsController(val db: CommentsDb) {
         ).toResponseEntity(HttpStatus.OK)
     }
 
+    @RequiresAuth
     @GetMapping(COMMENT_BY_ID_HREF)
     fun getComment(
         @PathVariable projectId: Int,
@@ -150,6 +151,7 @@ class CommentsController(val db: CommentsDb) {
         ).toResponseEntity(HttpStatus.OK)
     }
 
+    @RequiresAuth
     @PostMapping(COMMENTS_HREF)
     fun addComment(
         @PathVariable projectId: Int,
@@ -159,6 +161,7 @@ class CommentsController(val db: CommentsDb) {
         TODO()
     }
 
+    @RequiresAuth
     @PutMapping(COMMENT_BY_ID_HREF)
     fun editComment(
         @PathVariable projectId: Int,
@@ -166,8 +169,9 @@ class CommentsController(val db: CommentsDb) {
         @RequestBody input: CommentEditInputModel,
     ): ResponseEntity<Response> {
         TODO()
-    }   
+    }
 
+    @RequiresAuth
     @DeleteMapping(COMMENT_BY_ID_HREF)
     fun deleteComment(
         @PathVariable projectId: Int,

@@ -3,6 +3,7 @@ package pt.isel.daw.g08.project.controllers
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
@@ -37,6 +38,7 @@ import java.net.URI
 @RestController
 class ProjectsController(val db: ProjectsDb) {
 
+    @RequiresAuth
     @GetMapping(PROJECTS_HREF)
     fun getAllProjects(
         pagination: Pagination
@@ -92,6 +94,7 @@ class ProjectsController(val db: ProjectsDb) {
         ).toResponseEntity(HttpStatus.OK)
     }
 
+    @RequiresAuth
     @GetMapping(PROJECT_BY_ID_HREF)
     fun getProject(
         @PathVariable projectId: Int,
@@ -147,15 +150,14 @@ class ProjectsController(val db: ProjectsDb) {
         input: ProjectCreateInputModel,
         user: User
     ): ResponseEntity<Any> {
-        if (input.name != null && input.description != null) {
-            val projectId = db.createProject(input.name, input.description, user.uid)
-            return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .header("Location", getProjectByIdUri(projectId).includeHost().toString())
-                .body(null)
-        } else {
-            throw InvalidInputException("Missing name and/or description")
-        }
+        if (input.name == null) throw InvalidInputException("Missing name")
+        if (input.description == null) throw InvalidInputException("Missing description")
+
+        val projectId = db.createProject(input.name, input.description, user.uid)
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .header("Location", getProjectByIdUri(projectId).includeHost().toString())
+            .body(null)
     }
 
     @RequiresAuth
@@ -165,14 +167,25 @@ class ProjectsController(val db: ProjectsDb) {
         input: ProjectCreateInputModel,
         user: User
     ): ResponseEntity<Any> {
-        if (input.name != null || input.description != null) {
-            db.editProject(input.name, input.description, projectId)
-            return ResponseEntity
-                .status(HttpStatus.OK)
-                .header("Location", getProjectByIdUri(projectId).includeHost().toString())
-                .body(null)
-        } else {
-            throw InvalidInputException("Missing new name or new description")
-        }
+        if (input.name == null || input.description == null) throw InvalidInputException("Missing new name or new description")
+
+        db.editProject(input.name, input.description, projectId)
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .header("Location", getProjectByIdUri(projectId).includeHost().toString())
+            .body(null)
+    }
+
+    @RequiresAuth
+    @DeleteMapping(PROJECT_BY_ID_HREF)
+    fun deleteProject(
+        @PathVariable projectId: Int,
+        user: User
+    ): ResponseEntity<Any> {
+        db.deleteProject(projectId)
+
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(null)
     }
 }

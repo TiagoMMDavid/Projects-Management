@@ -26,8 +26,11 @@ import pt.isel.daw.g08.project.Routes.includeHost
 import pt.isel.daw.g08.project.controllers.models.LabelInputModel
 import pt.isel.daw.g08.project.controllers.models.LabelOutputModel
 import pt.isel.daw.g08.project.controllers.models.LabelsOutputModel
+import pt.isel.daw.g08.project.database.dto.User
 import pt.isel.daw.g08.project.database.helpers.LabelsDb
+import pt.isel.daw.g08.project.exceptions.InvalidInputException
 import pt.isel.daw.g08.project.pipeline.argumentresolvers.Pagination
+import pt.isel.daw.g08.project.pipeline.interceptors.RequiresAuth
 import pt.isel.daw.g08.project.responses.Response
 import pt.isel.daw.g08.project.responses.siren.SirenAction
 import pt.isel.daw.g08.project.responses.siren.SirenActionField
@@ -38,6 +41,7 @@ import pt.isel.daw.g08.project.responses.toResponseEntity
 @RestController
 class LabelsController(val db: LabelsDb) {
 
+    @RequiresAuth
     @GetMapping(LABELS_HREF)
     fun getAllLabels(
         @PathVariable projectId: Int,
@@ -93,6 +97,7 @@ class LabelsController(val db: LabelsDb) {
         ).toResponseEntity(HttpStatus.OK)
     }
 
+    @RequiresAuth
     @GetMapping(LABEL_BY_ID_HREF)
     fun getLabel(
         @PathVariable projectId: Int,
@@ -142,14 +147,23 @@ class LabelsController(val db: LabelsDb) {
         ).toResponseEntity(HttpStatus.OK)
     }
 
+    @RequiresAuth
     @PutMapping(LABELS_HREF)
     fun createLabel(
         @PathVariable projectId: Int,
-        @RequestBody input: LabelInputModel,
+        input: LabelInputModel,
+        user: User
     ): ResponseEntity<Response> {
-        TODO()
+        if (input.name == null) throw InvalidInputException("Missing name")
+
+        val labelId = db.createLabel(input.name, projectId, user.uid)
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .header("Location", getLabelByIdUri(projectId, labelId).includeHost().toString())
+            .body(null)
     }
 
+    @RequiresAuth
     @DeleteMapping(LABEL_BY_ID_HREF)
     fun deleteLabel(
         @PathVariable projectId: Int,
@@ -158,6 +172,7 @@ class LabelsController(val db: LabelsDb) {
         TODO()
     }
 
+    @RequiresAuth
     @GetMapping(LABELS_OF_ISSUE_HREF)
     fun getLabelsFromIssue(
         @PathVariable projectId: Int,
@@ -232,6 +247,7 @@ class LabelsController(val db: LabelsDb) {
         ).toResponseEntity(HttpStatus.OK)
     }
 
+    @RequiresAuth
     @PutMapping(LABELS_OF_ISSUE_HREF)
     fun addLabelToIssue(
         @PathVariable projectId: String,
@@ -241,6 +257,7 @@ class LabelsController(val db: LabelsDb) {
         TODO()
     }
 
+    @RequiresAuth
     @DeleteMapping(LABEL_BY_ID_OF_ISSUE_HREF)
     fun deleteLabelFromIssue(
         @PathVariable projectId: Int,

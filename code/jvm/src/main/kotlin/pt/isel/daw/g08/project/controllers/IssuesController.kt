@@ -27,17 +27,18 @@ import pt.isel.daw.g08.project.controllers.models.IssueOutputModel
 import pt.isel.daw.g08.project.controllers.models.IssuesOutputModel
 import pt.isel.daw.g08.project.database.helpers.IssuesDb
 import pt.isel.daw.g08.project.pipeline.argumentresolvers.Pagination
+import pt.isel.daw.g08.project.pipeline.interceptors.RequiresAuth
 import pt.isel.daw.g08.project.responses.Response
 import pt.isel.daw.g08.project.responses.siren.SirenAction
 import pt.isel.daw.g08.project.responses.siren.SirenActionField
 import pt.isel.daw.g08.project.responses.siren.SirenFieldType
 import pt.isel.daw.g08.project.responses.siren.SirenLink
 import pt.isel.daw.g08.project.responses.toResponseEntity
-import java.net.URI
 
 @RestController
 class IssuesController(val db: IssuesDb) {
 
+    @RequiresAuth
     @GetMapping(ISSUES_HREF)
     fun getAllIssues(
         @PathVariable projectId: Int,
@@ -99,6 +100,7 @@ class IssuesController(val db: IssuesDb) {
         ).toResponseEntity(HttpStatus.OK)
     }
 
+    @RequiresAuth
     @GetMapping(ISSUE_BY_ID_HREF)
     fun getIssue(
         @PathVariable projectId: Int,
@@ -157,6 +159,7 @@ class IssuesController(val db: IssuesDb) {
         ).toResponseEntity(HttpStatus.OK)
     }
 
+    @RequiresAuth
     @PostMapping(ISSUES_HREF)
     fun createIssue(
         @PathVariable projectId: Int,
@@ -165,6 +168,7 @@ class IssuesController(val db: IssuesDb) {
         TODO()
     }
 
+    @RequiresAuth
     @PutMapping(ISSUE_BY_ID_HREF)
     fun editIssue(
         @PathVariable projectId: Int,

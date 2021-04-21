@@ -58,3 +58,12 @@ fun Jdbi.update(queryStart: String, updateFields: Map<String, Any>,
         handle.execute()
     }
 }
+
+fun Jdbi.delete(query: String, binds: Map<String, Any>? = null) {
+    this.useHandle<Exception> {
+        val handle = it.createUpdate(query)
+        binds?.forEach { entry -> handle.bind(entry.key, entry.value) }
+
+        if (handle.execute() == 0) throw NotFoundException("Resource does not exist")
+    }
+}

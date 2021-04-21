@@ -13,6 +13,8 @@ private const val GET_LABEL_QUERY = "$GET_LABELS_BASE WHERE lid = :lid"
 private const val GET_LABELS_FROM_ISSUE_QUERY = "$GET_LABELS_BASE WHERE lid IN (SELECT lid FROM ISSUE_LABEL WHERE iid = :iid) ORDER BY lid"
 private const val GET_LABELS_COUNT_FROM_ISSUE = "SELECT COUNT(lid) as count FROM ISSUE_LABEL WHERE iid = :iid"
 
+private const val CREATE_LABEL_QUERY = "INSERT INTO LABEL(name, project, author) VALUES(:name, :project, :author)"
+
 @Component
 class LabelsDb(val jdbi: Jdbi) {
     fun getAllLabelsFromProject(page: Int, perPage: Int, projectId: Int) =
@@ -25,4 +27,14 @@ class LabelsDb(val jdbi: Jdbi) {
     fun getAllLabelsFromIssue(page: Int, perPage: Int, issueId: Int) =
         jdbi.getList(GET_LABELS_FROM_ISSUE_QUERY, Label::class.java, page, perPage, mapOf("iid" to issueId))
     fun getLabelsCountFromIssue(issueId: Int) = jdbi.getOne(GET_LABELS_COUNT_FROM_ISSUE, Int::class.java, mapOf("iid" to issueId))
+
+    fun createLabel(name: String, projectId: Int, userId: Int) =
+        jdbi.insert(
+            CREATE_LABEL_QUERY, Int::class.java,
+            mapOf(
+                "name" to name,
+                "project" to projectId,
+                "author" to userId
+            )
+        )
 }

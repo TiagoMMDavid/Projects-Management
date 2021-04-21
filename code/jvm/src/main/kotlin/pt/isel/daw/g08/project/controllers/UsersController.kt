@@ -7,13 +7,16 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RestController
 import pt.isel.daw.g08.project.Routes.USERS_HREF
 import pt.isel.daw.g08.project.Routes.USER_BY_ID_HREF
+import pt.isel.daw.g08.project.Routes.USER_HREF
 import pt.isel.daw.g08.project.Routes.createSirenLinkListForPagination
 import pt.isel.daw.g08.project.Routes.getUserByIdUri
 import pt.isel.daw.g08.project.Routes.includeHost
 import pt.isel.daw.g08.project.controllers.models.UserOutputModel
 import pt.isel.daw.g08.project.controllers.models.UsersOutputModel
+import pt.isel.daw.g08.project.database.dto.User
 import pt.isel.daw.g08.project.database.helpers.UsersDb
 import pt.isel.daw.g08.project.pipeline.argumentresolvers.Pagination
+import pt.isel.daw.g08.project.pipeline.interceptors.RequiresAuth
 import pt.isel.daw.g08.project.responses.Response
 import pt.isel.daw.g08.project.responses.siren.SirenLink
 import pt.isel.daw.g08.project.responses.toResponseEntity
@@ -22,6 +25,7 @@ import java.net.URI
 @RestController
 class UsersController(val db: UsersDb) {
 
+    @RequiresAuth
     @GetMapping(USERS_HREF)
     fun getAllUsers(
         pagination: Pagination
@@ -57,6 +61,7 @@ class UsersController(val db: UsersDb) {
         ).toResponseEntity(HttpStatus.OK)
     }
 
+    @RequiresAuth
     @GetMapping(USER_BY_ID_HREF)
     fun getUser(
         @PathVariable userId: Int,
@@ -65,6 +70,24 @@ class UsersController(val db: UsersDb) {
         val userModel = UserOutputModel(
             id = user.uid,
             name = user.username
+        )
+
+        return userModel.toSirenObject(
+            links = listOf(
+                SirenLink(rel = listOf("self"), href = getUserByIdUri(user.uid).includeHost()),
+                SirenLink(rel = listOf("users"), href = URI(USERS_HREF).includeHost())
+            ),
+        ).toResponseEntity(HttpStatus.OK)
+    }
+
+    @RequiresAuth
+    @GetMapping(USER_HREF)
+    fun getAuthenticatedUser(
+        user: User,
+    ): ResponseEntity<Response> {
+        val userModel = UserOutputModel(
+            id = user.uid,
+            name = user.username,
         )
 
         return userModel.toSirenObject(

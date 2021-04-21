@@ -2,12 +2,14 @@ package pt.isel.daw.g08.project.pipeline.exceptionhandling
 
 import org.jdbi.v3.core.JdbiException
 import org.slf4j.LoggerFactory
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import pt.isel.daw.g08.project.Routes.includeHost
+import pt.isel.daw.g08.project.auth.AuthHeaderValidator.AUTH_SCHEME
 import pt.isel.daw.g08.project.database.PsqlErrorCode
 import pt.isel.daw.g08.project.exceptions.AuthorizationException
 import pt.isel.daw.g08.project.exceptions.InvalidInputException
@@ -26,13 +28,15 @@ fun handleExceptionResponse(
     title: String,
     status: HttpStatus,
     detail: String,
-    instance: String
+    instance: String,
+    customHeaders: HttpHeaders = HttpHeaders(),
 ): ResponseEntity<Response> {
     logger.error("[$instance] $detail")
 
     return ResponseEntity
         .status(status)
         .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+        .headers(customHeaders)
         .body(ProblemJson(type.toString(), title, status.value(), detail, instance))
 }
 
@@ -58,12 +62,16 @@ class ExceptionHandler {
         ex: AuthorizationException,
         request: HttpServletRequest
     ): ResponseEntity<Response> {
+        val headers = HttpHeaders()
+        headers.add("WWW-Authenticate", "$AUTH_SCHEME realm=\"DAW\"")
+
         return handleExceptionResponse(
             URI("/problems/not-authorized").includeHost(),
             "Authorization Error",
-            HttpStatus.FORBIDDEN,
+            HttpStatus.UNAUTHORIZED,
             ex.localizedMessage,
-            request.requestURI
+            request.requestURI,
+            headers
         )
     }
 

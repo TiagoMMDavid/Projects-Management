@@ -23,5 +23,5 @@ class LabelsOutputModel(
 }
 
 data class LabelInputModel(
-    val name: String,
+    val name: String?,
 )
