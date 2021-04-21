@@ -12,6 +12,7 @@ class IssueOutputModel(
     val createDate: OffsetDateTime,
     val closeDate: OffsetDateTime?,
     val state: String,
+    val stateNumber: Int,
     val project: String,
     val author: String,
 ) : OutputModel() {

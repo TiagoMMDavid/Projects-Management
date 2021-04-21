@@ -24,7 +24,7 @@ class StatesDb(val jdbi: Jdbi) {
 
     fun getStatesCount(projectId: Int) = jdbi.getOne(GET_STATES_COUNT, Int::class.java, mapOf("pid" to projectId))
 
-    fun getStateById(projectId: Int, stateNumber: Int) =
+    fun getStateByNumber(projectId: Int, stateNumber: Int) =
         jdbi.getOne(GET_STATE_QUERY, State::class.java,
             mapOf(
                 "projectId" to projectId,
