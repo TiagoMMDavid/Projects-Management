@@ -131,6 +131,15 @@ class ExceptionHandler {
                     request.requestURI
                 )
             }
+            PsqlErrorCode.ForeignKeyViolation -> {
+                handleExceptionResponse(
+                    URI("/problems/resource-referenced").includeHost(),
+                    "Resource Is Referenced",
+                    HttpStatus.CONFLICT,
+                    cause.localizedMessage,
+                    request.requestURI
+                )
+            }
         }
     }
 }

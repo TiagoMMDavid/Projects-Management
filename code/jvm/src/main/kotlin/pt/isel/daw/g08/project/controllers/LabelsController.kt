@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import pt.isel.daw.g08.project.Routes.INPUT_CONTENT_TYPE
 import pt.isel.daw.g08.project.Routes.LABELS_HREF
@@ -169,7 +168,11 @@ class LabelsController(val db: LabelsDb) {
         @PathVariable projectId: Int,
         @PathVariable labelId: Int,
     ): ResponseEntity<Response> {
-        TODO()
+        db.deleteLabel(labelId)
+
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(null)
     }
 
     @RequiresAuth
@@ -250,11 +253,19 @@ class LabelsController(val db: LabelsDb) {
     @RequiresAuth
     @PutMapping(LABELS_OF_ISSUE_HREF)
     fun addLabelToIssue(
-        @PathVariable projectId: String,
+        @PathVariable projectId: Int,
         @PathVariable issueId: Int,
-        @RequestBody input: LabelInputModel,
+        input: LabelInputModel,
     ): ResponseEntity<Response> {
-        TODO()
+        if (input.name == null) throw InvalidInputException("Missing name")
+
+        val label = db.getLabelByName(input.name, projectId)
+        db.addLabelToIssue(label.lid, issueId)
+
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .header("Location", getLabelsOfIssueUri(projectId, issueId).includeHost().toString())
+            .body(null)
     }
 
     @RequiresAuth
