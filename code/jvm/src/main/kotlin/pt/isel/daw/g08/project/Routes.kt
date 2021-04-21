@@ -59,7 +59,7 @@ object Routes {
     fun getLabelsUri(projectId: Int) = LABELS_HREF_TEMPLATE.expand(projectId)
     fun getLabelByNumberUri(projectId: Int, labelNumber: Int) = LABEL_BY_NUMBER_HREF_TEMPLATE.expand(projectId, labelNumber)
     fun getLabelsOfIssueUri(projectId: Int, issueNumber: Int) = LABELS_OF_ISSUE_HREF_TEMPLATE.expand(projectId, issueNumber)
-    fun getLabelByNumberOfIssue(projectId: Int, issueNumber: Int, labelNumber: Int) =
+    fun getLabelByNumberOfIssueUri(projectId: Int, issueNumber: Int, labelNumber: Int) =
         LABELS_BY_NUMBER_OF_ISSUE_HREF_TEMPLATE.expand(projectId, issueNumber, labelNumber)
 
     // States

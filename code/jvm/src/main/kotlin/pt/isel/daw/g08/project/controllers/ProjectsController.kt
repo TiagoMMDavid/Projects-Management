@@ -153,10 +153,10 @@ class ProjectsController(val db: ProjectsDb) {
         if (input.name == null) throw InvalidInputException("Missing name")
         if (input.description == null) throw InvalidInputException("Missing description")
 
-        val projectId = db.createProject(input.name, input.description, user.uid)
+        val project = db.createProject(input.name, input.description, user.uid)
         return ResponseEntity
             .status(HttpStatus.CREATED)
-            .header("Location", getProjectByIdUri(projectId).includeHost().toString())
+            .header("Location", getProjectByIdUri(project.pid).includeHost().toString())
             .body(null)
     }
 
