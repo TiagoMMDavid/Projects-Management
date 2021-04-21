@@ -22,12 +22,15 @@ class ProjectsDb(val jdbi: Jdbi) {
     fun getProjectById(projectId: Int): Project = jdbi.getOne(GET_PROJECT_QUERY, Project::class.java, mapOf("pid" to projectId))
 
     fun createProject(name: String, description: String, userId: Int) =
-        jdbi.insert(CREATE_PROJECT_QUERY, Int::class.java,
+        jdbi.insertAndGet(
+            CREATE_PROJECT_QUERY, Int::class.java,
+            GET_PROJECT_QUERY, Project::class.java,
             mapOf(
                 "name" to name,
                 "description" to description,
                 "author" to userId
-            )
+            ),
+            "pid"
         )
 
     fun editProject(name: String? = null, description: String? = null, projectId: Int) {
