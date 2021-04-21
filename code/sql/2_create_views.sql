@@ -11,6 +11,7 @@ FROM PROJECT JOIN USERS ON author = uid;
 CREATE VIEW V_STATE AS 
 SELECT 
     sid, 
+    STATE.number AS number,
     STATE.name AS name, 
     is_start,
     
@@ -25,6 +26,7 @@ JOIN PROJECT ON STATE.project = PROJECT.pid;
 CREATE VIEW V_ISSUE AS 
 SELECT 
     iid,
+    ISSUE.number AS number,
     ISSUE.name AS name,
     ISSUE.description AS description,
     create_date,
@@ -32,6 +34,7 @@ SELECT
     
     state AS state_id,
     STATE.name AS state_name,
+    STATE.number AS state_number,
     
     PROJECT.pid AS project_id,
     PROJECT.name AS project_name,
@@ -45,11 +48,15 @@ JOIN STATE ON STATE.sid = state;
 CREATE VIEW V_COMMENT AS 
 SELECT 
     cid,
+    COMMENT.number AS number,
     text,
     COMMENT.create_date AS create_date,
     
     COMMENT.iid AS issue_id,
     ISSUE.name AS issue_name,
+    ISSUE.number AS issue_number,
+    
+    ISSUE.project AS project_id,
     
     uid AS author_id, 
     username AS author_name    
@@ -59,6 +66,7 @@ JOIN ISSUE ON ISSUE.iid = COMMENT.iid;
 CREATE VIEW V_LABEL AS 
 SELECT 
     lid, 
+    LABEL.number AS number,
     LABEL.name AS name, 
     
     project AS project_id, 
