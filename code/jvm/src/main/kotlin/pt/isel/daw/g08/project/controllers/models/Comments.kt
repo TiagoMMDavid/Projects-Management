@@ -6,6 +6,7 @@ import java.time.OffsetDateTime
 
 class CommentOutputModel(
     val id: Int,
+    val number: Int,
     val content: String,
     val createDate: OffsetDateTime,
     val issue: String,

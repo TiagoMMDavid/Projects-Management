@@ -16,12 +16,20 @@ object Routes {
     const val PAGE_TEMPLATE_QUERY = "{?page,limit}"
     const val PAGE_QUERY = "?page={page}&limit={limit}"
 
+    const val PROJECT_PARAM = "projectId"
+    const val ISSUE_PARAM = "issueNumber"
+    const val LABEL_PARAM = "labelNumber"
+    const val STATE_PARAM = "stateNumber"
+    const val NEXT_STATE_PARAM = "nextStateNumber"
+    const val COMMENT_PARAM = "commentNumber"
+    const val USER_PARAM = "userId"
+
     // Error
     const val ERROR_HREF = "/error"
 
     // Projects
     const val PROJECTS_HREF = "$BASE_URI/projects"
-    const val PROJECT_BY_ID_HREF = "$PROJECTS_HREF/{projectId}"
+    const val PROJECT_BY_ID_HREF = "$PROJECTS_HREF/{$PROJECT_PARAM}"
 
     val PROJECT_BY_ID_HREF_TEMPLATE = UriTemplate(PROJECT_BY_ID_HREF)
 
@@ -29,60 +37,63 @@ object Routes {
 
     // Issues
     const val ISSUES_HREF = "$PROJECT_BY_ID_HREF/issues"
-    const val ISSUE_BY_ID_HREF = "$ISSUES_HREF/{issueId}"
+    const val ISSUE_BY_NUMBER_HREF = "$ISSUES_HREF/{$ISSUE_PARAM}"
 
     val ISSUES_HREF_TEMPLATE = UriTemplate(ISSUES_HREF)
-    val ISSUE_BY_ID_HREF_TEMPLATE = UriTemplate(ISSUE_BY_ID_HREF)
+    val ISSUE_BY_NUMBER_HREF_TEMPLATE = UriTemplate(ISSUE_BY_NUMBER_HREF)
 
     fun getIssuesUri(projectId: Int) = ISSUES_HREF_TEMPLATE.expand(projectId)
-    fun getIssueByIdUri(projectId: Int, issueId: Int) = ISSUE_BY_ID_HREF_TEMPLATE.expand(projectId, issueId)
+    fun getIssueByNumberUri(projectId: Int, issueNumber: Int) = ISSUE_BY_NUMBER_HREF_TEMPLATE.expand(projectId, issueNumber)
     
     // Labels
     const val LABELS_HREF = "$PROJECT_BY_ID_HREF/labels"
-    const val LABEL_BY_ID_HREF = "$LABELS_HREF/{labelId}"
-    const val LABELS_OF_ISSUE_HREF = "$ISSUE_BY_ID_HREF/labels"
-    const val LABEL_BY_ID_OF_ISSUE_HREF = "$LABELS_OF_ISSUE_HREF/{labelId}"
+    const val LABEL_BY_NUMBER_HREF = "$LABELS_HREF/{$LABEL_PARAM}"
+    const val LABELS_OF_ISSUE_HREF = "$ISSUE_BY_NUMBER_HREF/labels"
+    const val LABEL_BY_NUMBER_OF_ISSUE_HREF = "$LABELS_OF_ISSUE_HREF/{$LABEL_PARAM}"
 
-    val LABEL_BY_ID_HREF_TEMPLATE = UriTemplate(LABEL_BY_ID_HREF)
+    val LABEL_BY_NUMBER_HREF_TEMPLATE = UriTemplate(LABEL_BY_NUMBER_HREF)
     val LABELS_HREF_TEMPLATE = UriTemplate(LABELS_HREF)
     val LABELS_OF_ISSUE_HREF_TEMPLATE = UriTemplate(LABELS_OF_ISSUE_HREF)
-    val LABELS_BY_ID_OF_ISSUE_HREF_TEMPLATE = UriTemplate(LABEL_BY_ID_OF_ISSUE_HREF)
+    val LABELS_BY_NUMBER_OF_ISSUE_HREF_TEMPLATE = UriTemplate(LABEL_BY_NUMBER_OF_ISSUE_HREF)
 
     fun getLabelsUri(projectId: Int) = LABELS_HREF_TEMPLATE.expand(projectId)
-    fun getLabelByIdUri(projectId: Int, labelId: Int) = LABEL_BY_ID_HREF_TEMPLATE.expand(projectId, labelId)
-    fun getLabelsOfIssueUri(projectId: Int, issueId: Int) = LABELS_OF_ISSUE_HREF_TEMPLATE.expand(projectId, issueId)
-    fun getLabelByIdOfIssue(projectId: Int, issueId: Int, labelId: Int) = LABELS_BY_ID_OF_ISSUE_HREF_TEMPLATE.expand(projectId, issueId, labelId)
+    fun getLabelByNumberUri(projectId: Int, labelNumber: Int) = LABEL_BY_NUMBER_HREF_TEMPLATE.expand(projectId, labelNumber)
+    fun getLabelsOfIssueUri(projectId: Int, issueNumber: Int) = LABELS_OF_ISSUE_HREF_TEMPLATE.expand(projectId, issueNumber)
+    fun getLabelByNumberOfIssue(projectId: Int, issueNumber: Int, labelNumber: Int) =
+        LABELS_BY_NUMBER_OF_ISSUE_HREF_TEMPLATE.expand(projectId, issueNumber, labelNumber)
 
     // States
     const val STATES_HREF = "$PROJECT_BY_ID_HREF/states"
-    const val STATE_BY_ID_HREF = "$STATES_HREF/{stateId}"
-    const val NEXT_STATES_HREF = "$STATE_BY_ID_HREF/nextStates"
-    const val NEXT_STATE_BY_ID_HREF = "$NEXT_STATES_HREF/{nextStateId}"
+    const val STATE_BY_NUMBER_HREF = "$STATES_HREF/{$STATE_PARAM}"
+    const val NEXT_STATES_HREF = "$STATE_BY_NUMBER_HREF/nextStates"
+    const val NEXT_STATE_BY_NUMBER_HREF = "$NEXT_STATES_HREF/{$NEXT_STATE_PARAM}"
 
-    val STATE_BY_ID_HREF_TEMPLATE = UriTemplate(STATE_BY_ID_HREF)
+    val STATE_BY_NUMBER_HREF_TEMPLATE = UriTemplate(STATE_BY_NUMBER_HREF)
     val STATES_HREF_TEMPLATE = UriTemplate(STATES_HREF)
     val NEXT_STATES_HREF_TEMPLATE = UriTemplate(NEXT_STATES_HREF)
-    val NEXT_STATE_BY_ID_HREF_TEMPLATE = UriTemplate(NEXT_STATE_BY_ID_HREF)
+    val NEXT_STATE_BY_NUMBER_HREF_TEMPLATE = UriTemplate(NEXT_STATE_BY_NUMBER_HREF)
 
     fun getStatesUri(projectId: Int) = STATES_HREF_TEMPLATE.expand(projectId)
-    fun getStateByIdUri(projectId: Int, stateId: Int) = STATE_BY_ID_HREF_TEMPLATE.expand(projectId, stateId)
-    fun getNextStatesUri(projectId: Int, stateId: Int) = NEXT_STATES_HREF_TEMPLATE.expand(projectId, stateId)
-    fun getNextStateByIdUri(projectId: Int, stateId: Int, nextStateId: Int) = NEXT_STATE_BY_ID_HREF_TEMPLATE.expand(projectId, stateId, nextStateId)
+    fun getStateByNumberUri(projectId: Int, stateNumber: Int) = STATE_BY_NUMBER_HREF_TEMPLATE.expand(projectId, stateNumber)
+    fun getNextStatesUri(projectId: Int, stateNumber: Int) = NEXT_STATES_HREF_TEMPLATE.expand(projectId, stateNumber)
+    fun getNextStateByNumberUri(projectId: Int, stateNumber: Int, nextStateNumber: Int) =
+        NEXT_STATE_BY_NUMBER_HREF_TEMPLATE.expand(projectId, stateNumber, nextStateNumber)
     
     // Comments
-    const val COMMENTS_HREF = "$ISSUE_BY_ID_HREF/comments"
-    const val COMMENT_BY_ID_HREF = "$COMMENTS_HREF/{commentId}"
+    const val COMMENTS_HREF = "$ISSUE_BY_NUMBER_HREF/comments"
+    const val COMMENT_BY_NUMBER_HREF = "$COMMENTS_HREF/{$COMMENT_PARAM}"
 
     val COMMENTS_HREF_TEMPLATE = UriTemplate(COMMENTS_HREF)
-    val COMMENT_BY_ID_HREF_TEMPLATE = UriTemplate(COMMENT_BY_ID_HREF)
+    val COMMENT_BY_NUMBER_HREF_TEMPLATE = UriTemplate(COMMENT_BY_NUMBER_HREF)
 
-    fun getCommentsUri(projectId: Int, issueId: Int) = COMMENTS_HREF_TEMPLATE.expand(projectId, issueId)
-    fun getCommentByIdUri(projectId: Int, issueId: Int, commentId: Int) = COMMENT_BY_ID_HREF_TEMPLATE.expand(projectId, issueId, commentId)
+    fun getCommentsUri(projectId: Int, issueNumber: Int) = COMMENTS_HREF_TEMPLATE.expand(projectId, issueNumber)
+    fun getCommentByNumberUri(projectId: Int, issueNumber: Int, commentNumber: Int) =
+        COMMENT_BY_NUMBER_HREF_TEMPLATE.expand(projectId, issueNumber, commentNumber)
 
     // Users
     const val USER_HREF = "$BASE_URI/user"
     const val USERS_HREF = "$BASE_URI/users"
-    const val USER_BY_ID_HREF = "$USERS_HREF/{userId}"
+    const val USER_BY_ID_HREF = "$USERS_HREF/{$USER_PARAM}"
 
     val USER_BY_ID_HREF_TEMPLATE = UriTemplate(USER_BY_ID_HREF)
 

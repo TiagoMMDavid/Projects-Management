@@ -13,11 +13,11 @@ import pt.isel.daw.g08.project.Routes
 import pt.isel.daw.g08.project.Routes.INPUT_CONTENT_TYPE
 import pt.isel.daw.g08.project.Routes.NEXT_STATES_HREF
 import pt.isel.daw.g08.project.Routes.STATES_HREF
-import pt.isel.daw.g08.project.Routes.STATE_BY_ID_HREF
-import pt.isel.daw.g08.project.Routes.getNextStateByIdUri
+import pt.isel.daw.g08.project.Routes.STATE_BY_NUMBER_HREF
+import pt.isel.daw.g08.project.Routes.getNextStateByNumberUri
 import pt.isel.daw.g08.project.Routes.getNextStatesUri
 import pt.isel.daw.g08.project.Routes.getProjectByIdUri
-import pt.isel.daw.g08.project.Routes.getStateByIdUri
+import pt.isel.daw.g08.project.Routes.getStateByNumberUri
 import pt.isel.daw.g08.project.Routes.getStatesUri
 import pt.isel.daw.g08.project.Routes.getUserByIdUri
 import pt.isel.daw.g08.project.Routes.includeHost
@@ -68,7 +68,7 @@ class StatesController(val db: StatesDb) {
                    ).toSirenObject(
                        rel = listOf("item"),
                        links = listOf(
-                           SirenLink(rel = listOf("self"), href = getStateByIdUri(projectId, it.sid).includeHost()),
+                           SirenLink(rel = listOf("self"), href = getStateByNumberUri(projectId, it.sid).includeHost()),
                            SirenLink(rel = listOf("author"), href = getUserByIdUri(it.author_id).includeHost()),
                            SirenLink(rel = listOf("project"), href = getProjectByIdUri(it.project_id).includeHost()),
                            SirenLink(rel = listOf("nextStates"), href = getNextStatesUri(projectId, it.sid).includeHost()),
@@ -101,7 +101,7 @@ class StatesController(val db: StatesDb) {
     }
 
     @RequiresAuth
-    @GetMapping(STATE_BY_ID_HREF)
+    @GetMapping(STATE_BY_NUMBER_HREF)
     fun getState(
         @PathVariable projectId: Int,
         @PathVariable stateId: Int,
@@ -121,7 +121,7 @@ class StatesController(val db: StatesDb) {
                         name = "edit-state",
                         title = "Edit State",
                         method = HttpMethod.PUT,
-                        href = getStateByIdUri(projectId, stateId).includeHost(),
+                        href = getStateByNumberUri(projectId, stateId).includeHost(),
                         type = INPUT_CONTENT_TYPE,
                         fields = listOf(
                             SirenActionField(name = "projectId", type = hidden, value = projectId),
@@ -134,7 +134,7 @@ class StatesController(val db: StatesDb) {
                         name = "delete-state",
                         title = "Delete State",
                         method = HttpMethod.DELETE,
-                        href = getStateByIdUri(projectId, stateId).includeHost(),
+                        href = getStateByNumberUri(projectId, stateId).includeHost(),
                         fields = listOf(
                             SirenActionField(name = "projectId", type = hidden, value = projectId),
                             SirenActionField(name = "stateId", type = hidden, value = stateId),
@@ -142,7 +142,7 @@ class StatesController(val db: StatesDb) {
                     ),
                 ),
                 links = listOf(
-                    SirenLink(rel = listOf("self"), href = getStateByIdUri(projectId, stateId).includeHost()),
+                    SirenLink(rel = listOf("self"), href = getStateByNumberUri(projectId, stateId).includeHost()),
                     SirenLink(rel = listOf("author"), href = getUserByIdUri(state.author_id).includeHost()),
                     SirenLink(rel = listOf("project"), href = getProjectByIdUri(projectId).includeHost()),
                     SirenLink(rel = listOf("nextStates"), href = getNextStatesUri(projectId, stateId).includeHost()),
@@ -179,7 +179,7 @@ class StatesController(val db: StatesDb) {
                     ).toSirenObject(
                         rel = listOf("item"),
                         links = listOf(
-                            SirenLink(rel = listOf("self"), href = getStateByIdUri(projectId, it.sid).includeHost()),
+                            SirenLink(rel = listOf("self"), href = getStateByNumberUri(projectId, it.sid).includeHost()),
                             SirenLink(rel = listOf("author"), href = getUserByIdUri(it.author_id).includeHost()),
                             SirenLink(rel = listOf("project"), href = getProjectByIdUri(it.project_id).includeHost()),
                             SirenLink(rel = listOf("nextStates"), href = getNextStatesUri(projectId, it.sid).includeHost()),
@@ -190,7 +190,7 @@ class StatesController(val db: StatesDb) {
                                 name = "delete-next-state",
                                 title = "Delete Next State",
                                 method = HttpMethod.DELETE,
-                                href = getNextStateByIdUri(projectId, stateId, it.sid),
+                                href = getNextStateByNumberUri(projectId, stateId, it.sid),
                                 type = INPUT_CONTENT_TYPE,
                                 fields = listOf(
                                     SirenActionField(name = "projectId", type = hidden, value = projectId),
@@ -222,7 +222,7 @@ class StatesController(val db: StatesDb) {
                     collectionSize
                 ) + listOf(
                     SirenLink(rel = listOf("project"), href = getProjectByIdUri(projectId).includeHost()),
-                    SirenLink(rel = listOf("state"), href = getStateByIdUri(projectId, stateId).includeHost())
+                    SirenLink(rel = listOf("state"), href = getStateByNumberUri(projectId, stateId).includeHost())
                 )
             ).toResponseEntity(HttpStatus.OK)
     }
@@ -237,7 +237,7 @@ class StatesController(val db: StatesDb) {
     }
 
     @RequiresAuth
-    @PutMapping(STATE_BY_ID_HREF)
+    @PutMapping(STATE_BY_NUMBER_HREF)
     fun editState(
         @PathVariable projectId: Int,
         @PathVariable stateId: Int,
@@ -247,7 +247,7 @@ class StatesController(val db: StatesDb) {
     }
 
     @RequiresAuth
-    @DeleteMapping(STATE_BY_ID_HREF)
+    @DeleteMapping(STATE_BY_NUMBER_HREF)
     fun deleteState(
         @PathVariable projectId: Int,
         @PathVariable stateId: Int,

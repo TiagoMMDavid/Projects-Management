@@ -6,6 +6,7 @@ import java.time.OffsetDateTime
 
 class IssueOutputModel(
     val id: Int,
+    val number: Int,
     val name: String,
     val description: String,
     val createDate: OffsetDateTime,

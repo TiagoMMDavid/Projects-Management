@@ -28,3 +28,38 @@ CREATE TRIGGER trig_check_comment_validity
 BEFORE INSERT ON COMMENT
 FOR EACH ROW
 EXECUTE PROCEDURE func_check_comment_validity();
+
+CREATE TRIGGER trig_create_project_seq
+BEFORE INSERT ON PROJECT
+FOR EACH ROW 
+EXECUTE PROCEDURE func_create_project_seq();
+
+CREATE TRIGGER trig_cleanup_project_seq
+BEFORE DELETE ON PROJECT
+FOR EACH ROW 
+EXECUTE PROCEDURE func_cleanup_project_seq();
+
+CREATE TRIGGER trig_get_issue_number
+BEFORE INSERT ON ISSUE
+FOR EACH ROW 
+EXECUTE PROCEDURE func_get_issue_number();
+
+CREATE TRIGGER trig_cleanup_issue_seq
+BEFORE DELETE ON ISSUE
+FOR EACH ROW 
+EXECUTE PROCEDURE func_cleanup_issue_seq();
+
+CREATE TRIGGER trig_get_state_number
+BEFORE INSERT ON STATE
+FOR EACH ROW 
+EXECUTE PROCEDURE func_get_state_number();
+
+CREATE TRIGGER trig_get_label_number
+BEFORE INSERT ON LABEL
+FOR EACH ROW 
+EXECUTE PROCEDURE func_get_label_number();
+
+CREATE TRIGGER trig_get_comment_number
+BEFORE INSERT ON COMMENT
+FOR EACH ROW 
+EXECUTE PROCEDURE func_get_comment_number();

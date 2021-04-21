@@ -2,6 +2,7 @@ package pt.isel.daw.g08.project.database.dto
 
 data class State(
     val sid: Int,
+    val number: Int,
     val name: String,
     val is_start: Boolean,
 

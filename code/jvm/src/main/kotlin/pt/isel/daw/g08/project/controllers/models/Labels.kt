@@ -5,6 +5,7 @@ import pt.isel.daw.g08.project.responses.siren.SirenClass.label
 
 class LabelOutputModel(
     val id: Int,
+    val number: Int,
     val name: String,
     val project: String,
     val author: String

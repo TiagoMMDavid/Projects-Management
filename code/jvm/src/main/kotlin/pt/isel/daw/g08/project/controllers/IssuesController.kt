@@ -11,14 +11,14 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import pt.isel.daw.g08.project.Routes.INPUT_CONTENT_TYPE
 import pt.isel.daw.g08.project.Routes.ISSUES_HREF
-import pt.isel.daw.g08.project.Routes.ISSUE_BY_ID_HREF
+import pt.isel.daw.g08.project.Routes.ISSUE_BY_NUMBER_HREF
 import pt.isel.daw.g08.project.Routes.createSirenLinkListForPagination
 import pt.isel.daw.g08.project.Routes.getCommentsUri
-import pt.isel.daw.g08.project.Routes.getIssueByIdUri
+import pt.isel.daw.g08.project.Routes.getIssueByNumberUri
 import pt.isel.daw.g08.project.Routes.getIssuesUri
 import pt.isel.daw.g08.project.Routes.getLabelsOfIssueUri
 import pt.isel.daw.g08.project.Routes.getProjectByIdUri
-import pt.isel.daw.g08.project.Routes.getStateByIdUri
+import pt.isel.daw.g08.project.Routes.getStateByNumberUri
 import pt.isel.daw.g08.project.Routes.getUserByIdUri
 import pt.isel.daw.g08.project.Routes.includeHost
 import pt.isel.daw.g08.project.controllers.models.IssueCreateInputModel
@@ -66,8 +66,8 @@ class IssuesController(val db: IssuesDb) {
                 ).toSirenObject(
                     rel = listOf("item"),
                     links = listOf(
-                        SirenLink(listOf("self"), getIssueByIdUri(projectId, it.iid).includeHost()),
-                        SirenLink(listOf("state"), getStateByIdUri(projectId, it.state_id).includeHost()),
+                        SirenLink(listOf("self"), getIssueByNumberUri(projectId, it.iid).includeHost()),
+                        SirenLink(listOf("state"), getStateByNumberUri(projectId, it.state_id).includeHost()),
                         SirenLink(listOf("comments"), getCommentsUri(projectId, it.iid).includeHost()),
                         SirenLink(listOf("labels"), getLabelsOfIssueUri(projectId, it.iid).includeHost()),
                         SirenLink(listOf("author"), getUserByIdUri(it.author_id).includeHost()),
@@ -101,12 +101,12 @@ class IssuesController(val db: IssuesDb) {
     }
 
     @RequiresAuth
-    @GetMapping(ISSUE_BY_ID_HREF)
+    @GetMapping(ISSUE_BY_NUMBER_HREF)
     fun getIssue(
         @PathVariable projectId: Int,
         @PathVariable issueId: Int,
     ): ResponseEntity<Response> {
-        val issue = db.getIssueById(issueId)
+        val issue = db.getIssueByNumber(issueId)
         val issueModel = IssueOutputModel(
             id = issue.iid,
             name = issue.name,
@@ -118,7 +118,7 @@ class IssuesController(val db: IssuesDb) {
             author = issue.author_name,
         )
 
-        val selfUri = getIssueByIdUri(projectId, issue.iid).includeHost()
+        val selfUri = getIssueByNumberUri(projectId, issue.iid).includeHost()
 
         return issueModel.toSirenObject(
             actions = listOf(
@@ -149,7 +149,7 @@ class IssuesController(val db: IssuesDb) {
             ),
             links = listOf(
                 SirenLink(listOf("self"), selfUri),
-                SirenLink(listOf("state"), getStateByIdUri(projectId, issue.state_id).includeHost()),
+                SirenLink(listOf("state"), getStateByNumberUri(projectId, issue.state_id).includeHost()),
                 SirenLink(listOf("comments"), getCommentsUri(projectId, issue.iid).includeHost()),
                 SirenLink(listOf("labels"), getLabelsOfIssueUri(projectId, issue.iid).includeHost()),
                 SirenLink(listOf("author"), getUserByIdUri(issue.author_id).includeHost()),
@@ -169,7 +169,7 @@ class IssuesController(val db: IssuesDb) {
     }
 
     @RequiresAuth
-    @PutMapping(ISSUE_BY_ID_HREF)
+    @PutMapping(ISSUE_BY_NUMBER_HREF)
     fun editIssue(
         @PathVariable projectId: Int,
         @PathVariable issueId: Int,

@@ -6,6 +6,7 @@ import pt.isel.daw.g08.project.responses.siren.SirenClass.state
 
 class StateOutputModel(
     val id: Int,
+    val number: Int,
     val name: String,
     val isStartState: Boolean,
     val project: String,

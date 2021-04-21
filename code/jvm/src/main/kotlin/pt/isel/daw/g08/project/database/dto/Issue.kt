@@ -4,6 +4,7 @@ import java.time.OffsetDateTime
 
 data class Issue(
     val iid: Int,
+    val number: Int,
     val name: String,
     val description: String,
     val create_date: OffsetDateTime,
@@ -11,6 +12,7 @@ data class Issue(
 
     val state_id: Int,
     val state_name: String,
+    val state_number: Int,
 
     val project_id: Int,
     val project_name: String,
