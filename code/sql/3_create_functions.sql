@@ -114,74 +114,74 @@ LANGUAGE 'plpgsql';
 CREATE FUNCTION func_create_project_seq()
 RETURNS TRIGGER AS
 $$
-	BEGIN
-		EXECUTE format('CREATE sequence issue_number_seq_%s', NEW.pid);
-		EXECUTE format('CREATE sequence label_number_seq_%s', NEW.pid);
-		EXECUTE format('CREATE sequence state_number_seq_%s', NEW.pid);
-  		RETURN NEW;
-	END
+    BEGIN
+        EXECUTE format('CREATE sequence issue_number_seq_%s', NEW.pid);
+        EXECUTE format('CREATE sequence label_number_seq_%s', NEW.pid);
+        EXECUTE format('CREATE sequence state_number_seq_%s', NEW.pid);
+        RETURN NEW;
+    END
 $$
 LANGUAGE 'plpgsql';
 
 CREATE FUNCTION func_cleanup_project_seq()
 RETURNS TRIGGER AS
 $$
-	BEGIN
-		EXECUTE format('DROP sequence issue_number_seq_%s', OLD.pid);
-		EXECUTE format('DROP sequence label_number_seq_%s', OLD.pid);
-		EXECUTE format('DROP sequence state_number_seq_%s', OLD.pid);
-  		RETURN OLD;
-	END
+    BEGIN
+        EXECUTE format('DROP sequence issue_number_seq_%s', OLD.pid);
+        EXECUTE format('DROP sequence label_number_seq_%s', OLD.pid);
+        EXECUTE format('DROP sequence state_number_seq_%s', OLD.pid);
+        RETURN OLD;
+    END
 $$
 LANGUAGE 'plpgsql';
 
 CREATE FUNCTION func_get_issue_number()
 RETURNS TRIGGER AS
 $$
-	BEGIN
-		NEW.number = nextval('issue_number_seq_' || NEW.project);
-		EXECUTE format('CREATE sequence comment_number_seq_%s', NEW.iid);
-  		RETURN NEW;
-	END
+    BEGIN
+        NEW.number = nextval('issue_number_seq_' || NEW.project);
+        EXECUTE format('CREATE sequence comment_number_seq_%s', NEW.iid);
+        RETURN NEW;
+    END
 $$
 LANGUAGE 'plpgsql';
 
 CREATE FUNCTION func_cleanup_issue_seq()
 RETURNS TRIGGER AS
 $$
-	BEGIN
-		EXECUTE format('DROP sequence comment_number_seq_%s', OLD.iid);
-  		RETURN OLD;
-	END
+    BEGIN
+        EXECUTE format('DROP sequence comment_number_seq_%s', OLD.iid);
+        RETURN OLD;
+    END
 $$
 LANGUAGE 'plpgsql';
 
 CREATE FUNCTION func_get_state_number()
 RETURNS TRIGGER AS
 $$
-	BEGIN
-		NEW.number = nextval('state_number_seq_' || NEW.project);
-  		RETURN NEW;
-	END
+    BEGIN
+        NEW.number = nextval('state_number_seq_' || NEW.project);
+        RETURN NEW;
+    END
 $$
 LANGUAGE 'plpgsql';
 
 CREATE FUNCTION func_get_label_number()
 RETURNS TRIGGER AS
 $$
-	BEGIN
-		NEW.number = nextval('label_number_seq_' || NEW.project);
-  		RETURN NEW;
-	END
+    BEGIN
+        NEW.number = nextval('label_number_seq_' || NEW.project);
+        RETURN NEW;
+    END
 $$
 LANGUAGE 'plpgsql';
 
 CREATE FUNCTION func_get_comment_number()
 RETURNS TRIGGER AS
 $$
-	BEGIN
-		NEW.number = nextval('comment_number_seq_' || NEW.iid);
-  		RETURN NEW;
-	END
+    BEGIN
+        NEW.number = nextval('comment_number_seq_' || NEW.iid);
+        RETURN NEW;
+    END
 $$
 LANGUAGE 'plpgsql';
