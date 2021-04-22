@@ -28,7 +28,7 @@ $$
         IF FOUND THEN
             NEW.state = state;
         ELSE
-            RAISE 'No starting state defined in the project!';
+            RAISE SQLSTATE 'P0005' USING message = 'No starting state defined in the project!';
         END IF;
         
         RETURN NEW;
@@ -72,7 +72,7 @@ $$
             WHERE from_sid = OLD.state AND to_sid = NEW.state;
             
             IF NOT FOUND THEN
-                RAISE 'Invalid transition!';
+                RAISE SQLSTATE 'P0006' USING message = 'Invalid transition!';
             END IF;
             
            -- Set close_date if state was changed to 'closed'
@@ -103,7 +103,7 @@ $$
         WHERE ISSUE.iid = NEW.iid;
 
         IF stateName = 'archived' THEN
-            RAISE 'Cannot add a comment to an archived issue!';
+            RAISE SQLSTATE 'P0007' USING message = 'Cannot add a comment to an archived issue!';
         END IF;
         
         RETURN NEW;

@@ -100,13 +100,13 @@ object Routes {
     fun getUserByIdUri(userId: Int) = USER_BY_ID_HREF_TEMPLATE.expand(userId)
     
     // Helpers
-    fun createSirenLinkListForPagination(uri: URI, page: Int, pageSize: Int, limit: Int, collectionSize: Int): List<SirenLink> {
+    fun createSirenLinkListForPagination(uri: URI, page: Int, limit: Int, collectionSize: Int): List<SirenLink> {
         val toReturn = mutableListOf(
             SirenLink(listOf("self"), UriTemplate("${uri}$PAGE_QUERY").expand(page, limit)),
             SirenLink(listOf("page"), hrefTemplate = "${uri}$PAGE_TEMPLATE_QUERY")
         )
 
-        if (page > 0)
+        if (page > 0 && collectionSize > 0)
             toReturn.add(
                 SirenLink(
                     listOf("previous"),
@@ -115,7 +115,7 @@ object Routes {
                 )
             )
 
-        if (collectionSize != ((page + 1) * pageSize))
+        if (collectionSize > ((page + 1) * limit))
             toReturn.add(
                 SirenLink(
                     listOf("next"),

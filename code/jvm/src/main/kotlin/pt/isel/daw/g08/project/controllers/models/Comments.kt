@@ -23,10 +23,6 @@ class CommentsOutputModel(
     override fun getSirenClasses() = listOf(comment, collection)
 }
 
-data class CommentCreateInputModel(
-    val comment: String,
-)
-
-data class CommentEditInputModel(
-    val comment: String,
+data class CommentInputModel(
+    val content: String,
 )

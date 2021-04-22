@@ -54,7 +54,6 @@ class UsersController(val db: UsersDb) {
             links = createSirenLinkListForPagination(
                 URI(USERS_HREF).includeHost(),
                 pagination.page,
-                usersModel.pageSize,
                 pagination.limit,
                 collectionSize
             )

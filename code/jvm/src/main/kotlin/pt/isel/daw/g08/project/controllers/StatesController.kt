@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import pt.isel.daw.g08.project.Routes
 import pt.isel.daw.g08.project.Routes.INPUT_CONTENT_TYPE
@@ -23,6 +22,7 @@ import pt.isel.daw.g08.project.Routes.getStateByNumberUri
 import pt.isel.daw.g08.project.Routes.getStatesUri
 import pt.isel.daw.g08.project.Routes.getUserByIdUri
 import pt.isel.daw.g08.project.Routes.includeHost
+import pt.isel.daw.g08.project.controllers.models.NextStateInputModel
 import pt.isel.daw.g08.project.controllers.models.StateInputModel
 import pt.isel.daw.g08.project.controllers.models.StateOutputModel
 import pt.isel.daw.g08.project.controllers.models.StatesOutputModel
@@ -34,7 +34,6 @@ import pt.isel.daw.g08.project.responses.siren.SirenAction
 import pt.isel.daw.g08.project.responses.siren.SirenActionField
 import pt.isel.daw.g08.project.responses.siren.SirenFieldType.checkbox
 import pt.isel.daw.g08.project.responses.siren.SirenFieldType.hidden
-import pt.isel.daw.g08.project.responses.siren.SirenFieldType.number
 import pt.isel.daw.g08.project.responses.siren.SirenFieldType.text
 import pt.isel.daw.g08.project.responses.siren.SirenLink
 import pt.isel.daw.g08.project.responses.toResponseEntity
@@ -96,7 +95,6 @@ class StatesController(val db: StatesDb) {
                 links = Routes.createSirenLinkListForPagination(
                     statesUri,
                     pagination.page,
-                    statesModel.pageSize,
                     pagination.limit,
                     collectionSize
                 ) + listOf(SirenLink(rel = listOf("project"), href = getProjectByIdUri(projectId).includeHost()))
@@ -200,6 +198,7 @@ class StatesController(val db: StatesDb) {
                                 fields = listOf(
                                     SirenActionField(name = "projectId", type = hidden, value = projectId),
                                     SirenActionField(name = "stateNumber", type = hidden, value = stateNumber),
+                                    SirenActionField(name = "nextStateNumber", type = hidden, value = it.sid),
                                 )
                             )
                         )
@@ -215,14 +214,13 @@ class StatesController(val db: StatesDb) {
                         fields = listOf(
                             SirenActionField(name = "projectId", type = hidden, value = projectId),
                             SirenActionField(name = "stateNumber", type = hidden, value = stateNumber),
-                            SirenActionField(name = "nextStateId", type = number),
+                            SirenActionField(name = "state", type = text),
                         )
                     )
                 ),
                 links = Routes.createSirenLinkListForPagination(
                     nextStatesUri,
                     pagination.page,
-                    statesModel.pageSize,
                     pagination.limit,
                     collectionSize
                 ) + listOf(
@@ -255,7 +253,17 @@ class StatesController(val db: StatesDb) {
     @DeleteMapping(STATE_BY_NUMBER_HREF)
     fun deleteState(
         @PathVariable(name = PROJECT_PARAM) projectId: Int,
-        @PathVariable stateId: Int,
+        @PathVariable(name = STATE_PARAM) stateNumber: Int,
+    ): ResponseEntity<Any> {
+        TODO()
+    }
+
+    @RequiresAuth
+    @PutMapping(NEXT_STATES_HREF)
+    fun addNextState(
+        @PathVariable(name = PROJECT_PARAM) projectId: Int,
+        @PathVariable(name = STATE_PARAM) stateNumber: Int,
+        input: NextStateInputModel
     ): ResponseEntity<Any> {
         TODO()
     }

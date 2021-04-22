@@ -9,6 +9,7 @@ private const val GET_STATES_BASE = "SELECT sid, number, name, is_start, project
 private const val GET_STATES_FROM_PROJECT_QUERY = "$GET_STATES_BASE WHERE project_id = :pid ORDER BY number"
 private const val GET_STATES_COUNT = "SELECT COUNT(sid) as count FROM STATE WHERE project = :pid"
 private const val GET_STATE_QUERY = "$GET_STATES_BASE WHERE project_id = :projectId AND number = :stateNumber"
+private const val GET_STATE_BY_NAME_QUERY = "$GET_STATES_BASE WHERE project_id = :projectId AND name = :stateName"
 
 private const val GET_NEXT_STATES_QUERY =
     "$GET_STATES_BASE WHERE sid IN (SELECT to_sid FROM STATETRANSITION WHERE from_sid IN " +
@@ -29,6 +30,15 @@ class StatesDb(val jdbi: Jdbi) {
             mapOf(
                 "projectId" to projectId,
                 "stateNumber" to stateNumber
+            )
+        )
+
+    fun getStateByName(projectId: Int, stateName: String) =
+        jdbi.getOne(
+            GET_STATE_BY_NAME_QUERY, State::class.java,
+            mapOf(
+                "projectId" to projectId,
+                "stateName" to stateName
             )
         )
 

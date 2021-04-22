@@ -26,6 +26,10 @@ class StatesOutputModel(
 }
 
 data class StateInputModel(
-    val isStartState: Boolean?,
-    val nextStates: List<String>?,
+    val name: String?,
+    val isStart: Boolean?,
+)
+
+data class NextStateInputModel(
+    val state: String?
 )

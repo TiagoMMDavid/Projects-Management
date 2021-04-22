@@ -94,7 +94,6 @@ class LabelsController(val db: LabelsDb, val issuesDb: IssuesDb) {
             links = createSirenLinkListForPagination(
                 labelsUri,
                 pagination.page,
-                labelsModel.pageSize,
                 pagination.limit,
                 collectionSize
             ) + listOf(SirenLink(rel = listOf("project"), href = getProjectByIdUri(projectId).includeHost()))
@@ -161,11 +160,29 @@ class LabelsController(val db: LabelsDb, val issuesDb: IssuesDb) {
     ): ResponseEntity<Response> {
         if (input.name == null) throw InvalidInputException("Missing name")
 
-        val label = db.createLabel(input.name, projectId, user.uid)
+        val label = db.createLabel(projectId, user.uid, input.name)
 
         return ResponseEntity
             .status(HttpStatus.CREATED)
             .header("Location", getLabelByNumberUri(projectId, label.number).includeHost().toString())
+            .body(null)
+    }
+
+    @RequiresAuth
+    @PutMapping(LABEL_BY_NUMBER_HREF)
+    fun editLabel(
+        @PathVariable(name = PROJECT_PARAM) projectId: Int,
+        @PathVariable(name = LABEL_PARAM) labelNumber: Int,
+        input: LabelInputModel,
+        user: User
+    ): ResponseEntity<Response> {
+        if (input.name == null) throw InvalidInputException("Missing name")
+
+        db.editLabel(projectId, labelNumber, input.name)
+
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .header("Location", getLabelByNumberUri(projectId, labelNumber).includeHost().toString())
             .body(null)
     }
 
@@ -212,7 +229,7 @@ class LabelsController(val db: LabelsDb, val issuesDb: IssuesDb) {
                     actions = listOf(
                         SirenAction(
                             name = "delete-label-from-issue",
-                            title = "Delete a Label from an issue",
+                            title = "Delete Label From Issue",
                             method = HttpMethod.DELETE,
                             href = getLabelByNumberOfIssueUri(projectId, issueNumber, it.number).includeHost(),
                             fields = listOf(
@@ -234,21 +251,20 @@ class LabelsController(val db: LabelsDb, val issuesDb: IssuesDb) {
             actions = listOf(
                 SirenAction(
                     name = "add-label-to-issue",
-                    title = "Add a Label to an issue",
+                    title = "Add Label To Issue",
                     method = HttpMethod.PUT,
                     href = issueLabelsUri,
                     type = INPUT_CONTENT_TYPE,
                     fields = listOf(
                         SirenActionField(name = "projectId", type = SirenFieldType.hidden, value = projectId),
                         SirenActionField(name = "issueNumber", type = SirenFieldType.hidden, value = issueNumber),
-                        SirenActionField(name = "labelName", type = SirenFieldType.text)
+                        SirenActionField(name = "name", type = SirenFieldType.text)
                     )
                 )
             ),
             links = createSirenLinkListForPagination(
                 issueLabelsUri,
                 pagination.page,
-                labelsModel.pageSize,
                 pagination.limit,
                 collectionSize
             ) + listOf(

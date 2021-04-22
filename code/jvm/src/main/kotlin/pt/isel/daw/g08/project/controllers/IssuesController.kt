@@ -3,11 +3,11 @@ package pt.isel.daw.g08.project.controllers
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import pt.isel.daw.g08.project.Routes.INPUT_CONTENT_TYPE
 import pt.isel.daw.g08.project.Routes.ISSUES_HREF
@@ -28,6 +28,7 @@ import pt.isel.daw.g08.project.controllers.models.IssueEditInputModel
 import pt.isel.daw.g08.project.controllers.models.IssueOutputModel
 import pt.isel.daw.g08.project.controllers.models.IssuesOutputModel
 import pt.isel.daw.g08.project.database.helpers.IssuesDb
+import pt.isel.daw.g08.project.exceptions.InvalidInputException
 import pt.isel.daw.g08.project.pipeline.argumentresolvers.Pagination
 import pt.isel.daw.g08.project.pipeline.interceptors.RequiresAuth
 import pt.isel.daw.g08.project.responses.Response
@@ -97,7 +98,6 @@ class IssuesController(val db: IssuesDb) {
             links = createSirenLinkListForPagination(
                 getIssuesUri(projectId).includeHost(),
                 pagination.page,
-                issuesModel.pageSize,
                 pagination.limit,
                 issuesModel.collectionSize
             ) + listOf(SirenLink(rel = listOf("project"), href = getProjectByIdUri(projectId).includeHost()))
@@ -139,7 +139,7 @@ class IssuesController(val db: IssuesDb) {
                         SirenActionField(name = "issueNumber", type = SirenFieldType.hidden, value = issueModel.number),
                         SirenActionField(name = "name", type = SirenFieldType.text),
                         SirenActionField(name = "description", type = SirenFieldType.text),
-                        SirenActionField(name = "stateNumber", type = SirenFieldType.number),
+                        SirenActionField(name = "state", type = SirenFieldType.text),
                     )
                 ),
                 SirenAction(
@@ -180,6 +180,23 @@ class IssuesController(val db: IssuesDb) {
         @PathVariable(PROJECT_PARAM) projectId: Int,
         @PathVariable(ISSUE_PARAM) issueNumber: Int,
         input: IssueEditInputModel,
+    ): ResponseEntity<Response> {
+        if (input.name == null && input.description == null && input.state == null)
+            throw InvalidInputException("Missing name, description or state")
+
+        db.editIssue(projectId, issueNumber, input.name, input.description, input.state)
+
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .header("Location", getIssueByNumberUri(projectId, issueNumber).includeHost().toString())
+            .body(null)
+    }
+
+    @RequiresAuth
+    @DeleteMapping(ISSUE_BY_NUMBER_HREF)
+    fun deleteIssue(
+        @PathVariable(PROJECT_PARAM) projectId: Int,
+        @PathVariable(ISSUE_PARAM) issueNumber: Int,
     ): ResponseEntity<Response> {
         TODO()
     }

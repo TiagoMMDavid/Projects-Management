@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import pt.isel.daw.g08.project.Routes.COMMENTS_HREF
 import pt.isel.daw.g08.project.Routes.COMMENT_BY_NUMBER_HREF
@@ -23,8 +22,7 @@ import pt.isel.daw.g08.project.Routes.getIssueByNumberUri
 import pt.isel.daw.g08.project.Routes.getProjectByIdUri
 import pt.isel.daw.g08.project.Routes.getUserByIdUri
 import pt.isel.daw.g08.project.Routes.includeHost
-import pt.isel.daw.g08.project.controllers.models.CommentCreateInputModel
-import pt.isel.daw.g08.project.controllers.models.CommentEditInputModel
+import pt.isel.daw.g08.project.controllers.models.CommentInputModel
 import pt.isel.daw.g08.project.controllers.models.CommentOutputModel
 import pt.isel.daw.g08.project.controllers.models.CommentsOutputModel
 import pt.isel.daw.g08.project.database.helpers.CommentsDb
@@ -91,7 +89,6 @@ class CommentsController(val db: CommentsDb) {
             links = createSirenLinkListForPagination(
                 getCommentsUri(projectId, issueNumber).includeHost(),
                 pagination.page,
-                commentsModel.pageSize,
                 pagination.limit,
                 commentsModel.collectionSize
             ) + listOf(
@@ -161,7 +158,7 @@ class CommentsController(val db: CommentsDb) {
     fun addComment(
         @PathVariable(name = PROJECT_PARAM) projectId: Int,
         @PathVariable(name = ISSUE_PARAM) issueNumber: Int,
-        input: CommentCreateInputModel,
+        input: CommentInputModel,
     ): ResponseEntity<Response> {
         TODO()
     }
@@ -171,7 +168,7 @@ class CommentsController(val db: CommentsDb) {
     fun editComment(
         @PathVariable(name = PROJECT_PARAM) projectId: Int,
         @PathVariable(name = ISSUE_PARAM) issueNumber: Int,
-        input: CommentEditInputModel,
+        input: CommentInputModel,
     ): ResponseEntity<Response> {
         TODO()
     }

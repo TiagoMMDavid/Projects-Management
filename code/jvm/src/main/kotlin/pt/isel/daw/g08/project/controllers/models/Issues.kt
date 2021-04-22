@@ -30,12 +30,10 @@ class IssuesOutputModel(
 data class IssueCreateInputModel(
     val name: String,
     val description: String,
-    val closeDate: OffsetDateTime?,
 )
 
 data class IssueEditInputModel(
     val name: String?,
     val description: String?,
-    val state: String?,
-    val closeDate: OffsetDateTime?,
+    val state: String?
 )

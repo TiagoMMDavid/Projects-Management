@@ -87,7 +87,6 @@ class ProjectsController(val db: ProjectsDb) {
             links = createSirenLinkListForPagination(
                 URI(PROJECTS_HREF).includeHost(),
                 pagination.page,
-                projectsModel.pageSize,
                 pagination.limit,
                 collectionSize
             )
@@ -167,7 +166,7 @@ class ProjectsController(val db: ProjectsDb) {
         input: ProjectCreateInputModel,
         user: User
     ): ResponseEntity<Any> {
-        if (input.name == null || input.description == null) throw InvalidInputException("Missing new name or new description")
+        if (input.name == null && input.description == null) throw InvalidInputException("Missing new name or new description")
 
         db.editProject(input.name, input.description, projectId)
         return ResponseEntity

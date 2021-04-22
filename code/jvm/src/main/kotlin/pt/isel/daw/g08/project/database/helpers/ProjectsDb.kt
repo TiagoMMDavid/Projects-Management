@@ -37,6 +37,7 @@ class ProjectsDb(val jdbi: Jdbi) {
         if (name == null && description == null) {
             return
         }
+
         val updateFields = mutableMapOf<String, Any>()
         if (name != null) updateFields["name"] = name
         if (description != null) updateFields["description"] = description

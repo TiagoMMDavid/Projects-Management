@@ -63,7 +63,7 @@ class ExceptionHandler {
         request: HttpServletRequest
     ): ResponseEntity<Response> {
         val headers = HttpHeaders()
-        headers.add("WWW-Authenticate", "$AUTH_SCHEME realm=\"DAW\"")
+        headers.add("WWW-Authenticate", AUTH_SCHEME)
 
         return handleExceptionResponse(
             URI("/problems/not-authorized").includeHost(),
@@ -137,6 +137,33 @@ class ExceptionHandler {
                     "Resource Is Referenced",
                     HttpStatus.CONFLICT,
                     cause.localizedMessage,
+                    request.requestURI
+                )
+            }
+            PsqlErrorCode.NoStartState -> {
+                handleExceptionResponse(
+                    URI("/problems/no-start-state").includeHost(),
+                    "No Start State",
+                    HttpStatus.BAD_REQUEST,
+                    "Can't create issue due to no starting state defined in the project",
+                    request.requestURI
+                )
+            }
+            PsqlErrorCode.InvalidStateTransition -> {
+                handleExceptionResponse(
+                    URI("/problems/invalid-state-transition").includeHost(),
+                    "Invalid State Transition",
+                    HttpStatus.BAD_REQUEST,
+                    "Current state can't transition to the requested state",
+                    request.requestURI
+                )
+            }
+            PsqlErrorCode.ArchivedIssue -> {
+                handleExceptionResponse(
+                    URI("/problems/archived-issue").includeHost(),
+                    "Issue Is Archived",
+                    HttpStatus.BAD_REQUEST,
+                    "Can't add a comment to an archived issue",
                     request.requestURI
                 )
             }
