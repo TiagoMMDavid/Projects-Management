@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RestController
 import pt.isel.daw.g08.project.Routes
 import pt.isel.daw.g08.project.Routes.INPUT_CONTENT_TYPE
 import pt.isel.daw.g08.project.Routes.NEXT_STATES_HREF
+import pt.isel.daw.g08.project.Routes.NEXT_STATE_BY_NUMBER_HREF
+import pt.isel.daw.g08.project.Routes.NEXT_STATE_PARAM
 import pt.isel.daw.g08.project.Routes.PROJECT_PARAM
 import pt.isel.daw.g08.project.Routes.STATES_HREF
 import pt.isel.daw.g08.project.Routes.STATE_BY_NUMBER_HREF
@@ -26,7 +28,9 @@ import pt.isel.daw.g08.project.controllers.models.NextStateInputModel
 import pt.isel.daw.g08.project.controllers.models.StateInputModel
 import pt.isel.daw.g08.project.controllers.models.StateOutputModel
 import pt.isel.daw.g08.project.controllers.models.StatesOutputModel
+import pt.isel.daw.g08.project.database.dto.User
 import pt.isel.daw.g08.project.database.helpers.StatesDb
+import pt.isel.daw.g08.project.exceptions.InvalidInputException
 import pt.isel.daw.g08.project.pipeline.argumentresolvers.Pagination
 import pt.isel.daw.g08.project.pipeline.interceptors.RequiresAuth
 import pt.isel.daw.g08.project.responses.Response
@@ -234,9 +238,18 @@ class StatesController(val db: StatesDb) {
     @PutMapping(STATES_HREF)
     fun createState(
         @PathVariable(name = PROJECT_PARAM) projectId: Int,
+        user: User,
         input: StateInputModel,
     ): ResponseEntity<Any> {
-        TODO()
+        if (input.name == null) throw InvalidInputException("Missing name")
+        if (input.isStart == null) throw InvalidInputException("Missing isStart")
+
+        val state = db.createState(projectId, user.uid, input.name, input.isStart)
+
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .header("Location", Routes.getStateByNumberUri(projectId, state.number).includeHost().toString())
+            .body(null)
     }
 
     @RequiresAuth
@@ -246,7 +259,13 @@ class StatesController(val db: StatesDb) {
         @PathVariable(name = STATE_PARAM) stateNumber: Int,
         input: StateInputModel,
     ): ResponseEntity<Any> {
-        TODO()
+        if (input.name == null && input.isStart == null) throw InvalidInputException("Missing new name or new isStart")
+
+        db.editState(projectId, stateNumber, input.name, input.isStart)
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .header("Location", getStateByNumberUri(projectId, stateNumber).includeHost().toString())
+            .body(null)
     }
 
     @RequiresAuth
@@ -255,7 +274,11 @@ class StatesController(val db: StatesDb) {
         @PathVariable(name = PROJECT_PARAM) projectId: Int,
         @PathVariable(name = STATE_PARAM) stateNumber: Int,
     ): ResponseEntity<Any> {
-        TODO()
+        db.deleteState(projectId, stateNumber)
+
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(null)
     }
 
     @RequiresAuth
@@ -265,6 +288,26 @@ class StatesController(val db: StatesDb) {
         @PathVariable(name = STATE_PARAM) stateNumber: Int,
         input: NextStateInputModel
     ): ResponseEntity<Any> {
-        TODO()
+        if (input.state == null) throw InvalidInputException("Missing state")
+        db.addNextState(projectId, stateNumber, input.state)
+
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .header("Location", getNextStatesUri(projectId, stateNumber).includeHost().toString())
+            .body(null)
+    }
+
+    @RequiresAuth
+    @DeleteMapping(NEXT_STATE_BY_NUMBER_HREF)
+    fun deleteNextState(
+        @PathVariable(name = PROJECT_PARAM) projectId: Int,
+        @PathVariable(name = STATE_PARAM) stateNumber: Int,
+        @PathVariable(name = NEXT_STATE_PARAM) nextStateNumber: Int,
+    ): ResponseEntity<Any> {
+        db.deleteNextState(projectId, stateNumber, nextStateNumber)
+
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(null)
     }
 }

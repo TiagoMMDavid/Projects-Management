@@ -46,7 +46,7 @@ $$
         IF NEW.is_start THEN
             SELECT sid INTO oldStartState
             FROM STATE
-            WHERE project = NEW.project AND is_start = TRUE;
+            WHERE project = NEW.project AND is_start = TRUE AND sid != NEW.sid;
         
             IF FOUND THEN
                 UPDATE STATE SET is_start = FALSE WHERE STATE.sid = oldStartState;

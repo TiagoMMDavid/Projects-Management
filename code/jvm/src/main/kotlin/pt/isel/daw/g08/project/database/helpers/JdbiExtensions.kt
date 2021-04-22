@@ -51,15 +51,12 @@ fun <T, V> Jdbi.insertAndGet(insertQuery: String, generatedIdType: Class<V>,
             .one()
     }
 
-fun <T> Jdbi.insert(insertQuery: String, generatedIdType: Class<T>, insertBinds: Map<String, Any>? = null) {
-    this.withHandle<T, Exception> {
+fun Jdbi.insert(insertQuery: String, insertBinds: Map<String, Any>? = null) {
+    this.useHandle<Exception> {
         val insertHandle = it.createUpdate(insertQuery)
         insertBinds?.forEach { entry -> insertHandle.bind(entry.key, entry.value) }
 
-        insertHandle
-            .executeAndReturnGeneratedKeys()
-            .mapTo(generatedIdType)
-            .one()
+        insertHandle.execute()
     }
 }
 

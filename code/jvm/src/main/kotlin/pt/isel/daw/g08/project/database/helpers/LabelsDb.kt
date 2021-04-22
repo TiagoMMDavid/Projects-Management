@@ -101,8 +101,7 @@ class LabelsDb(
         val labelId = getLabelByName(projectId, labelName).lid
 
         jdbi.insert(
-            INSERT_LABEL_IN_ISSUE_QUERY, Int::class.java,
-            mapOf(
+            INSERT_LABEL_IN_ISSUE_QUERY, mapOf(
                 "iid" to issueId,
                 "lid" to labelId
             )
