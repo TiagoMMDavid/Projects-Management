@@ -28,8 +28,8 @@ class IssuesOutputModel(
 }
 
 data class IssueCreateInputModel(
-    val name: String,
-    val description: String,
+    val name: String?,
+    val description: String?,
 )
 
 data class IssueEditInputModel(

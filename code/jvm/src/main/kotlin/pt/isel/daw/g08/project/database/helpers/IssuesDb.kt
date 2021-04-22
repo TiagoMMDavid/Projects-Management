@@ -10,9 +10,14 @@ private const val GET_ISSUES_BASE =
 private const val GET_ISSUES_FROM_PROJECT_QUERY = "$GET_ISSUES_BASE WHERE project_id = :pid ORDER BY number"
 private const val GET_ISSUES_COUNT = "SELECT COUNT(iid) as count FROM ISSUE WHERE project = :pid"
 private const val GET_ISSUE_QUERY = "$GET_ISSUES_BASE WHERE project_id = :projectId AND number = :issueNumber"
+private const val GET_ISSUE_BY_ID_QUERY = "$GET_ISSUES_BASE WHERE iid = :iid"
 
 private const val UPDATE_ISSUE_START = "UPDATE ISSUE SET"
 private const val UPDATE_ISSUE_END = "WHERE project = :projectId AND number = :number"
+
+private const val CREATE_ISSUE_QUERY = "INSERT INTO ISSUE(project, name, description, author) VALUES(:project, :name, :description, :author)"
+
+private const val DELETE_ISSUE_QUERY = "DELETE FROM ISSUE WHERE project = :projectId AND number = :issueNumber"
 
 @Component
 class IssuesDb(
@@ -48,4 +53,25 @@ class IssuesDb(
             mapOf("projectId" to projectId, "number" to issueNumber)
         )
     }
+
+    fun createIssue(projectId: Int, name: String, description: String, userId: Int) =
+        jdbi.insertAndGet(
+            CREATE_ISSUE_QUERY, Int::class.java,
+            GET_ISSUE_BY_ID_QUERY, Issue::class.java,
+            mapOf(
+                "project" to projectId,
+                "name" to name,
+                "description" to description,
+                "author" to userId
+            ),
+            "iid"
+        )
+
+    fun deleteIssue(projectId: Int, issueNumber: Int) =
+        jdbi.delete(DELETE_ISSUE_QUERY,
+            mapOf(
+                "projectId" to projectId,
+                "issueNumber" to issueNumber
+            )
+        )
 }

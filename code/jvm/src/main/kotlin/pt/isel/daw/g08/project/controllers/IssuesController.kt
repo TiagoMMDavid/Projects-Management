@@ -27,6 +27,7 @@ import pt.isel.daw.g08.project.controllers.models.IssueCreateInputModel
 import pt.isel.daw.g08.project.controllers.models.IssueEditInputModel
 import pt.isel.daw.g08.project.controllers.models.IssueOutputModel
 import pt.isel.daw.g08.project.controllers.models.IssuesOutputModel
+import pt.isel.daw.g08.project.database.dto.User
 import pt.isel.daw.g08.project.database.helpers.IssuesDb
 import pt.isel.daw.g08.project.exceptions.InvalidInputException
 import pt.isel.daw.g08.project.pipeline.argumentresolvers.Pagination
@@ -170,8 +171,17 @@ class IssuesController(val db: IssuesDb) {
     fun createIssue(
         @PathVariable(PROJECT_PARAM) projectId: Int,
         input: IssueCreateInputModel,
+        user: User
     ): ResponseEntity<Response> {
-        TODO()
+        if (input.name == null) throw InvalidInputException("Missing name")
+        if (input.description == null) throw InvalidInputException("Missing description")
+
+        val issue = db.createIssue(projectId, input.name, input.description, user.uid)
+
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .header("Location", getIssueByNumberUri(projectId, issue.number).includeHost().toString())
+            .body(null)
     }
 
     @RequiresAuth
@@ -198,6 +208,10 @@ class IssuesController(val db: IssuesDb) {
         @PathVariable(PROJECT_PARAM) projectId: Int,
         @PathVariable(ISSUE_PARAM) issueNumber: Int,
     ): ResponseEntity<Response> {
-        TODO()
+        db.deleteIssue(projectId, issueNumber)
+
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(null)
     }
 }
