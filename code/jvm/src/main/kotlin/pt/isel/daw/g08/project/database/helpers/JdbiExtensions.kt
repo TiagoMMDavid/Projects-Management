@@ -77,7 +77,7 @@ fun Jdbi.update(queryStart: String, updateFields: Map<String, Any>,
         updateFields.forEach { entry -> handle.bind(entry.key, entry.value) }
         endBinds.forEach { entry -> handle.bind(entry.key, entry.value) }
 
-        handle.execute()
+        if (handle.execute() == 0) throw NotFoundException("Resource does not exist")
     }
 }
 

@@ -24,5 +24,5 @@ class CommentsOutputModel(
 }
 
 data class CommentInputModel(
-    val content: String,
+    val content: String?,
 )

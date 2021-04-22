@@ -25,7 +25,9 @@ import pt.isel.daw.g08.project.Routes.includeHost
 import pt.isel.daw.g08.project.controllers.models.CommentInputModel
 import pt.isel.daw.g08.project.controllers.models.CommentOutputModel
 import pt.isel.daw.g08.project.controllers.models.CommentsOutputModel
+import pt.isel.daw.g08.project.database.dto.User
 import pt.isel.daw.g08.project.database.helpers.CommentsDb
+import pt.isel.daw.g08.project.exceptions.InvalidInputException
 import pt.isel.daw.g08.project.pipeline.argumentresolvers.Pagination
 import pt.isel.daw.g08.project.pipeline.interceptors.RequiresAuth
 import pt.isel.daw.g08.project.responses.Response
@@ -155,12 +157,19 @@ class CommentsController(val db: CommentsDb) {
 
     @RequiresAuth
     @PostMapping(COMMENTS_HREF)
-    fun addComment(
+    fun createComment(
         @PathVariable(name = PROJECT_PARAM) projectId: Int,
         @PathVariable(name = ISSUE_PARAM) issueNumber: Int,
         input: CommentInputModel,
-    ): ResponseEntity<Response> {
-        TODO()
+        user: User,
+    ): ResponseEntity<Any> {
+        if (input.content == null) throw InvalidInputException("Missing content")
+
+        val comment = db.createComment(projectId, issueNumber, user.uid, input.content)
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .header("Location", getCommentByNumberUri(projectId, issueNumber, comment.number).includeHost().toString())
+            .body(null)
     }
 
     @RequiresAuth
@@ -168,9 +177,16 @@ class CommentsController(val db: CommentsDb) {
     fun editComment(
         @PathVariable(name = PROJECT_PARAM) projectId: Int,
         @PathVariable(name = ISSUE_PARAM) issueNumber: Int,
+        @PathVariable(name = COMMENT_PARAM) commentNumber: Int,
         input: CommentInputModel,
-    ): ResponseEntity<Response> {
-        TODO()
+    ): ResponseEntity<Any> {
+        if (input.content == null) throw InvalidInputException("Missing content")
+
+        db.editComment(projectId, issueNumber, commentNumber, input.content)
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .header("Location", getCommentByNumberUri(projectId, issueNumber, commentNumber).includeHost().toString())
+            .body(null)
     }
 
     @RequiresAuth
@@ -179,7 +195,11 @@ class CommentsController(val db: CommentsDb) {
         @PathVariable(name = PROJECT_PARAM) projectId: Int,
         @PathVariable(name = ISSUE_PARAM) issueNumber: Int,
         @PathVariable(name = COMMENT_PARAM) commentNumber: Int
-    ): ResponseEntity<Response> {
-        TODO()
+    ): ResponseEntity<Any> {
+        db.deleteComment(projectId, issueNumber, commentNumber)
+
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(null)
     }
 }
