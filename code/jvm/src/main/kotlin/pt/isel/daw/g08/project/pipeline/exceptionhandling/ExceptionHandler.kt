@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 import pt.isel.daw.g08.project.Routes.includeHost
 import pt.isel.daw.g08.project.auth.AuthHeaderValidator.AUTH_SCHEME
 import pt.isel.daw.g08.project.database.PsqlErrorCode
+import pt.isel.daw.g08.project.database.getPsqlErrorCode
 import pt.isel.daw.g08.project.exceptions.AuthorizationException
 import pt.isel.daw.g08.project.exceptions.InvalidInputException
 import pt.isel.daw.g08.project.exceptions.NotFoundException
@@ -109,7 +110,7 @@ class ExceptionHandler {
         request: HttpServletRequest
     ): ResponseEntity<Response> {
         val cause = ex.cause as SQLException
-        val psqlError = PsqlErrorCode.values().find { it.code == cause.sqlState }
+        val psqlError = ex.getPsqlErrorCode()
 
         if (psqlError == null) {
             return handleExceptionResponse(

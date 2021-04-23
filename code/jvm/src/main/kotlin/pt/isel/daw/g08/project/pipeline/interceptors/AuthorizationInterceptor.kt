@@ -8,6 +8,7 @@ import pt.isel.daw.g08.project.auth.AuthHeaderValidator
 import pt.isel.daw.g08.project.auth.AuthHeaderValidator.AUTH_HEADER
 import pt.isel.daw.g08.project.database.dto.User
 import pt.isel.daw.g08.project.database.helpers.UsersDb
+import pt.isel.daw.g08.project.exceptions.NotFoundException
 import java.security.MessageDigest
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
@@ -24,11 +25,17 @@ class AuthorizationInterceptor(val db: UsersDb) : HandlerInterceptor {
     private val digester = MessageDigest.getInstance("SHA-256")
 
     fun getAndVerifyUser(username: String, password: String): User? {
-        val userDao = db.getUserByUsername(username)
+        val user: User
+        try {
+            user = db.getUserByUsername(username)
+        } catch (e: NotFoundException) {
+            return null
+        }
+
         val hashedPass = digester.digest(password.toByteArray())
             .fold("") { str, byte -> "$str${"%02x".format(byte)}" }
 
-        return if (userDao.pass == hashedPass) userDao else null
+        return if (user.pass == hashedPass) user else null
     }
 
     override fun preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any): Boolean {

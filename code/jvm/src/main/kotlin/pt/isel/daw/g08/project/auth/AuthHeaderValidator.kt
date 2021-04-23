@@ -22,21 +22,25 @@ object AuthHeaderValidator {
         }
 
         // Get user credentials
+        val username: String
+        val password: String
         try {
             val credentials = header.drop(AUTH_SCHEME.length + 1).trim()
-            val (username, password) = String(Base64Utils.decodeFromString(credentials)).split(':')
-
-            val user = validateUserFunction(username, password)
-            if (user == null) {
-                // User failed the verification (wrong password)
-                logger.info("User with name $username is invalid")
-                throw AuthorizationException("Bad credentials")
-            }
-
-            return user
+            val splitHeader = String(Base64Utils.decodeFromString(credentials)).split(':')
+            username = splitHeader[0]
+            password = splitHeader[1]
         } catch(ex: Exception) {
             logger.info("Could not get user credentials")
             throw AuthorizationException("Bad credentials")
         }
+
+        val user = validateUserFunction(username, password)
+        if (user == null) {
+            // User failed the verification (wrong password)
+            logger.info("User with name $username is invalid")
+            throw AuthorizationException("Bad credentials")
+        }
+
+        return user
     }
 }
