@@ -11,6 +11,8 @@ group = "pt.isel.daw.g08"
 version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
+val DOCKER_PROJECT_NAME = "DAW"
+
 repositories {
 	mavenCentral()
 }
@@ -41,7 +43,7 @@ tasks.withType<Test> {
 }
 
 task<Exec>("dbUp") {
-	commandLine("docker-compose", "up", "-d", "daw-db")
+	commandLine("docker-compose", "-p", DOCKER_PROJECT_NAME, "up", "-d", "daw-db")
 }
 
 task<Exec>("dbWait") {
@@ -54,7 +56,7 @@ task<Exec>("dbStop") {
 }
 
 task<Exec>("dbTestsUp") {
-	commandLine("docker-compose", "up", "-d", "daw-db-tests")
+	commandLine("docker-compose", "-p", DOCKER_PROJECT_NAME, "up", "-d", "daw-db-tests")
 }
 
 task<Exec>("dbTestsWait") {
@@ -63,7 +65,7 @@ task<Exec>("dbTestsWait") {
 }
 
 task<Exec>("dbTestsDown") {
-	commandLine("docker-compose", "rm", "-fsv", "daw-db-tests")
+	commandLine("docker-compose", "-p", DOCKER_PROJECT_NAME, "rm", "-fsv", "daw-db-tests")
 }
 
 tasks {
