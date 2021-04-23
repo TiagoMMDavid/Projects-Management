@@ -66,9 +66,9 @@ Status: 200 OK
 {
   "class": ["comment", "collection"],
   "properties": {
-    "collectionSize": 1,
+    "collectionSize": 2,
     "pageIndex": 0,
-    "pageSize": 1
+    "pageSize": 2
   },
   "entities": [
     {
