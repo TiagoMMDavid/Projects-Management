@@ -11,3 +11,14 @@ services:
       - POSTGRES_DB=db
     ports:
       - 5432:5432
+  daw-db-tests:
+    container_name: daw-db-tests
+    build:
+      context: ..
+      dockerfile: jvm/tests/Dockerfile-daw-db-tests
+    environment:
+      - POSTGRES_USER=daw
+      - POSTGRES_PASSWORD=changeit
+      - POSTGRES_DB=db
+    ports:
+      - 5433:5432

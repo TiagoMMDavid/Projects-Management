@@ -40,21 +40,40 @@ tasks.withType<Test> {
 	useJUnitPlatform()
 }
 
-task<Exec>("dbTestsUp") {
+task<Exec>("dbUp") {
 	commandLine("docker-compose", "up", "-d", "daw-db")
 }
 
-task<Exec>("dbTestsWait") {
+task<Exec>("dbWait") {
 	commandLine("docker", "exec", "daw-db", "/app/bin/wait-for-postgres.sh", "localhost")
+	dependsOn("dbUp")
+}
+
+task<Exec>("dbStop") {
+	commandLine("docker", "stop", "daw-db")
+}
+
+task<Exec>("dbTestsUp") {
+	commandLine("docker-compose", "up", "-d", "daw-db-tests")
+}
+
+task<Exec>("dbTestsWait") {
+	commandLine("docker", "exec", "daw-db-tests", "/app/bin/wait-for-postgres.sh", "localhost")
 	dependsOn("dbTestsUp")
 }
 
 task<Exec>("dbTestsDown") {
-	commandLine("docker-compose", "down")
+	commandLine("docker-compose", "rm", "-fsv", "daw-db-tests")
 }
 
 tasks {
 	named<Test>("test") {
 		dependsOn("dbTestsWait")
+		finalizedBy("dbTestsDown")
+	}
+	
+	named("bootRun") {
+		dependsOn("dbWait")
+		finalizedBy("dbStop")
 	}
 }
