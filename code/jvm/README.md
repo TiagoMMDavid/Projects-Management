@@ -5,6 +5,8 @@ In order to be able to both build and run this project, you need the following s
 - [Docker](https://www.docker.com/get-started)
 - [Java 11 SDK](https://www.oracle.com/java/technologies/javase-jdk11-downloads.html)
 
+If you're running [Docker for Windows](https://docs.docker.com/docker-for-windows/install/), you need to use [WSL 2](https://docs.microsoft.com/en-us/windows/wsl/install-win10) by both installing it and enabling "Use the WSL 2 based engine" option in Docker settings.
+
 ## Steps
 The following steps assume you are in the same directory as this README file.
 
