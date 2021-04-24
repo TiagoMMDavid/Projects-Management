@@ -13,6 +13,10 @@ A user is a person who is authorized to use the API. Users are an important aspe
     * type: **text**
     * example: `"user1"`
 
+## Link Relations
+* [self](#get-user)
+* [users](#list-users)
+
 ## Actions
 * [List Users](#list-users)
 * [Get User](#get-user)

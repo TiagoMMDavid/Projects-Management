@@ -24,6 +24,14 @@ A project is a long-running development activity, such as "DAW Project" or "LS P
     * type: **text**
     * example: `"John Doe"`
 
+## Link Relations
+* [self](#get-project)
+* [labels](labels.md#list-labels)
+* [issues](issues.md#list-issues)
+* [states](states.md#list-states)
+* [author](users.md#get-user)
+* [projects](#list-projects)
+
 ## Actions
 * [List Projects](#list-projects)
 * [Get Project](#get-project)
