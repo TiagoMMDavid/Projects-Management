@@ -30,6 +30,7 @@ CREATE TABLE STATETRANSITION
 (
     from_sid    INT REFERENCES STATE(sid) ON DELETE CASCADE,
     to_sid      INT REFERENCES STATE(sid) ON DELETE CASCADE,
+    CHECK (to_sid != from_sid),
     PRIMARY KEY (from_sid, to_sid)
 );
 

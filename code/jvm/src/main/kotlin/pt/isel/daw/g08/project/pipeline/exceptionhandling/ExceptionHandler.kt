@@ -141,6 +141,24 @@ class ExceptionHandler {
                     request.requestURI
                 )
             }
+            PsqlErrorCode.CheckViolation -> {
+                handleExceptionResponse(
+                    URI("/problems/invalid-creation-request").includeHost(),
+                    "Invalid Creation Request",
+                    HttpStatus.BAD_REQUEST,
+                    cause.localizedMessage,
+                    request.requestURI
+                )
+            }
+            PsqlErrorCode.StringDataRightTruncation -> {
+                handleExceptionResponse(
+                    URI("/problems/invalid-string-size").includeHost(),
+                    "Invalid String Size",
+                    HttpStatus.BAD_REQUEST,
+                    cause.localizedMessage,
+                    request.requestURI
+                )
+            }
             PsqlErrorCode.NoStartState -> {
                 handleExceptionResponse(
                     URI("/problems/no-start-state").includeHost(),

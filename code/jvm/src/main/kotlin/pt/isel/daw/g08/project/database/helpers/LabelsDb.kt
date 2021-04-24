@@ -31,12 +31,15 @@ private const val DELETE_LABEL_FROM_ISSUE_QUERY = "DELETE FROM ISSUE_LABEL WHERE
 
 @Component
 class LabelsDb(
+    val projectsDb: ProjectsDb,
     val issuesDb: IssuesDb,
     val jdbi: Jdbi
 ) {
 
-    fun getAllLabelsFromProject(page: Int, perPage: Int, projectId: Int) =
-        jdbi.getList(GET_LABELS_FROM_PROJECT_QUERY, Label::class.java, page, perPage, mapOf("pid" to projectId))
+    fun getAllLabelsFromProject(page: Int, perPage: Int, projectId: Int): List<Label> {
+        projectsDb.getProjectById(projectId) // Check if project exists (will throw exception if not found)
+        return jdbi.getList(GET_LABELS_FROM_PROJECT_QUERY, Label::class.java, page, perPage, mapOf("pid" to projectId))
+    }
 
     fun getLabelsCountFromProject(projectId: Int) = jdbi.getOne(GET_LABELS_COUNT_FROM_PROJECT, Int::class.java, mapOf("pid" to projectId))
 
@@ -57,13 +60,16 @@ class LabelsDb(
             )
         )
 
-    fun getAllLabelsFromIssue(page: Int, perPage: Int, projectId: Int, issueNumber: Int) =
-        jdbi.getList(GET_LABELS_FROM_ISSUE_QUERY, Label::class.java, page, perPage,
+    fun getAllLabelsFromIssue(page: Int, perPage: Int, projectId: Int, issueNumber: Int): List<Label> {
+        issuesDb.getIssueByNumber(projectId, issueNumber) // Check if issue exists (will throw exception if not found)
+        return jdbi.getList(
+            GET_LABELS_FROM_ISSUE_QUERY, Label::class.java, page, perPage,
             mapOf(
                 "projectId" to projectId,
                 "issueNumber" to issueNumber
             )
         )
+    }
 
     fun getLabelsCountFromIssue(projectId: Int, issueNumber: Int) =
         jdbi.getOne(GET_LABELS_COUNT_FROM_ISSUE, Int::class.java,
@@ -73,8 +79,9 @@ class LabelsDb(
             )
         )
 
-    fun createLabel(projectId: Int, userId: Int, name: String) =
-        jdbi.insertAndGet(
+    fun createLabel(projectId: Int, userId: Int, name: String): Label {
+        projectsDb.getProjectById(projectId) // Check if project exists (will throw exception if not found)
+        return jdbi.insertAndGet(
             CREATE_LABEL_QUERY, Int::class.java,
             GET_LABEL_BY_ID_QUERY, Label::class.java,
             mapOf(
@@ -84,6 +91,7 @@ class LabelsDb(
             ),
             "lid"
         )
+    }
 
     fun editLabel(projectId: Int, labelNumber: Int, name: String) =
         jdbi.update(

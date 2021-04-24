@@ -21,11 +21,14 @@ private const val DELETE_ISSUE_QUERY = "DELETE FROM ISSUE WHERE project = :proje
 
 @Component
 class IssuesDb(
+    val projectsDb: ProjectsDb,
     val statesDb: StatesDb,
     val jdbi: Jdbi,
 ) {
-    fun getAllIssuesFromProject(page: Int, perPage: Int, projectId: Int) =
-        jdbi.getList(GET_ISSUES_FROM_PROJECT_QUERY, Issue::class.java, page, perPage, mapOf("pid" to projectId))
+    fun getAllIssuesFromProject(page: Int, perPage: Int, projectId: Int): List<Issue> {
+        projectsDb.getProjectById(projectId) // Check if project exists (will throw exception if not found)
+        return jdbi.getList(GET_ISSUES_FROM_PROJECT_QUERY, Issue::class.java, page, perPage, mapOf("pid" to projectId))
+    }
 
     fun getIssuesCount(projectId: Int) = jdbi.getOne(GET_ISSUES_COUNT, Int::class.java, mapOf("pid" to projectId))
     fun getIssueByNumber(projectId: Int, issueNumber: Int) =
@@ -54,8 +57,9 @@ class IssuesDb(
         )
     }
 
-    fun createIssue(projectId: Int, name: String, description: String, userId: Int) =
-        jdbi.insertAndGet(
+    fun createIssue(projectId: Int, name: String, description: String, userId: Int): Issue {
+        projectsDb.getProjectById(projectId) // Check if project exists (will throw exception if not found)
+        return jdbi.insertAndGet(
             CREATE_ISSUE_QUERY, Int::class.java,
             GET_ISSUE_BY_ID_QUERY, Issue::class.java,
             mapOf(
@@ -66,6 +70,7 @@ class IssuesDb(
             ),
             "iid"
         )
+    }
 
     fun deleteIssue(projectId: Int, issueNumber: Int) =
         jdbi.delete(DELETE_ISSUE_QUERY,

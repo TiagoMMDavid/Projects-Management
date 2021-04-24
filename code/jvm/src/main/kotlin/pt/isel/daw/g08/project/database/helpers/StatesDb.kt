@@ -29,9 +29,15 @@ private const val DELETE_STATE_QUERY = "DELETE FROM STATE WHERE project = :proje
 private const val DELETE_NEXT_STATE_QUERY = "DELETE FROM STATETRANSITION WHERE from_sid = :fromSid AND to_sid = :toSid"
 
 @Component
-class StatesDb(val jdbi: Jdbi) {
-    fun getAllStatesFromProject(page: Int, perPage: Int, projectId: Int) =
-        jdbi.getList(GET_STATES_FROM_PROJECT_QUERY, State::class.java, page, perPage, mapOf("pid" to projectId))
+class StatesDb(
+    val projectsDb: ProjectsDb,
+    val jdbi: Jdbi
+) {
+
+    fun getAllStatesFromProject(page: Int, perPage: Int, projectId: Int): List<State> {
+        projectsDb.getProjectById(projectId) // Check if project exists (will throw exception if not found)
+        return jdbi.getList(GET_STATES_FROM_PROJECT_QUERY, State::class.java, page, perPage, mapOf("pid" to projectId))
+    }
 
     fun getStatesCount(projectId: Int) = jdbi.getOne(GET_STATES_COUNT, Int::class.java, mapOf("pid" to projectId))
 
@@ -52,22 +58,27 @@ class StatesDb(val jdbi: Jdbi) {
             )
         )
 
-    fun getNextStates(page: Int, perPage: Int, projectId: Int, stateNumber: Int) =
-        jdbi.getList(GET_NEXT_STATES_QUERY, State::class.java, page, perPage,
+    fun getNextStates(page: Int, perPage: Int, projectId: Int, stateNumber: Int): List<State> {
+        projectsDb.getProjectById(projectId) // Check if project exists (will throw exception if not found)
+        return jdbi.getList(GET_NEXT_STATES_QUERY, State::class.java, page, perPage,
             mapOf(
                 "projectId" to projectId,
                 "stateNumber" to stateNumber
             )
         )
-    fun getNextStatesCount(projectId: Int, stateNumber: Int) = jdbi.getOne(GET_NEXT_STATES_COUNT, Int::class.java,
-        mapOf(
-            "projectId" to projectId,
-            "stateNumber" to stateNumber
-        )
-    )
+    }
 
-    fun createState(projectId: Int, userId: Int, name: String, isStart: Boolean) =
-        jdbi.insertAndGet(
+    fun getNextStatesCount(projectId: Int, stateNumber: Int) =
+        jdbi.getOne(GET_NEXT_STATES_COUNT, Int::class.java,
+            mapOf(
+                "projectId" to projectId,
+                "stateNumber" to stateNumber
+            )
+        )
+
+    fun createState(projectId: Int, userId: Int, name: String, isStart: Boolean): State {
+        projectsDb.getProjectById(projectId) // Check if project exists (will throw exception if not found)
+        return jdbi.insertAndGet(
             CREATE_STATE_QUERY, Int::class.java,
             GET_STATE_BY_ID_QUERY, State::class.java,
             mapOf(
@@ -78,6 +89,7 @@ class StatesDb(val jdbi: Jdbi) {
             ),
             "sid"
         )
+    }
 
     fun addNextState(projectId: Int, stateNumber: Int, toStateName: String) {
         val fromSid = getStateByNumber(projectId, stateNumber).sid

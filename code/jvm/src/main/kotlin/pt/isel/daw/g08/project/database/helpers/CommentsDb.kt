@@ -27,13 +27,15 @@ class CommentsDb(
     val jdbi: Jdbi
 ) {
 
-    fun getAllCommentsFromIssue(page: Int, perPage: Int, projectId: Int, issueNumber: Int) =
-        jdbi.getList(GET_COMMENTS_FROM_ISSUE_QUERY, Comment::class.java, page, perPage,
+    fun getAllCommentsFromIssue(page: Int, perPage: Int, projectId: Int, issueNumber: Int): List<Comment> {
+        issuesDb.getIssueByNumber(projectId, issueNumber) // Check if issue exists (will throw exception if not found)
+        return jdbi.getList(GET_COMMENTS_FROM_ISSUE_QUERY, Comment::class.java, page, perPage,
             mapOf(
                 "issueNumber" to issueNumber,
                 "projectId" to projectId
             )
         )
+    }
 
     fun getCommentsCount(projectId: Int, issueNumber: Int) =
         jdbi.getOne(GET_COMMENTS_COUNT, Int::class.java,
