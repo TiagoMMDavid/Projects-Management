@@ -205,8 +205,6 @@ GET /api/projects/{projectId}/issues/{issueNumber}/comments/{commentNumber}
 | Name              | Type        | In         | Description                                                                           |
 | -----------       | ----------- | ---------- | ------------------------------------------------------------------------------------- |
 | accept            | string      | header     | Should be set to either `application/json` or `application/vnd.siren+json`            |
-| page              | integer     | query      | Specifies the current page of the list                                                |
-| limit             | integer     | query      | Specifies the number of results per page (max. 100)                                   |
 | projectId         | integer     | path       | The project's unique identifier                                                       |
 | issueNumber       | integer     | path       | The issue's identifier relative to the project                                        |
 | commentNumber     | integer     | path       | The comment's identifier relative to the issue                                        |
@@ -327,8 +325,7 @@ POST /api/projects/{projectId}/issues/{issueNumber}/comments
 | Name          | Type        | In         | Description                                                                           |
 | -----------   | ----------- | ---------- | ------------------------------------------------------------------------------------- |
 | accept        | string      | header     | Should be set to either `application/json` or `application/vnd.siren+json`            |
-| page          | integer     | query      | Specifies the current page of the list                                                |
-| limit         | integer     | query      | Specifies the number of results per page (max. 100)                                   |
+| content-type  | string      | header     | Should be set to `application/x-www-form-urlencoded`                                  |
 | projectId     | integer     | path       | The project's unique identifier                                                       |
 | issueNumber   | integer     | path       | The issue's identifier relative to the project                                        |
 | content       | string      | body       | **Required**. The content of the comment                                              |
@@ -366,8 +363,7 @@ PUT /api/projects/{projectId}/issues/{issueNumber}/comments/{commentNumber}
 | Name          | Type        | In         | Description                                                                           |
 | -----------   | ----------- | ---------- | ------------------------------------------------------------------------------------- |
 | accept        | string      | header     | Should be set to either `application/json` or `application/vnd.siren+json`            |
-| page          | integer     | query      | Specifies the current page of the list                                                |
-| limit         | integer     | query      | Specifies the number of results per page (max. 100)                                   |
+| content-type  | string      | header     | Should be set to `application/x-www-form-urlencoded`                                  |
 | projectId     | integer     | path       | The project's unique identifier                                                       |
 | issueNumber   | integer     | path       | The issue's identifier relative to the project                                        |
 | content       | string      | body       | **Required**. The content of the comment                                              |
@@ -405,8 +401,6 @@ DELETE /api/projects/{projectId}/issues/{issueNumber}/comments/{commentNumber}
 | Name              | Type        | In         | Description                                                                           |
 | -----------       | ----------- | ---------- | ------------------------------------------------------------------------------------- |
 | accept            | string      | header     | Should be set to either `application/json` or `application/vnd.siren+json`            |
-| page              | integer     | query      | Specifies the current page of the list                                                |
-| limit             | integer     | query      | Specifies the number of results per page (max. 100)                                   |
 | projectId         | integer     | path       | The project's unique identifier                                                       |
 | issueNumber       | integer     | path       | The issue's identifier relative to the project                                        |
 | commentNumber     | integer     | path       | The comment's identifier relative to the issue                                        |
