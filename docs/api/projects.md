@@ -335,13 +335,13 @@ PUT /api/projects/{projectId}
 ```
 
 #### Parameters
-| Name         | Type        | In         | Description                                                                                                                          |
-| ------------ | ----------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| accept       | string      | header     | Should be set to either `application/json` or `application/vnd.siren+json`                                                           |
-| content-type | string      | header     | Should be set to `application/x-www-form-urlencoded`                                                                                 |
-| projectId    | integer     | path       | The project's unique identifier                                                                                                      |
-| name         | string      | body       | **Required unless you provide `description`**. Unique and short name that defines the project                                        |
-| description  | string      | body       | **Required unless you provide `name`**. Short description that characterizes the project                                             |
+| Name         | Type        | In         | Description                                                                                      |
+| ------------ | ----------- | ---------- | ------------------------------------------------------------------------------------------------ |
+| accept       | string      | header     | Should be set to either `application/json` or `application/vnd.siren+json`                       |
+| content-type | string      | header     | Should be set to `application/x-www-form-urlencoded`                                             |
+| projectId    | integer     | path       | The project's unique identifier                                                                  |
+| name         | string      | body       | **Required unless you provide `description`**. Unique and short name that defines the project    |
+| description  | string      | body       | **Required unless you provide `name`**. Short description that characterizes the project         |
 
 #### Default Response
 ```
@@ -378,10 +378,10 @@ DELETE /api/projects/{projectId}
 ```
 
 #### Parameters
-| Name         | Type        | In         | Description                                                                                                                          |
-| ------------ | ----------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| accept       | string      | header     | Should be set to either `application/json` or `application/vnd.siren+json`                                                           |
-| projectId    | integer     | path       | The project's unique identifier                                                                                                      |
+| Name         | Type        | In         | Description                                                                    |
+| ------------ | ----------- | ---------- | ------------------------------------------------------------------------------ |
+| accept       | string      | header     | Should be set to either `application/json` or `application/vnd.siren+json`     |
+| projectId    | integer     | path       | The project's unique identifier                                                |
 
 #### Default Response
 ```
