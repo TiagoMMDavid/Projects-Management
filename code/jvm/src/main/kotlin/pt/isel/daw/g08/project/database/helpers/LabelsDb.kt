@@ -118,7 +118,7 @@ class LabelsDb(
 
     fun deleteLabelFromIssue(projectId: Int, issueNumber: Int, labelNumber: Int) {
         val labelId = getLabelByNumber(projectId, labelNumber).lid
-        val issueId = issuesDb.getIssueByNumber(projectId, issueNumber)
+        val issueId = issuesDb.getIssueByNumber(projectId, issueNumber).iid
 
         jdbi.delete(
             DELETE_LABEL_FROM_ISSUE_QUERY,
