@@ -8,17 +8,17 @@ A comment is a short text, used to comment an issue. An issue can have a sequenc
     * non editable, auto-assigned
     * type: **number**
     * example: `1`
-* `number` - Number that identifies a comment relative to an issue
+* `number` - Stable identifier of a comment relative to an issue
     * mandatory
     * non editable, auto-assigned
-    * type: **text**
+    * type: **number**
     * example: `1`
 * `content` - Content of the comment (short text)
     * mandatory
     * editable
     * type: **text**
     * example: `"This is my comment"`
-* `createDate` - Creation date for the comment (in ISO format)
+* `createDate` - Date of the comment's creation (in ISO format)
     * mandatory
     * non editable, auto-assigned
     * type: **datetime**
@@ -59,10 +59,10 @@ GET /api/projects/{projectId}/issues/{issueNumber}/comments
 | Name          | Type        | In         | Description                                                                           |
 | -----------   | ----------- | ---------- | ------------------------------------------------------------------------------------- |
 | accept        | string      | header     | Should be set to either `application/json` or `application/vnd.siren+json`            |
-| page          | integer     | query      | Specifies the current page of the list                                                |
-| limit         | integer     | query      | Specifies the number of results per page (max. 100)                                   |
 | projectId     | integer     | path       | The project's unique identifier                                                       |
 | issueNumber   | integer     | path       | The issue's identifier relative to the project                                        |
+| page          | integer     | query      | Specifies the current page of the list                                                |
+| limit         | integer     | query      | Specifies the number of results per page (max. 100)                                   |
 
 #### Default Response
 ```
