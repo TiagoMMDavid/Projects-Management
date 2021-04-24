@@ -2,12 +2,6 @@
 
 A comment is a short text, used to comment an issue. An issue can have a sequence of comments.
 
-## Link relations
-* [self](#get-comment)
-* [issue](issues.md#get-issue)
-* [author](users.md#get-user)
-* [comments](#list-comments)
-
 ## Properties
 * `id` - Unique and stable global identifier of a comment
     * mandatory
@@ -40,6 +34,12 @@ A comment is a short text, used to comment an issue. An issue can have a sequenc
     * type: **text**
     * example: `"John Doe"`
 
+## Link relations
+* [self](#get-comment)
+* [issue](issues.md#get-issue)
+* [author](users.md#get-user)
+* [comments](#list-comments)
+
 ## Actions
 * [List Comments](#list-comment)
 * [Get Comment](#get-comment)
@@ -49,7 +49,7 @@ A comment is a short text, used to comment an issue. An issue can have a sequenc
 
 ------
 ### List Comments
-Lists all created comments in an issue, in the order that they were created.
+List all created comments in an issue, in the order that they were created.
 
 ```http
 GET /api/projects/{projectId}/issues/{issueNumber}/comments
@@ -321,7 +321,7 @@ Status: 404 Not Found
 
 ------
 ### Create Comment
-Creates a comment.
+Add a new comment to an existing issue.
 
 ```http
 POST /api/projects/{projectId}/issues/{issueNumber}/comments 
@@ -359,7 +359,7 @@ Status: 404 Not Found
 
 ------
 ### Edit Comment
-Edits an already existing comment.
+Edit an already existing comment.
 
 ```http
 PUT /api/projects/{projectId}/issues/{issueNumber}/comments/{commentNumber}
@@ -397,7 +397,7 @@ Status: 404 Not Found
 
 ------
 ### Delete Comment
-Deletes an existing comment.
+Delete an existing comment.
 
 ```http
 DELETE /api/projects/{projectId}/issues/{issueNumber}/comments/{commentNumber}

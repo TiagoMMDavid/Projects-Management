@@ -1,6 +1,6 @@
 # Users
 
-A user is a person who is authorized to use the API. Users are an important aspect of our API since all the endpoints require authentication. 
+A user is a person who is authorized to use the API.
 
 ## Properties
 * `id` - Unique and stable global identifier of a user
@@ -10,6 +10,7 @@ A user is a person who is authorized to use the API. Users are an important aspe
     * example: `1`
 * `name` - Unique and short name that defines a user
     * mandatory
+    * non editable
     * type: **text**
     * example: `"user1"`
 
@@ -22,11 +23,9 @@ A user is a person who is authorized to use the API. Users are an important aspe
 * [Get User](#get-user)
 * [Get Authenticated User](#get-authenticated-user)
 
-*At this moment, it is not possible to create or edit users.*
-
 ------
 ### List Users
-Lists all the users, in the order that they were created.
+List all existing users, in the order that they were created.
 
 ```http
 GET /api/users

@@ -41,7 +41,7 @@ A project is a long-running development activity, such as "DAW Project" or "LS P
 
 ------
 ### List Projects
-Lists all created projects, in the order that they were created.
+List all created projects, in the order that they were created.
 
 ```http
 GET /api/projects
@@ -301,7 +301,7 @@ PUT /api/projects
 | Name         | Type        | In         | Description                                                                           |
 | ------------ | ----------- | ---------- | ------------------------------------------------------------------------------------- |
 | accept       | string      | header     | Should be set to either `application/json` or `application/vnd.siren+json`            |
-| content-type | string      | header     | Should be set to either `application/x-www-form-urlencoded`                           |
+| content-type | string      | header     | Should be set to `application/x-www-form-urlencoded`                                  |
 | name         | string      | body       | **Required**. Unique and short name that defines the project                          |
 | description  | string      | body       | **Required**. Short description that characterizes the project                        |
 
@@ -338,7 +338,7 @@ PUT /api/projects/{projectId}
 | Name         | Type        | In         | Description                                                                                                                          |
 | ------------ | ----------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------ |
 | accept       | string      | header     | Should be set to either `application/json` or `application/vnd.siren+json`                                                           |
-| content-type | string      | header     | Should be set to either `application/x-www-form-urlencoded`                                                                          |
+| content-type | string      | header     | Should be set to `application/x-www-form-urlencoded`                                                                                 |
 | projectId    | integer     | path       | The project's unique identifier                                                                                                      |
 | name         | string      | body       | **Required unless you provide `description`**. Unique and short name that defines the project                                        |
 | description  | string      | body       | **Required unless you provide `name`**. Short description that characterizes the project                                             |
