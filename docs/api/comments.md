@@ -1,6 +1,12 @@
 # Comments
 
-A comment is a short text, used to comment an [issue](#issues.md). An issue can have a sequence of comments.
+A comment is a short text, used to comment an issue. An issue can have a sequence of comments.
+
+## Link relations
+* [self](#get-comment)
+* [issue](issues.md#get-issue)
+* [author](users.md#get-user)
+* [comments](#list-comments)
 
 ## Properties
 * `id` - Unique and stable global identifier of a comment
