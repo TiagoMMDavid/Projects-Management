@@ -8,3 +8,6 @@ The API documentation is defined per resource. Below you can find the list of av
 * [Users](api/users.md)
 
 Common documentation for all resources is available [here](api/README.md)
+
+## Resource Graph
+<img src="api/resource-graph.svg" width="850">
