@@ -60,10 +60,10 @@ An issue is a task that needs to be done in the context of a project, such as ad
 
 ## Actions
 * [List Issues](#list-issues)
-* [Get Issue](#get-project)
-* [Create Issue](#create-project)
-* [Edit Issue](#edit-project)
-* [Delete Issue](#delete-project)
+* [Get Issue](#get-issue)
+* [Create Issue](#create-issue)
+* [Edit Issue](#edit-issue)
+* [Delete Issue](#delete-issue)
 
 ------
 ### List Issues
