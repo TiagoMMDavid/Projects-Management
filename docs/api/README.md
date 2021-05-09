@@ -22,7 +22,7 @@ These link relations are hidden when there are no next and/or previous pages.
 The home resource presents information about the server application and lists all available GET routes
 
 ```http
-GET /api/projects
+GET /api
 ```
 #### Default Response
 ```
