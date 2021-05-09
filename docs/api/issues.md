@@ -17,12 +17,12 @@ An issue is a task that needs to be done in the context of a project, such as ad
     * mandatory
     * editable
     * type: **text**
-    * example: `"My Project"`
+    * example: `"My Issue"`
 * `description` - Short description that characterizes the issue
     * mandatory
     * editable
     * type: **text**
-    * example: `"This is my project"`
+    * example: `"This is my issue"`
 * `createDate` - Date of the issue's creation (in ISO format)
     * mandatory
     * non editable, auto-assigned
