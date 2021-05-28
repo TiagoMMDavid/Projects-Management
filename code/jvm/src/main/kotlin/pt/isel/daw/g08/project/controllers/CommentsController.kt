@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import pt.isel.daw.g08.project.Routes.COMMENTS_HREF
 import pt.isel.daw.g08.project.Routes.COMMENT_BY_NUMBER_HREF
@@ -21,7 +22,6 @@ import pt.isel.daw.g08.project.Routes.getCommentsUri
 import pt.isel.daw.g08.project.Routes.getIssueByNumberUri
 import pt.isel.daw.g08.project.Routes.getProjectByIdUri
 import pt.isel.daw.g08.project.Routes.getUserByIdUri
-import pt.isel.daw.g08.project.Routes.includeHost
 import pt.isel.daw.g08.project.controllers.models.CommentInputModel
 import pt.isel.daw.g08.project.controllers.models.CommentOutputModel
 import pt.isel.daw.g08.project.controllers.models.CommentsOutputModel
@@ -67,10 +67,10 @@ class CommentsController(val db: CommentsDb) {
                 ).toSirenObject(
                     rel = listOf("item"),
                     links = listOf(
-                        SirenLink(listOf("self"), getCommentByNumberUri(projectId, issueNumber, it.number).includeHost()),
-                        SirenLink(listOf("issue"), getIssueByNumberUri(projectId, issueNumber).includeHost()),
-                        SirenLink(listOf("author"), getUserByIdUri(it.author_id).includeHost()),
-                        SirenLink(listOf("comments"), getCommentsUri(projectId, issueNumber).includeHost()),
+                        SirenLink(listOf("self"), getCommentByNumberUri(projectId, issueNumber, it.number)),
+                        SirenLink(listOf("issue"), getIssueByNumberUri(projectId, issueNumber)),
+                        SirenLink(listOf("author"), getUserByIdUri(it.author_id)),
+                        SirenLink(listOf("comments"), getCommentsUri(projectId, issueNumber)),
                     )
                 )
             },
@@ -79,7 +79,7 @@ class CommentsController(val db: CommentsDb) {
                     name = "create-comment",
                     title = "Create Comment",
                     method = HttpMethod.PUT,
-                    href = getCommentsUri(projectId, issueNumber).includeHost(),
+                    href = getCommentsUri(projectId, issueNumber),
                     type = INPUT_CONTENT_TYPE,
                     fields = listOf(
                         SirenActionField(name = "projectId", type = SirenFieldType.hidden, value = projectId),
@@ -89,13 +89,13 @@ class CommentsController(val db: CommentsDb) {
                 )
             ),
             links = createSirenLinkListForPagination(
-                getCommentsUri(projectId, issueNumber).includeHost(),
+                getCommentsUri(projectId, issueNumber),
                 pagination.page,
                 pagination.limit,
                 commentsModel.collectionSize
             ) + listOf(
-                SirenLink(rel = listOf("project"), href = getProjectByIdUri(projectId).includeHost()),
-                SirenLink(rel = listOf("issue"), href = getIssueByNumberUri(projectId, issueNumber).includeHost()),
+                SirenLink(rel = listOf("project"), href = getProjectByIdUri(projectId)),
+                SirenLink(rel = listOf("issue"), href = getIssueByNumberUri(projectId, issueNumber)),
             )
         ).toResponseEntity(HttpStatus.OK)
     }
@@ -117,7 +117,7 @@ class CommentsController(val db: CommentsDb) {
             author = comment.author_name,
         )
 
-        val selfUri = getCommentByNumberUri(projectId, issueNumber, commentNumber).includeHost()
+        val selfUri = getCommentByNumberUri(projectId, issueNumber, commentNumber)
 
         return commentModel.toSirenObject(
             actions = listOf(
@@ -148,9 +148,9 @@ class CommentsController(val db: CommentsDb) {
             ),
             links = listOf(
                 SirenLink(listOf("self"), selfUri),
-                SirenLink(listOf("issue"), getIssueByNumberUri(projectId, issueNumber).includeHost()),
-                SirenLink(listOf("author"), getUserByIdUri(comment.author_id).includeHost()),
-                SirenLink(listOf("comments"), getCommentsUri(projectId, issueNumber).includeHost()),
+                SirenLink(listOf("issue"), getIssueByNumberUri(projectId, issueNumber)),
+                SirenLink(listOf("author"), getUserByIdUri(comment.author_id)),
+                SirenLink(listOf("comments"), getCommentsUri(projectId, issueNumber)),
             )
         ).toResponseEntity(HttpStatus.OK)
     }
@@ -160,7 +160,7 @@ class CommentsController(val db: CommentsDb) {
     fun createComment(
         @PathVariable(name = PROJECT_PARAM) projectId: Int,
         @PathVariable(name = ISSUE_PARAM) issueNumber: Int,
-        input: CommentInputModel,
+        @RequestBody input: CommentInputModel,
         user: User,
     ): ResponseEntity<Any> {
         if (input.content == null) throw InvalidInputException("Missing content")
@@ -168,7 +168,7 @@ class CommentsController(val db: CommentsDb) {
         val comment = db.createComment(projectId, issueNumber, user.uid, input.content)
         return ResponseEntity
             .status(HttpStatus.CREATED)
-            .header("Location", getCommentByNumberUri(projectId, issueNumber, comment.number).includeHost().toString())
+            .header("Location", getCommentByNumberUri(projectId, issueNumber, comment.number).toString())
             .body(null)
     }
 
@@ -178,14 +178,14 @@ class CommentsController(val db: CommentsDb) {
         @PathVariable(name = PROJECT_PARAM) projectId: Int,
         @PathVariable(name = ISSUE_PARAM) issueNumber: Int,
         @PathVariable(name = COMMENT_PARAM) commentNumber: Int,
-        input: CommentInputModel,
+        @RequestBody input: CommentInputModel,
     ): ResponseEntity<Any> {
         if (input.content == null) throw InvalidInputException("Missing content")
 
         db.editComment(projectId, issueNumber, commentNumber, input.content)
         return ResponseEntity
             .status(HttpStatus.OK)
-            .header("Location", getCommentByNumberUri(projectId, issueNumber, commentNumber).includeHost().toString())
+            .header("Location", getCommentByNumberUri(projectId, issueNumber, commentNumber).toString())
             .body(null)
     }
 

@@ -8,7 +8,6 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
-import pt.isel.daw.g08.project.Routes.includeHost
 import pt.isel.daw.g08.project.auth.AuthHeaderValidator.AUTH_SCHEME
 import pt.isel.daw.g08.project.database.PsqlErrorCode
 import pt.isel.daw.g08.project.database.getPsqlErrorCode
@@ -50,7 +49,7 @@ class ExceptionHandler {
         request: HttpServletRequest
     ): ResponseEntity<Response> {
         return handleExceptionResponse(
-            URI("/problems/resource-not-found").includeHost(),
+            URI("/problems/resource-not-found"),
             "Resource Not Found",
             HttpStatus.NOT_FOUND,
             ex.localizedMessage,
@@ -67,7 +66,7 @@ class ExceptionHandler {
         headers.add("WWW-Authenticate", AUTH_SCHEME)
 
         return handleExceptionResponse(
-            URI("/problems/not-authorized").includeHost(),
+            URI("/problems/not-authorized"),
             "Authorization Error",
             HttpStatus.UNAUTHORIZED,
             ex.localizedMessage,
@@ -82,7 +81,7 @@ class ExceptionHandler {
         request: HttpServletRequest
     ): ResponseEntity<Response> {
         return handleExceptionResponse(
-            URI("/problems/invalid-pagination-parameters").includeHost(),
+            URI("/problems/invalid-pagination-parameters"),
             "Invalid Pagination Parameters",
             HttpStatus.BAD_REQUEST,
             ex.localizedMessage,
@@ -96,7 +95,7 @@ class ExceptionHandler {
         request: HttpServletRequest
     ): ResponseEntity<Response> {
         return handleExceptionResponse(
-            URI("/problems/invalid-input").includeHost(),
+            URI("/problems/invalid-input"),
             "Invalid Input",
             HttpStatus.BAD_REQUEST,
             ex.localizedMessage,
@@ -114,7 +113,7 @@ class ExceptionHandler {
 
         if (psqlError == null) {
             return handleExceptionResponse(
-                URI("/problems/database-error").includeHost(),
+                URI("/problems/database-error"),
                 "Unknown Database Error",
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 "An unknown database error has occurred",
@@ -125,7 +124,7 @@ class ExceptionHandler {
         return when (psqlError) {
             PsqlErrorCode.UniqueViolation -> {
                 handleExceptionResponse(
-                    URI("/problems/resource-already-exists").includeHost(),
+                    URI("/problems/resource-already-exists"),
                     "Resource Already Exists",
                     HttpStatus.CONFLICT,
                     cause.localizedMessage,
@@ -134,7 +133,7 @@ class ExceptionHandler {
             }
             PsqlErrorCode.ForeignKeyViolation -> {
                 handleExceptionResponse(
-                    URI("/problems/resource-referenced").includeHost(),
+                    URI("/problems/resource-referenced"),
                     "Resource Is Referenced",
                     HttpStatus.CONFLICT,
                     cause.localizedMessage,
@@ -143,7 +142,7 @@ class ExceptionHandler {
             }
             PsqlErrorCode.CheckViolation -> {
                 handleExceptionResponse(
-                    URI("/problems/invalid-creation-request").includeHost(),
+                    URI("/problems/invalid-creation-request"),
                     "Invalid Creation Request",
                     HttpStatus.BAD_REQUEST,
                     cause.localizedMessage,
@@ -152,7 +151,7 @@ class ExceptionHandler {
             }
             PsqlErrorCode.StringDataRightTruncation -> {
                 handleExceptionResponse(
-                    URI("/problems/invalid-string-size").includeHost(),
+                    URI("/problems/invalid-string-size"),
                     "Invalid String Size",
                     HttpStatus.BAD_REQUEST,
                     cause.localizedMessage,
@@ -161,7 +160,7 @@ class ExceptionHandler {
             }
             PsqlErrorCode.NoStartState -> {
                 handleExceptionResponse(
-                    URI("/problems/no-start-state").includeHost(),
+                    URI("/problems/no-start-state"),
                     "No Start State",
                     HttpStatus.BAD_REQUEST,
                     "Can't create issue due to no starting state defined in the project",
@@ -170,7 +169,7 @@ class ExceptionHandler {
             }
             PsqlErrorCode.InvalidStateTransition -> {
                 handleExceptionResponse(
-                    URI("/problems/invalid-state-transition").includeHost(),
+                    URI("/problems/invalid-state-transition"),
                     "Invalid State Transition",
                     HttpStatus.BAD_REQUEST,
                     "Current state can't transition to the requested state",
@@ -179,7 +178,7 @@ class ExceptionHandler {
             }
             PsqlErrorCode.ArchivedIssue -> {
                 handleExceptionResponse(
-                    URI("/problems/archived-issue").includeHost(),
+                    URI("/problems/archived-issue"),
                     "Issue Is Archived",
                     HttpStatus.BAD_REQUEST,
                     "Can't add a comment to an archived issue",

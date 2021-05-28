@@ -21,7 +21,7 @@ import pt.isel.daw.g08.project.Routes.STATES_HREF
 import pt.isel.daw.g08.project.Routes.STATE_BY_NUMBER_HREF
 import pt.isel.daw.g08.project.Routes.USERS_HREF
 import pt.isel.daw.g08.project.Routes.USER_BY_ID_HREF
-import pt.isel.daw.g08.project.Routes.includeHost
+import pt.isel.daw.g08.project.Routes.USER_HREF
 import pt.isel.daw.g08.project.controllers.models.HomeOutputModel
 import pt.isel.daw.g08.project.responses.Response
 import pt.isel.daw.g08.project.responses.siren.SirenLink
@@ -35,7 +35,6 @@ class HomeController {
 
     @GetMapping(BASE_URI)
     fun getHome(): ResponseEntity<Response> {
-        val hostString = "${SCHEME.toLowerCase()}://${HOST}"
         return HomeOutputModel(
             name = "DAW Project",
             group = "LI61D-G08",
@@ -43,20 +42,21 @@ class HomeController {
             uptimeMs = ManagementFactory.getRuntimeMXBean().uptime
         ).toSirenObject(
             links = listOf(
-                SirenLink(rel = listOf("projects"), href = URI(PROJECTS_HREF).includeHost()),
-                SirenLink(rel = listOf("users"), href = URI(USERS_HREF).includeHost()),
-                SirenLink(rel = listOf("project"), hrefTemplate = "${hostString}${PROJECT_BY_ID_HREF}"),
-                SirenLink(rel = listOf("labels"), hrefTemplate = "${hostString}${LABELS_HREF}"),
-                SirenLink(rel = listOf("label"), hrefTemplate = "${hostString}${LABEL_BY_NUMBER_HREF}"),
-                SirenLink(rel = listOf("states"), hrefTemplate = "${hostString}${STATES_HREF}"),
-                SirenLink(rel = listOf("state"), hrefTemplate = "${hostString}${STATE_BY_NUMBER_HREF}"),
-                SirenLink(rel = listOf("nextStates"), hrefTemplate = "${hostString}${NEXT_STATES_HREF}"),
-                SirenLink(rel = listOf("issues"), hrefTemplate = "${hostString}${ISSUES_HREF}"),
-                SirenLink(rel = listOf("issue"), hrefTemplate = "${hostString}${ISSUE_BY_NUMBER_HREF}"),
-                SirenLink(rel = listOf("issueLabels"), hrefTemplate = "${hostString}${LABELS_OF_ISSUE_HREF}"),
-                SirenLink(rel = listOf("comments"), hrefTemplate = "${hostString}${COMMENTS_HREF}"),
-                SirenLink(rel = listOf("comment"), hrefTemplate = "${hostString}${COMMENT_BY_NUMBER_HREF}"),
-                SirenLink(rel = listOf("user"), hrefTemplate = "${hostString}${USER_BY_ID_HREF}"),
+                SirenLink(rel = listOf("projects"), href = URI(PROJECTS_HREF)),
+                SirenLink(rel = listOf("users"), href = URI(USERS_HREF)),
+                SirenLink(rel = listOf("project"), hrefTemplate = PROJECT_BY_ID_HREF),
+                SirenLink(rel = listOf("labels"), hrefTemplate = LABELS_HREF),
+                SirenLink(rel = listOf("label"), hrefTemplate = LABEL_BY_NUMBER_HREF),
+                SirenLink(rel = listOf("states"), hrefTemplate = STATES_HREF),
+                SirenLink(rel = listOf("state"), hrefTemplate = STATE_BY_NUMBER_HREF),
+                SirenLink(rel = listOf("nextStates"), hrefTemplate = NEXT_STATES_HREF),
+                SirenLink(rel = listOf("issues"), hrefTemplate = ISSUES_HREF),
+                SirenLink(rel = listOf("issue"), hrefTemplate = ISSUE_BY_NUMBER_HREF),
+                SirenLink(rel = listOf("issueLabels"), hrefTemplate = LABELS_OF_ISSUE_HREF),
+                SirenLink(rel = listOf("comments"), hrefTemplate = COMMENTS_HREF),
+                SirenLink(rel = listOf("comment"), hrefTemplate = COMMENT_BY_NUMBER_HREF),
+                SirenLink(rel = listOf("user"), hrefTemplate = USER_BY_ID_HREF),
+                SirenLink(rel = listOf("authUser"), href = URI(USER_HREF)),
             )
         ).toResponseEntity(HttpStatus.OK)
     }

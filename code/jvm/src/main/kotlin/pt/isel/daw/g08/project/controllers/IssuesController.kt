@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import pt.isel.daw.g08.project.Routes.INPUT_CONTENT_TYPE
 import pt.isel.daw.g08.project.Routes.ISSUES_HREF
@@ -22,7 +23,6 @@ import pt.isel.daw.g08.project.Routes.getLabelsOfIssueUri
 import pt.isel.daw.g08.project.Routes.getProjectByIdUri
 import pt.isel.daw.g08.project.Routes.getStateByNumberUri
 import pt.isel.daw.g08.project.Routes.getUserByIdUri
-import pt.isel.daw.g08.project.Routes.includeHost
 import pt.isel.daw.g08.project.controllers.models.IssueCreateInputModel
 import pt.isel.daw.g08.project.controllers.models.IssueEditInputModel
 import pt.isel.daw.g08.project.controllers.models.IssueOutputModel
@@ -71,13 +71,13 @@ class IssuesController(val db: IssuesDb) {
                 ).toSirenObject(
                     rel = listOf("item"),
                     links = listOf(
-                        SirenLink(listOf("self"), getIssueByNumberUri(projectId, it.number).includeHost()),
-                        SirenLink(listOf("state"), getStateByNumberUri(projectId, it.state_number).includeHost()),
-                        SirenLink(listOf("comments"), getCommentsUri(projectId, it.number).includeHost()),
-                        SirenLink(listOf("labels"), getLabelsOfIssueUri(projectId, it.number).includeHost()),
-                        SirenLink(listOf("author"), getUserByIdUri(it.author_id).includeHost()),
-                        SirenLink(listOf("project"), getProjectByIdUri(it.project_id).includeHost()),
-                        SirenLink(listOf("issues"), getIssuesUri(it.project_id).includeHost()),
+                        SirenLink(listOf("self"), getIssueByNumberUri(projectId, it.number)),
+                        SirenLink(listOf("state"), getStateByNumberUri(projectId, it.state_number)),
+                        SirenLink(listOf("comments"), getCommentsUri(projectId, it.number)),
+                        SirenLink(listOf("labels"), getLabelsOfIssueUri(projectId, it.number)),
+                        SirenLink(listOf("author"), getUserByIdUri(it.author_id)),
+                        SirenLink(listOf("project"), getProjectByIdUri(it.project_id)),
+                        SirenLink(listOf("issues"), getIssuesUri(it.project_id)),
                     )
                 )
             },
@@ -86,7 +86,7 @@ class IssuesController(val db: IssuesDb) {
                     name = "create-issue",
                     title = "Create Issue",
                     method = HttpMethod.PUT,
-                    href = getIssuesUri(projectId).includeHost(),
+                    href = getIssuesUri(projectId),
                     type = INPUT_CONTENT_TYPE,
                     fields = listOf(
                         SirenActionField(name = "projectId", type = SirenFieldType.hidden, value = projectId),
@@ -96,11 +96,11 @@ class IssuesController(val db: IssuesDb) {
                 )
             ),
             links = createSirenLinkListForPagination(
-                getIssuesUri(projectId).includeHost(),
+                getIssuesUri(projectId),
                 pagination.page,
                 pagination.limit,
                 issuesModel.collectionSize
-            ) + listOf(SirenLink(rel = listOf("project"), href = getProjectByIdUri(projectId).includeHost()))
+            ) + listOf(SirenLink(rel = listOf("project"), href = getProjectByIdUri(projectId)))
         ).toResponseEntity(HttpStatus.OK)
     }
 
@@ -123,7 +123,7 @@ class IssuesController(val db: IssuesDb) {
             author = issue.author_name,
         )
 
-        val selfUri = getIssueByNumberUri(projectId, issue.number).includeHost()
+        val selfUri = getIssueByNumberUri(projectId, issue.number)
 
         return issueModel.toSirenObject(
             actions = listOf(
@@ -154,12 +154,12 @@ class IssuesController(val db: IssuesDb) {
             ),
             links = listOf(
                 SirenLink(listOf("self"), selfUri),
-                SirenLink(listOf("state"), getStateByNumberUri(projectId, issue.state_number).includeHost()),
-                SirenLink(listOf("comments"), getCommentsUri(projectId, issue.number).includeHost()),
-                SirenLink(listOf("labels"), getLabelsOfIssueUri(projectId, issue.number).includeHost()),
-                SirenLink(listOf("author"), getUserByIdUri(issue.author_id).includeHost()),
-                SirenLink(listOf("project"), getProjectByIdUri(issue.project_id).includeHost()),
-                SirenLink(listOf("issues"), getIssuesUri(projectId).includeHost()),
+                SirenLink(listOf("state"), getStateByNumberUri(projectId, issue.state_number)),
+                SirenLink(listOf("comments"), getCommentsUri(projectId, issue.number)),
+                SirenLink(listOf("labels"), getLabelsOfIssueUri(projectId, issue.number)),
+                SirenLink(listOf("author"), getUserByIdUri(issue.author_id)),
+                SirenLink(listOf("project"), getProjectByIdUri(issue.project_id)),
+                SirenLink(listOf("issues"), getIssuesUri(projectId)),
             )
         ).toResponseEntity(HttpStatus.OK)
     }
@@ -168,7 +168,7 @@ class IssuesController(val db: IssuesDb) {
     @PostMapping(ISSUES_HREF)
     fun createIssue(
         @PathVariable(PROJECT_PARAM) projectId: Int,
-        input: IssueCreateInputModel,
+        @RequestBody input: IssueCreateInputModel,
         user: User
     ): ResponseEntity<Response> {
         if (input.name == null) throw InvalidInputException("Missing name")
@@ -178,7 +178,7 @@ class IssuesController(val db: IssuesDb) {
 
         return ResponseEntity
             .status(HttpStatus.CREATED)
-            .header("Location", getIssueByNumberUri(projectId, issue.number).includeHost().toString())
+            .header("Location", getIssueByNumberUri(projectId, issue.number).toString())
             .body(null)
     }
 
@@ -187,7 +187,7 @@ class IssuesController(val db: IssuesDb) {
     fun editIssue(
         @PathVariable(PROJECT_PARAM) projectId: Int,
         @PathVariable(ISSUE_PARAM) issueNumber: Int,
-        input: IssueEditInputModel,
+        @RequestBody input: IssueEditInputModel,
     ): ResponseEntity<Response> {
         if (input.name == null && input.description == null && input.state == null)
             throw InvalidInputException("Missing name, description or state")
@@ -196,7 +196,7 @@ class IssuesController(val db: IssuesDb) {
 
         return ResponseEntity
             .status(HttpStatus.OK)
-            .header("Location", getIssueByNumberUri(projectId, issueNumber).includeHost().toString())
+            .header("Location", getIssueByNumberUri(projectId, issueNumber).toString())
             .body(null)
     }
 

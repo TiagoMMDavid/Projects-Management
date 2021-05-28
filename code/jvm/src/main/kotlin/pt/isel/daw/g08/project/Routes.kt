@@ -6,10 +6,10 @@ import pt.isel.daw.g08.project.responses.siren.SirenLink
 import java.net.URI
 
 object Routes {
-    val INPUT_CONTENT_TYPE = MediaType.APPLICATION_FORM_URLENCODED
+    val INPUT_CONTENT_TYPE = MediaType.APPLICATION_JSON
 
     const val SCHEME = "http"
-    const val PORT = "8080"
+    const val PORT = "8000"
     const val HOST = "localhost:$PORT"
     const val BASE_URI = "/api"
 
@@ -126,6 +126,4 @@ object Routes {
 
         return toReturn
     }
-
-    fun URI.includeHost() = URI(SCHEME.toLowerCase(), HOST, this.path, this.query, this.fragment)
 }

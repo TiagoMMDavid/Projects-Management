@@ -6,7 +6,9 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import pt.isel.daw.g08.project.Routes
 import pt.isel.daw.g08.project.Routes.INPUT_CONTENT_TYPE
@@ -23,7 +25,6 @@ import pt.isel.daw.g08.project.Routes.getProjectByIdUri
 import pt.isel.daw.g08.project.Routes.getStateByNumberUri
 import pt.isel.daw.g08.project.Routes.getStatesUri
 import pt.isel.daw.g08.project.Routes.getUserByIdUri
-import pt.isel.daw.g08.project.Routes.includeHost
 import pt.isel.daw.g08.project.controllers.models.NextStateInputModel
 import pt.isel.daw.g08.project.controllers.models.StateInputModel
 import pt.isel.daw.g08.project.controllers.models.StateOutputModel
@@ -60,7 +61,7 @@ class StatesController(val db: StatesDb) {
             pageSize = states.size
         )
 
-        val statesUri = getStatesUri(projectId).includeHost()
+        val statesUri = getStatesUri(projectId)
 
         return statesModel.toSirenObject(
                 entities = states.map {
@@ -74,10 +75,10 @@ class StatesController(val db: StatesDb) {
                    ).toSirenObject(
                        rel = listOf("item"),
                        links = listOf(
-                           SirenLink(rel = listOf("self"), href = getStateByNumberUri(projectId, it.number).includeHost()),
-                           SirenLink(rel = listOf("author"), href = getUserByIdUri(it.author_id).includeHost()),
-                           SirenLink(rel = listOf("project"), href = getProjectByIdUri(it.project_id).includeHost()),
-                           SirenLink(rel = listOf("nextStates"), href = getNextStatesUri(projectId, it.number).includeHost()),
+                           SirenLink(rel = listOf("self"), href = getStateByNumberUri(projectId, it.number)),
+                           SirenLink(rel = listOf("author"), href = getUserByIdUri(it.author_id)),
+                           SirenLink(rel = listOf("project"), href = getProjectByIdUri(it.project_id)),
+                           SirenLink(rel = listOf("nextStates"), href = getNextStatesUri(projectId, it.number)),
                            SirenLink(rel = listOf("states"), href = statesUri),
                        )
                    )
@@ -101,7 +102,7 @@ class StatesController(val db: StatesDb) {
                     pagination.page,
                     pagination.limit,
                     collectionSize
-                ) + listOf(SirenLink(rel = listOf("project"), href = getProjectByIdUri(projectId).includeHost()))
+                ) + listOf(SirenLink(rel = listOf("project"), href = getProjectByIdUri(projectId)))
             ).toResponseEntity(HttpStatus.OK)
     }
 
@@ -127,7 +128,7 @@ class StatesController(val db: StatesDb) {
                         name = "edit-state",
                         title = "Edit State",
                         method = HttpMethod.PUT,
-                        href = getStateByNumberUri(projectId, stateNumber).includeHost(),
+                        href = getStateByNumberUri(projectId, stateNumber),
                         type = INPUT_CONTENT_TYPE,
                         fields = listOf(
                             SirenActionField(name = "projectId", type = hidden, value = projectId),
@@ -140,7 +141,7 @@ class StatesController(val db: StatesDb) {
                         name = "delete-state",
                         title = "Delete State",
                         method = HttpMethod.DELETE,
-                        href = getStateByNumberUri(projectId, stateNumber).includeHost(),
+                        href = getStateByNumberUri(projectId, stateNumber),
                         fields = listOf(
                             SirenActionField(name = "projectId", type = hidden, value = projectId),
                             SirenActionField(name = "stateNumber", type = hidden, value = stateNumber),
@@ -148,11 +149,11 @@ class StatesController(val db: StatesDb) {
                     ),
                 ),
                 links = listOf(
-                    SirenLink(rel = listOf("self"), href = getStateByNumberUri(projectId, stateNumber).includeHost()),
-                    SirenLink(rel = listOf("author"), href = getUserByIdUri(state.author_id).includeHost()),
-                    SirenLink(rel = listOf("project"), href = getProjectByIdUri(projectId).includeHost()),
-                    SirenLink(rel = listOf("nextStates"), href = getNextStatesUri(projectId, stateNumber).includeHost()),
-                    SirenLink(rel = listOf("states"), href = getStatesUri(projectId).includeHost()),
+                    SirenLink(rel = listOf("self"), href = getStateByNumberUri(projectId, stateNumber)),
+                    SirenLink(rel = listOf("author"), href = getUserByIdUri(state.author_id)),
+                    SirenLink(rel = listOf("project"), href = getProjectByIdUri(projectId)),
+                    SirenLink(rel = listOf("nextStates"), href = getNextStatesUri(projectId, stateNumber)),
+                    SirenLink(rel = listOf("states"), href = getStatesUri(projectId)),
                 )
             ).toResponseEntity(HttpStatus.OK)
     }
@@ -172,7 +173,7 @@ class StatesController(val db: StatesDb) {
             pageSize = states.size
         )
 
-        val nextStatesUri = getNextStatesUri(projectId, stateNumber).includeHost()
+        val nextStatesUri = getNextStatesUri(projectId, stateNumber)
 
         return statesModel.toSirenObject(
                 entities = states.map {
@@ -186,11 +187,11 @@ class StatesController(val db: StatesDb) {
                     ).toSirenObject(
                         rel = listOf("item"),
                         links = listOf(
-                            SirenLink(rel = listOf("self"), href = getStateByNumberUri(projectId, it.number).includeHost()),
-                            SirenLink(rel = listOf("author"), href = getUserByIdUri(it.author_id).includeHost()),
-                            SirenLink(rel = listOf("project"), href = getProjectByIdUri(it.project_id).includeHost()),
-                            SirenLink(rel = listOf("nextStates"), href = getNextStatesUri(projectId, it.number).includeHost()),
-                            SirenLink(rel = listOf("states"), href = getStatesUri(projectId).includeHost()),
+                            SirenLink(rel = listOf("self"), href = getStateByNumberUri(projectId, it.number)),
+                            SirenLink(rel = listOf("author"), href = getUserByIdUri(it.author_id)),
+                            SirenLink(rel = listOf("project"), href = getProjectByIdUri(it.project_id)),
+                            SirenLink(rel = listOf("nextStates"), href = getNextStatesUri(projectId, it.number)),
+                            SirenLink(rel = listOf("states"), href = getStatesUri(projectId)),
                         ),
                         actions = listOf(
                             SirenAction(
@@ -228,18 +229,18 @@ class StatesController(val db: StatesDb) {
                     pagination.limit,
                     collectionSize
                 ) + listOf(
-                    SirenLink(rel = listOf("project"), href = getProjectByIdUri(projectId).includeHost()),
-                    SirenLink(rel = listOf("state"), href = getStateByNumberUri(projectId, stateNumber).includeHost())
+                    SirenLink(rel = listOf("project"), href = getProjectByIdUri(projectId)),
+                    SirenLink(rel = listOf("state"), href = getStateByNumberUri(projectId, stateNumber))
                 )
             ).toResponseEntity(HttpStatus.OK)
     }
 
     @RequiresAuth
-    @PutMapping(STATES_HREF)
+    @PostMapping(STATES_HREF)
     fun createState(
         @PathVariable(name = PROJECT_PARAM) projectId: Int,
         user: User,
-        input: StateInputModel,
+        @RequestBody input: StateInputModel,
     ): ResponseEntity<Any> {
         if (input.name == null) throw InvalidInputException("Missing name")
         if (input.isStart == null) throw InvalidInputException("Missing isStart")
@@ -248,7 +249,7 @@ class StatesController(val db: StatesDb) {
 
         return ResponseEntity
             .status(HttpStatus.CREATED)
-            .header("Location", Routes.getStateByNumberUri(projectId, state.number).includeHost().toString())
+            .header("Location", Routes.getStateByNumberUri(projectId, state.number).toString())
             .body(null)
     }
 
@@ -257,14 +258,14 @@ class StatesController(val db: StatesDb) {
     fun editState(
         @PathVariable(name = PROJECT_PARAM) projectId: Int,
         @PathVariable(name = STATE_PARAM) stateNumber: Int,
-        input: StateInputModel,
+        @RequestBody input: StateInputModel,
     ): ResponseEntity<Any> {
         if (input.name == null && input.isStart == null) throw InvalidInputException("Missing new name or new isStart")
 
         db.editState(projectId, stateNumber, input.name, input.isStart)
         return ResponseEntity
             .status(HttpStatus.OK)
-            .header("Location", getStateByNumberUri(projectId, stateNumber).includeHost().toString())
+            .header("Location", getStateByNumberUri(projectId, stateNumber).toString())
             .body(null)
     }
 
@@ -286,14 +287,14 @@ class StatesController(val db: StatesDb) {
     fun addNextState(
         @PathVariable(name = PROJECT_PARAM) projectId: Int,
         @PathVariable(name = STATE_PARAM) stateNumber: Int,
-        input: NextStateInputModel
+        @RequestBody input: NextStateInputModel
     ): ResponseEntity<Any> {
         if (input.state == null) throw InvalidInputException("Missing state")
         db.addNextState(projectId, stateNumber, input.state)
 
         return ResponseEntity
             .status(HttpStatus.CREATED)
-            .header("Location", getNextStatesUri(projectId, stateNumber).includeHost().toString())
+            .header("Location", getNextStatesUri(projectId, stateNumber).toString())
             .body(null)
     }
 

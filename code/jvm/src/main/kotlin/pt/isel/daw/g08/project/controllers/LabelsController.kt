@@ -6,7 +6,9 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import pt.isel.daw.g08.project.Routes.INPUT_CONTENT_TYPE
 import pt.isel.daw.g08.project.Routes.ISSUE_PARAM
@@ -24,7 +26,6 @@ import pt.isel.daw.g08.project.Routes.getLabelsOfIssueUri
 import pt.isel.daw.g08.project.Routes.getLabelsUri
 import pt.isel.daw.g08.project.Routes.getProjectByIdUri
 import pt.isel.daw.g08.project.Routes.getUserByIdUri
-import pt.isel.daw.g08.project.Routes.includeHost
 import pt.isel.daw.g08.project.controllers.models.LabelInputModel
 import pt.isel.daw.g08.project.controllers.models.LabelOutputModel
 import pt.isel.daw.g08.project.controllers.models.LabelsOutputModel
@@ -58,7 +59,7 @@ class LabelsController(val db: LabelsDb, val issuesDb: IssuesDb) {
             pageSize = labels.size
         )
 
-        val labelsUri = getLabelsUri(projectId).includeHost()
+        val labelsUri = getLabelsUri(projectId)
 
         return labelsModel.toSirenObject(
             entities = labels.map {
@@ -71,9 +72,9 @@ class LabelsController(val db: LabelsDb, val issuesDb: IssuesDb) {
                 ).toSirenObject(
                     rel = listOf("item"),
                     links = listOf(
-                        SirenLink(rel = listOf("self"), href = getLabelByNumberUri(projectId, it.number).includeHost()),
-                        SirenLink(rel = listOf("project"), href = getProjectByIdUri(projectId).includeHost()),
-                        SirenLink(rel = listOf("author"), href = getUserByIdUri(it.author_id).includeHost()),
+                        SirenLink(rel = listOf("self"), href = getLabelByNumberUri(projectId, it.number)),
+                        SirenLink(rel = listOf("project"), href = getProjectByIdUri(projectId)),
+                        SirenLink(rel = listOf("author"), href = getUserByIdUri(it.author_id)),
                         SirenLink(rel = listOf("labels"), href = labelsUri)
                     ),
                 )
@@ -96,7 +97,7 @@ class LabelsController(val db: LabelsDb, val issuesDb: IssuesDb) {
                 pagination.page,
                 pagination.limit,
                 collectionSize
-            ) + listOf(SirenLink(rel = listOf("project"), href = getProjectByIdUri(projectId).includeHost()))
+            ) + listOf(SirenLink(rel = listOf("project"), href = getProjectByIdUri(projectId)))
         ).toResponseEntity(HttpStatus.OK)
     }
 
@@ -115,7 +116,7 @@ class LabelsController(val db: LabelsDb, val issuesDb: IssuesDb) {
             author = label.author_name,
         )
 
-        val labelByIdUri = getLabelByNumberUri(projectId, labelNumber).includeHost()
+        val labelByIdUri = getLabelByNumberUri(projectId, labelNumber)
 
         return labelModel.toSirenObject(
             actions = listOf(
@@ -144,18 +145,18 @@ class LabelsController(val db: LabelsDb, val issuesDb: IssuesDb) {
             ),
             links = listOf(
                 SirenLink(rel = listOf("self"), href = labelByIdUri),
-                SirenLink(rel = listOf("project"), href = getProjectByIdUri(projectId).includeHost()),
-                SirenLink(rel = listOf("author"), href = getUserByIdUri(label.author_id).includeHost()),
-                SirenLink(rel = listOf("labels"), href = getLabelsUri(projectId).includeHost())
+                SirenLink(rel = listOf("project"), href = getProjectByIdUri(projectId)),
+                SirenLink(rel = listOf("author"), href = getUserByIdUri(label.author_id)),
+                SirenLink(rel = listOf("labels"), href = getLabelsUri(projectId))
             ),
         ).toResponseEntity(HttpStatus.OK)
     }
 
     @RequiresAuth
-    @PutMapping(LABELS_HREF)
+    @PostMapping(LABELS_HREF)
     fun createLabel(
         @PathVariable(name = PROJECT_PARAM) projectId: Int,
-        input: LabelInputModel,
+        @RequestBody input: LabelInputModel,
         user: User
     ): ResponseEntity<Response> {
         if (input.name == null) throw InvalidInputException("Missing name")
@@ -164,7 +165,7 @@ class LabelsController(val db: LabelsDb, val issuesDb: IssuesDb) {
 
         return ResponseEntity
             .status(HttpStatus.CREATED)
-            .header("Location", getLabelByNumberUri(projectId, label.number).includeHost().toString())
+            .header("Location", getLabelByNumberUri(projectId, label.number).toString())
             .body(null)
     }
 
@@ -173,7 +174,7 @@ class LabelsController(val db: LabelsDb, val issuesDb: IssuesDb) {
     fun editLabel(
         @PathVariable(name = PROJECT_PARAM) projectId: Int,
         @PathVariable(name = LABEL_PARAM) labelNumber: Int,
-        input: LabelInputModel,
+        @RequestBody input: LabelInputModel,
         user: User
     ): ResponseEntity<Response> {
         if (input.name == null) throw InvalidInputException("Missing name")
@@ -182,7 +183,7 @@ class LabelsController(val db: LabelsDb, val issuesDb: IssuesDb) {
 
         return ResponseEntity
             .status(HttpStatus.OK)
-            .header("Location", getLabelByNumberUri(projectId, labelNumber).includeHost().toString())
+            .header("Location", getLabelByNumberUri(projectId, labelNumber).toString())
             .body(null)
     }
 
@@ -214,7 +215,7 @@ class LabelsController(val db: LabelsDb, val issuesDb: IssuesDb) {
             pageSize = labels.size
         )
 
-        val issueLabelsUri = getLabelsOfIssueUri(projectId, issueNumber).includeHost()
+        val issueLabelsUri = getLabelsOfIssueUri(projectId, issueNumber)
 
         return labelsModel.toSirenObject(
             entities = labels.map {
@@ -231,7 +232,7 @@ class LabelsController(val db: LabelsDb, val issuesDb: IssuesDb) {
                             name = "delete-label-from-issue",
                             title = "Delete Label From Issue",
                             method = HttpMethod.DELETE,
-                            href = getLabelByNumberOfIssueUri(projectId, issueNumber, it.number).includeHost(),
+                            href = getLabelByNumberOfIssueUri(projectId, issueNumber, it.number),
                             fields = listOf(
                                 SirenActionField(name = "projectId", type = SirenFieldType.hidden, value = it.project_id),
                                 SirenActionField(name = "issueNumber", type = SirenFieldType.hidden, value = issueNumber),
@@ -240,10 +241,10 @@ class LabelsController(val db: LabelsDb, val issuesDb: IssuesDb) {
                         )
                     ),
                     links = listOf(
-                        SirenLink(rel = listOf("self"), href = getLabelByNumberOfIssueUri(projectId, issueNumber, it.number).includeHost()),
-                        SirenLink(rel = listOf("issue"), href = getIssueByNumberUri(projectId, issueNumber).includeHost()),
-                        SirenLink(rel = listOf("project"), href = getProjectByIdUri(projectId).includeHost()),
-                        SirenLink(rel = listOf("author"), href = getUserByIdUri(it.author_id).includeHost()),
+                        SirenLink(rel = listOf("self"), href = getLabelByNumberOfIssueUri(projectId, issueNumber, it.number)),
+                        SirenLink(rel = listOf("issue"), href = getIssueByNumberUri(projectId, issueNumber)),
+                        SirenLink(rel = listOf("project"), href = getProjectByIdUri(projectId)),
+                        SirenLink(rel = listOf("author"), href = getUserByIdUri(it.author_id)),
                         SirenLink(rel = listOf("labels"), href = issueLabelsUri)
                     ),
                 )
@@ -268,8 +269,8 @@ class LabelsController(val db: LabelsDb, val issuesDb: IssuesDb) {
                 pagination.limit,
                 collectionSize
             ) + listOf(
-                SirenLink(rel = listOf("project"), href = getProjectByIdUri(projectId).includeHost()),
-                SirenLink(rel = listOf("issue"), href = getIssueByNumberUri(projectId, issueNumber).includeHost()),
+                SirenLink(rel = listOf("project"), href = getProjectByIdUri(projectId)),
+                SirenLink(rel = listOf("issue"), href = getIssueByNumberUri(projectId, issueNumber)),
             )
         ).toResponseEntity(HttpStatus.OK)
     }
@@ -279,7 +280,7 @@ class LabelsController(val db: LabelsDb, val issuesDb: IssuesDb) {
     fun addLabelToIssue(
         @PathVariable(name = PROJECT_PARAM) projectId: Int,
         @PathVariable(name = ISSUE_PARAM) issueNumber: Int,
-        input: LabelInputModel,
+        @RequestBody input: LabelInputModel,
     ): ResponseEntity<Response> {
         if (input.name == null) throw InvalidInputException("Missing name")
 
@@ -287,7 +288,7 @@ class LabelsController(val db: LabelsDb, val issuesDb: IssuesDb) {
 
         return ResponseEntity
             .status(HttpStatus.CREATED)
-            .header("Location", getLabelsOfIssueUri(projectId, issueNumber).includeHost().toString())
+            .header("Location", getLabelsOfIssueUri(projectId, issueNumber).toString())
             .body(null)
     }
 

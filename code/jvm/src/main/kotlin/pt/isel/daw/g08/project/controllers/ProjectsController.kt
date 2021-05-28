@@ -6,7 +6,9 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import pt.isel.daw.g08.project.Routes.INPUT_CONTENT_TYPE
 import pt.isel.daw.g08.project.Routes.PROJECTS_HREF
@@ -17,7 +19,6 @@ import pt.isel.daw.g08.project.Routes.getLabelsUri
 import pt.isel.daw.g08.project.Routes.getProjectByIdUri
 import pt.isel.daw.g08.project.Routes.getStatesUri
 import pt.isel.daw.g08.project.Routes.getUserByIdUri
-import pt.isel.daw.g08.project.Routes.includeHost
 import pt.isel.daw.g08.project.controllers.models.ProjectCreateInputModel
 import pt.isel.daw.g08.project.controllers.models.ProjectOutputModel
 import pt.isel.daw.g08.project.controllers.models.ProjectsOutputModel
@@ -62,12 +63,12 @@ class ProjectsController(val db: ProjectsDb) {
                 ).toSirenObject(
                     rel = listOf("item"),
                     links = listOf(
-                        SirenLink(rel = listOf("self"), href = getProjectByIdUri(it.pid).includeHost()),
-                        SirenLink(rel = listOf("labels"), href = getLabelsUri(it.pid).includeHost()),
-                        SirenLink(rel = listOf("issues"), href = getIssuesUri(it.pid).includeHost()),
-                        SirenLink(rel = listOf("states"), href = getStatesUri(it.pid).includeHost()),
-                        SirenLink(rel = listOf("author"), href = getUserByIdUri(it.author_id).includeHost()),
-                        SirenLink(rel = listOf("projects"), href = URI(PROJECTS_HREF).includeHost())
+                        SirenLink(rel = listOf("self"), href = getProjectByIdUri(it.pid)),
+                        SirenLink(rel = listOf("labels"), href = getLabelsUri(it.pid)),
+                        SirenLink(rel = listOf("issues"), href = getIssuesUri(it.pid)),
+                        SirenLink(rel = listOf("states"), href = getStatesUri(it.pid)),
+                        SirenLink(rel = listOf("author"), href = getUserByIdUri(it.author_id)),
+                        SirenLink(rel = listOf("projects"), href = URI(PROJECTS_HREF))
                     ),
                 )
             },
@@ -76,7 +77,7 @@ class ProjectsController(val db: ProjectsDb) {
                     name = "create-project",
                     title = "Create Project",
                     method = HttpMethod.PUT,
-                    href = URI(PROJECTS_HREF).includeHost(),
+                    href = URI(PROJECTS_HREF),
                     type = INPUT_CONTENT_TYPE,
                     fields = listOf(
                         SirenActionField(name = "name", type = text),
@@ -85,7 +86,7 @@ class ProjectsController(val db: ProjectsDb) {
                 )
             ),
             links = createSirenLinkListForPagination(
-                URI(PROJECTS_HREF).includeHost(),
+                URI(PROJECTS_HREF),
                 pagination.page,
                 pagination.limit,
                 collectionSize
@@ -106,7 +107,7 @@ class ProjectsController(val db: ProjectsDb) {
             author = project.author_name
         )
 
-        val selfUri = getProjectByIdUri(projectId).includeHost()
+        val selfUri = getProjectByIdUri(projectId)
 
         return projectModel.toSirenObject(
                 actions = listOf(
@@ -134,19 +135,19 @@ class ProjectsController(val db: ProjectsDb) {
                 ),
                 links = listOf(
                     SirenLink(rel = listOf("self"), href = selfUri),
-                    SirenLink(rel = listOf("labels"), href = getLabelsUri(project.pid).includeHost()),
-                    SirenLink(rel = listOf("issues"), href = getIssuesUri(project.pid).includeHost()),
-                    SirenLink(rel = listOf("states"), href = getStatesUri(project.pid).includeHost()),
-                    SirenLink(rel = listOf("author"), href = getUserByIdUri(project.author_id).includeHost()),
-                    SirenLink(rel = listOf("projects"), href = URI(PROJECTS_HREF).includeHost())
+                    SirenLink(rel = listOf("labels"), href = getLabelsUri(project.pid)),
+                    SirenLink(rel = listOf("issues"), href = getIssuesUri(project.pid)),
+                    SirenLink(rel = listOf("states"), href = getStatesUri(project.pid)),
+                    SirenLink(rel = listOf("author"), href = getUserByIdUri(project.author_id)),
+                    SirenLink(rel = listOf("projects"), href = URI(PROJECTS_HREF))
                 ),
             ).toResponseEntity(HttpStatus.OK)
     }
 
     @RequiresAuth
-    @PutMapping(PROJECTS_HREF)
+    @PostMapping(PROJECTS_HREF)
     fun createProject(
-        input: ProjectCreateInputModel,
+        @RequestBody input: ProjectCreateInputModel,
         user: User
     ): ResponseEntity<Any> {
         if (input.name == null) throw InvalidInputException("Missing name")
@@ -155,7 +156,7 @@ class ProjectsController(val db: ProjectsDb) {
         val project = db.createProject(input.name, input.description, user.uid)
         return ResponseEntity
             .status(HttpStatus.CREATED)
-            .header("Location", getProjectByIdUri(project.pid).includeHost().toString())
+            .header("Location", getProjectByIdUri(project.pid).toString())
             .body(null)
     }
 
@@ -163,7 +164,7 @@ class ProjectsController(val db: ProjectsDb) {
     @PutMapping(PROJECT_BY_ID_HREF)
     fun editProject(
         @PathVariable projectId: Int,
-        input: ProjectCreateInputModel,
+        @RequestBody input: ProjectCreateInputModel,
         user: User
     ): ResponseEntity<Any> {
         if (input.name == null && input.description == null) throw InvalidInputException("Missing new name or new description")
@@ -171,7 +172,7 @@ class ProjectsController(val db: ProjectsDb) {
         db.editProject(input.name, input.description, projectId)
         return ResponseEntity
             .status(HttpStatus.OK)
-            .header("Location", getProjectByIdUri(projectId).includeHost().toString())
+            .header("Location", getProjectByIdUri(projectId).toString())
             .body(null)
     }
 

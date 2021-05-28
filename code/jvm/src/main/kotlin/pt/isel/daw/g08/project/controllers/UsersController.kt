@@ -10,7 +10,6 @@ import pt.isel.daw.g08.project.Routes.USER_BY_ID_HREF
 import pt.isel.daw.g08.project.Routes.USER_HREF
 import pt.isel.daw.g08.project.Routes.createSirenLinkListForPagination
 import pt.isel.daw.g08.project.Routes.getUserByIdUri
-import pt.isel.daw.g08.project.Routes.includeHost
 import pt.isel.daw.g08.project.controllers.models.UserOutputModel
 import pt.isel.daw.g08.project.controllers.models.UsersOutputModel
 import pt.isel.daw.g08.project.database.dto.User
@@ -46,13 +45,13 @@ class UsersController(val db: UsersDb) {
                 ).toSirenObject(
                     rel = listOf("item"),
                     links = listOf(
-                        SirenLink(rel = listOf("self"), href = getUserByIdUri(it.uid).includeHost()),
-                        SirenLink(rel = listOf("users"), href = URI(USERS_HREF).includeHost())
+                        SirenLink(rel = listOf("self"), href = getUserByIdUri(it.uid)),
+                        SirenLink(rel = listOf("users"), href = URI(USERS_HREF))
                     ),
                 )
             },
             links = createSirenLinkListForPagination(
-                URI(USERS_HREF).includeHost(),
+                URI(USERS_HREF),
                 pagination.page,
                 pagination.limit,
                 collectionSize
@@ -73,8 +72,8 @@ class UsersController(val db: UsersDb) {
 
         return userModel.toSirenObject(
             links = listOf(
-                SirenLink(rel = listOf("self"), href = getUserByIdUri(user.uid).includeHost()),
-                SirenLink(rel = listOf("users"), href = URI(USERS_HREF).includeHost())
+                SirenLink(rel = listOf("self"), href = getUserByIdUri(user.uid)),
+                SirenLink(rel = listOf("users"), href = URI(USERS_HREF))
             ),
         ).toResponseEntity(HttpStatus.OK)
     }
@@ -91,8 +90,8 @@ class UsersController(val db: UsersDb) {
 
         return userModel.toSirenObject(
             links = listOf(
-                SirenLink(rel = listOf("self"), href = getUserByIdUri(user.uid).includeHost()),
-                SirenLink(rel = listOf("users"), href = URI(USERS_HREF).includeHost())
+                SirenLink(rel = listOf("self"), href = getUserByIdUri(user.uid)),
+                SirenLink(rel = listOf("users"), href = URI(USERS_HREF))
             ),
         ).toResponseEntity(HttpStatus.OK)
     }
