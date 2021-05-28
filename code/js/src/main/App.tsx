@@ -5,7 +5,8 @@ import { validateUser } from './api/users'
 import { LoginPage } from './components/LoginPage'
 import { RequiresAuth } from './components/RequiresAuth'
 
-const loginPage = '/login'
+const LOGIN_PATH = '/login'
+const PROJECTS_PATH = '/projects'
 
 function LoadingPage() {
     return (
@@ -13,18 +14,13 @@ function LoadingPage() {
     )
 }
 
-function App() {
-
-    //const isLoggedIn = userSession.getUserCredentials() != null
+function App(): JSX.Element {
     const [resources, setResources] = useState<ApiRoutes>(null)
 
     useEffect(() => {
         if (!resources) {
             fetchRoutes()
-                .then(apiResources => {
-                    console.log(apiResources)
-                    setResources(apiResources)
-                })
+                .then(apiResources => setResources(apiResources))
         }
     }, [resources])
 
@@ -32,21 +28,21 @@ function App() {
         <div className="App">
             <Router>
                 <Switch>
-                    <Route exact path={loginPage}>
+                    <Route exact path={LOGIN_PATH}>
                         {
                             !resources ? <LoadingPage /> :
-                                <LoginPage redirectPath='/boas' validator={ validateUser }/> 
+                                <LoginPage redirectPath='/' validator={ validateUser }/> 
                         }
                     </Route>
                     
-                    <Route exact path='/boas'>
-                        <RequiresAuth loginPageRoute={loginPage}>
+                    <Route exact path={PROJECTS_PATH}>
+                        <RequiresAuth loginPageRoute={LOGIN_PATH}>
                             <h1>Hello world</h1>
                         </RequiresAuth>
                     </Route>
                     
                     <Route path='/'>
-                        <Redirect to='/boas' />
+                        <Redirect to={PROJECTS_PATH} />
                     </Route>
                 </Switch>
             </Router>

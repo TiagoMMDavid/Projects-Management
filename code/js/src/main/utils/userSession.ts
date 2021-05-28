@@ -20,6 +20,7 @@ function getUserCredentials(): Credentials {
         const decoded = atob(storedCredentials)
         const username = decoded.split(':')[0]
         toReturn = {
+            scheme: 'Basic',
             content: storedCredentials,
             username: username
         } as Credentials
@@ -30,6 +31,7 @@ function getUserCredentials(): Credentials {
 
 function generateCredentials(username: string, password: string): Credentials {
     return {
+        scheme: 'Basic',
         content: btoa(`${username}:${password}`),
         username: username
     } as Credentials

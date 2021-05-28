@@ -26,18 +26,14 @@ type LoginPageProps = {
 
 function LoginPage({ redirectPath, validator }: LoginPageProps): JSX.Element {
     const [{ state }, dispatch] = useReducer(reducer, { state: undefined })
+    const isLoggedIn = getUserCredentials() != null
 
     const userNameRef = useRef<HTMLInputElement>(null)
     const passwordRef = useRef<HTMLInputElement>(null)
 
-    const isLoggedIn = getUserCredentials() != null
-
     function handleLogin() {
-        
         const username = userNameRef.current?.value
         const password = passwordRef.current?.value
-
-        console.log(`USERNAME: ${username} PASSWORD: ${password}`)
 
         const isValidUsername = username !== undefined && username.length != 0 && username.match(/\s/) == null
         const isValidPassword = username !== undefined && username.length != 0
@@ -45,30 +41,23 @@ function LoginPage({ redirectPath, validator }: LoginPageProps): JSX.Element {
             dispatch({ type: 'set-loading' })
 
             const credentials = generateCredentials(username, password)
-            console.log('Inside useEffect to log in')
-
-            dispatch({ type: 'set-validation', isValid: true})
-
             validator(credentials)
                 .then(isValid => {
-                    if (isValid) {
-                        logIn(username, password)
-                    }
-                    //dispatch({ type: 'set-validation', isValid: isValid})
+                    if (isValid) logIn(username, password)
+                    dispatch({ type: 'set-validation', isValid: isValid})
                 })
         }
     }
 
-    console.log(state)
     return (
-        state || isLoggedIn ? <Redirect to={redirectPath}></Redirect> :
+        isLoggedIn ? <Redirect to={redirectPath}></Redirect> :
             <div>
                 Username: <input type='text' placeholder='username' ref={userNameRef}></input>
                 <br></br>
                 Password: <input type='password' placeholder='password' ref={passwordRef}></input>
                 <br></br>
                 <button onClick = {handleLogin}>LOGIN</button>
-                <h1></h1>
+                <h1>{state}</h1>
             </div>        
     )
 }

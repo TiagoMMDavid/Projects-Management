@@ -6,6 +6,7 @@ function getAuthUser(credentials: Credentials): string {
 }
 
 function validateUser(credentials: Credentials): Promise<boolean> {
+    // TODO: Maybe throw error if status is not expected (e.g: 500 Internal Server Error)
     return fetch(
         apiRoutes.user.getAuthenticatedUserRoute.href, 
         getRequestOptions('GET', credentials)
