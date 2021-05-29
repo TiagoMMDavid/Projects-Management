@@ -68,7 +68,9 @@ class LabelsController(val db: LabelsDb, val issuesDb: IssuesDb) {
                     number = it.number,
                     name = it.name,
                     project = it.project_name,
+                    projectId = it.project_id,
                     author = it.author_name,
+                    authorId = it.author_id
                 ).toSirenObject(
                     rel = listOf("item"),
                     links = listOf(
@@ -113,7 +115,9 @@ class LabelsController(val db: LabelsDb, val issuesDb: IssuesDb) {
             number = label.number,
             name = label.name,
             project = label.project_name,
+            projectId = label.project_id,
             author = label.author_name,
+            authorId = label.author_id
         )
 
         val labelByIdUri = getLabelByNumberUri(projectId, labelNumber)
@@ -224,7 +228,9 @@ class LabelsController(val db: LabelsDb, val issuesDb: IssuesDb) {
                     number = it.number,
                     name = it.name,
                     project = it.project_name,
+                    projectId = it.project_id,
                     author = it.author_name,
+                    authorId = it.author_id
                 ).toSirenObject(
                     rel = listOf("item"),
                     actions = listOf(

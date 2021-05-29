@@ -8,7 +8,9 @@ class LabelOutputModel(
     val number: Int,
     val name: String,
     val project: String,
-    val author: String
+    val projectId: Int,
+    val author: String,
+    val authorId: Int
 ) : OutputModel() {
 
     override fun getSirenClasses() = listOf(label)

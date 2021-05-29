@@ -10,7 +10,11 @@ class CommentOutputModel(
     val content: String,
     val createDate: OffsetDateTime,
     val issue: String,
+    val issueNumber: Int,
+    val project: String,
+    val projectId: Int,
     val author: String,
+    val authorId: Int
 ) : OutputModel() {
     override fun getSirenClasses() = listOf(comment)
 }

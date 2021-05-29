@@ -62,8 +62,12 @@ class CommentsController(val db: CommentsDb) {
                     number = it.number,
                     content = it.text,
                     createDate = it.create_date,
+                    project = it.project_name,
+                    projectId = it.project_id,
                     issue = it.issue_name,
+                    issueNumber = it.issue_number,
                     author = it.author_name,
+                    authorId = it.author_id
                 ).toSirenObject(
                     rel = listOf("item"),
                     links = listOf(
@@ -113,8 +117,12 @@ class CommentsController(val db: CommentsDb) {
             number = comment.number,
             content = comment.text,
             createDate = comment.create_date,
+            project = comment.project_name,
+            projectId = comment.project_id,
             issue = comment.issue_name,
+            issueNumber = comment.issue_number,
             author = comment.author_name,
+            authorId = comment.author_id
         )
 
         val selfUri = getCommentByNumberUri(projectId, issueNumber, commentNumber)

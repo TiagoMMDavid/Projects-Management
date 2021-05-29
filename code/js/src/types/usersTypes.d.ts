@@ -1,5 +1,5 @@
-type Projects = {
-    projects: Project[],
+type Users = {
+    users: User[],
     page: number,
     isLastPage: boolean,
 
@@ -7,13 +7,10 @@ type Projects = {
     actions: SirenAction[]
 }
 
-type Project = {
+type User = {
     id: number,
     name: string
-    description: string,
-    author: string
-    authorId: number
 
-    links: SirenLink[],
+    links: SirenLink[]
     actions: SirenAction[]
 }

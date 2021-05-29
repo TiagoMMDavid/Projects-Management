@@ -12,6 +12,7 @@ data class Comment(
     val issue_name: String,
     val issue_number: Int,
 
+    val project_name: String,
     val project_id: Int,
 
     val author_id: Int,

@@ -12,8 +12,11 @@ class IssueOutputModel(
     val createDate: OffsetDateTime,
     val closeDate: OffsetDateTime?,
     val state: String,
+    val stateNumber: Int,
     val project: String,
+    val projectId: Int,
     val author: String,
+    val authorId: Int
 ) : OutputModel() {
     override fun getSirenClasses() = listOf(issue)
 }

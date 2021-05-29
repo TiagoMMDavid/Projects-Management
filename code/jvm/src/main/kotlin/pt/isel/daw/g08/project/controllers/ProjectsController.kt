@@ -59,7 +59,8 @@ class ProjectsController(val db: ProjectsDb) {
                     id = it.pid,
                     name = it.name,
                     description = it.description,
-                    author = it.author_name
+                    author = it.author_name,
+                    authorId = it.author_id
                 ).toSirenObject(
                     rel = listOf("item"),
                     links = listOf(
@@ -104,7 +105,8 @@ class ProjectsController(val db: ProjectsDb) {
             id = project.pid,
             name = project.name,
             description = project.description,
-            author = project.author_name
+            author = project.author_name,
+            authorId = project.author_id
         )
 
         val selfUri = getProjectByIdUri(projectId)

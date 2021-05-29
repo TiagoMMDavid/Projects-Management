@@ -10,7 +10,9 @@ class StateOutputModel(
     val name: String,
     val isStartState: Boolean,
     val project: String,
+    val projectId: Int,
     val author: String,
+    val authorId: Int
 ) : OutputModel() {
     override fun getSirenClasses(): List<SirenClass> = listOf(state)
 

@@ -6,7 +6,7 @@ import { UserContext } from '../utils/userSession'
 type EnsureCredentialsProps = {
     loginPageRoute: string,
     children?: ReactNode
-  }
+}
 
 function RequiresAuth({ loginPageRoute, children }: EnsureCredentialsProps): JSX.Element {
     return (

@@ -1,4 +1,5 @@
 import React, { useContext } from 'react'
+import { Link } from 'react-router-dom'
 import { UserContext } from '../utils/userSession'
 
 function Header(): JSX.Element {
@@ -13,7 +14,8 @@ function Header(): JSX.Element {
             {ctx => ctx?.credentials ? 
                 <div>
                     <span>{ctx.credentials.username} </span>
-                    <a href="#" onClick={logOutHandler}>Log-out</a>
+                    <span><Link to="/projects">Projects</Link> </span>
+                    <span><a href="#" onClick={logOutHandler}>Log-out</a> </span>
                     <hr></hr>
                 </div>
                 : 

@@ -96,10 +96,10 @@ function fetchRoutes(): Promise<ApiRoutes> {
             const links: SirenLink[] = Array.from(entity.links)
 
             apiRoutes.project = {
-                getProjectRoute: {
+                getProjectsRoute: {
                     href: getSirenLink(links, 'projects').href
                 },
-                getProjectsRoute: {
+                getProjectRoute: {
                     hrefTemplate: getSirenLink(links, 'project').hrefTemplate
                 }
             }

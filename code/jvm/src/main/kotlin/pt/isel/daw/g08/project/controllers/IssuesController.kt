@@ -66,8 +66,11 @@ class IssuesController(val db: IssuesDb) {
                     createDate = it.create_date,
                     closeDate = it.close_date,
                     state = it.state_name,
+                    stateNumber = it.state_number,
                     project = it.project_name,
+                    projectId = it.project_id,
                     author = it.author_name,
+                    authorId = it.author_id
                 ).toSirenObject(
                     rel = listOf("item"),
                     links = listOf(
@@ -119,8 +122,11 @@ class IssuesController(val db: IssuesDb) {
             createDate = issue.create_date,
             closeDate = issue.close_date,
             state = issue.state_name,
+            stateNumber = issue.state_number,
             project = issue.project_name,
+            projectId = issue.project_id,
             author = issue.author_name,
+            authorId = issue.author_id
         )
 
         val selfUri = getIssueByNumberUri(projectId, issue.number)

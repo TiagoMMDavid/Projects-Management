@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component
 import pt.isel.daw.g08.project.database.dto.Comment
 
 private const val GET_ALL_COMMENTS_QUERY =
-    "SELECT cid, number, text, create_date, issue_id, issue_name, issue_number, project_id, author_id, author_name FROM V_COMMENT"
+    "SELECT cid, number, text, create_date, issue_id, issue_name, issue_number, project_id, project_name, author_id, author_name FROM V_COMMENT"
 
 private const val GET_COMMENTS_FROM_ISSUE_QUERY =
     "$GET_ALL_COMMENTS_QUERY WHERE issue_number = :issueNumber AND project_id = :projectId ORDER BY number"

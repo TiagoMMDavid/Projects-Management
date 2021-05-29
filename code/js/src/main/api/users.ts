@@ -1,12 +1,41 @@
 import { Credentials } from '../utils/userSession'
 import { apiRoutes, getRequestOptions } from '../api/apiRoutes'
 
-function getAuthUser(credentials: Credentials): string {
-    return null
+const USERS_LIMIT = 10
+
+function getAuthUser(credentials: Credentials): Promise<User> {
+    return fetch(
+        apiRoutes.user.getAuthenticatedUserRoute.href, 
+        getRequestOptions('GET', credentials)
+    )
+        .then(res => res.status != 200 ? null : res.json())
+        .then(entity => {
+            if (!entity) return null
+
+            return {
+                id: entity.properties.id,
+                name: entity.properties.name
+            } as User
+        })
+}
+
+function getUser(userId: number, credentials: Credentials): Promise<User> {
+    return fetch(
+        apiRoutes.user.getUserRoute.hrefTemplate.expandUriTemplate(userId), 
+        getRequestOptions('GET', credentials)
+    )
+        .then(res => res.status != 200 ? null : res.json())
+        .then(entity => {
+            if (!entity) return null
+
+            return {
+                id: entity.properties.id,
+                name: entity.properties.name
+            } as User
+        })
 }
 
 function validateUser(credentials: Credentials): Promise<boolean> {
-    // TODO: Maybe throw error if status is not expected (e.g: 500 Internal Server Error)
     return fetch(
         apiRoutes.user.getAuthenticatedUserRoute.href, 
         getRequestOptions('GET', credentials)
@@ -15,5 +44,7 @@ function validateUser(credentials: Credentials): Promise<boolean> {
 }
 
 export {
+    getAuthUser,
+    getUser,
     validateUser
 }

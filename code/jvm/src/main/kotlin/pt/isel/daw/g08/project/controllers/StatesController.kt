@@ -71,7 +71,9 @@ class StatesController(val db: StatesDb) {
                        name = it.name,
                        isStartState = it.is_start,
                        project = it.project_name,
+                       projectId = it.project_id,
                        author = it.author_name,
+                       authorId = it.author_id
                    ).toSirenObject(
                        rel = listOf("item"),
                        links = listOf(
@@ -119,7 +121,9 @@ class StatesController(val db: StatesDb) {
             name = state.name,
             isStartState = state.is_start,
             project = state.project_name,
+            projectId = state.project_id,
             author = state.author_name,
+            authorId = state.author_id
         )
 
         return stateModel.toSirenObject(
@@ -183,7 +187,9 @@ class StatesController(val db: StatesDb) {
                         name = it.name,
                         isStartState = it.is_start,
                         project = it.project_name,
+                        projectId = it.project_id,
                         author = it.author_name,
+                        authorId = it.author_id
                     ).toSirenObject(
                         rel = listOf("item"),
                         links = listOf(

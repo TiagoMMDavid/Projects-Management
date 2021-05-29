@@ -8,6 +8,7 @@ class ProjectOutputModel(
     val name: String,
     val description: String,
     val author: String,
+    val authorId: Int
 ) : OutputModel() {
 
     override fun getSirenClasses() = listOf(project)

@@ -56,12 +56,13 @@ SELECT
     ISSUE.name AS issue_name,
     ISSUE.number AS issue_number,
     
-    ISSUE.project AS project_id,
+    V_ISSUE.project_id AS project_id,
+    V_ISSUE.project_name AS project_name,
     
     uid AS author_id, 
     username AS author_name    
 FROM COMMENT JOIN USERS ON author = uid 
-JOIN ISSUE ON ISSUE.iid = COMMENT.iid;
+JOIN V_ISSUE ON V_ISSUE.iid = COMMENT.iid;
 
 CREATE VIEW V_LABEL AS 
 SELECT 

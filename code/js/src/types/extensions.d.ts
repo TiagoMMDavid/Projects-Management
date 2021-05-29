@@ -1,4 +1,5 @@
 interface String {
-    expandUriTemplate(name: string, value: string): string,
-    expandUriTemplate(...values: string[]): string,
+    expandUriTemplate(name: string, value: any): string,
+    expandUriTemplate(...values: any[]): string,
+    toPaginatedUri(page: number, limit: number): string
 }
