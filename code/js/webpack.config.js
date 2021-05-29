@@ -14,7 +14,10 @@ module.exports = {
             '/api': {
                 target: 'http://localhost:8000',
                 pathRewrite: { '^/api': '/api'},
-                changeOrigin: true
+                changeOrigin: true,
+                onProxyRes(proxyRes, req, res) {
+                    delete proxyRes.headers['www-authenticate']
+                }
             }
         }
     },

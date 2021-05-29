@@ -1,4 +1,4 @@
-import { Credentials, getUserCredentials } from '../utils/userSession'
+import { Credentials } from '../utils/userSession'
 import { apiRoutes, getRequestOptions } from '../api/apiRoutes'
 
 function getAuthUser(credentials: Credentials): string {

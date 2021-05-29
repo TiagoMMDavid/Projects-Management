@@ -2,3 +2,4 @@
 package-lock.json
 dist/src
 dist/webpack.config.js
+dist/main.js

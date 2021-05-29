@@ -1,19 +1,19 @@
-import React, { useEffect, useReducer, useRef, useState } from 'react'
+import React, { useContext, useReducer, useRef } from 'react'
 import { Redirect } from 'react-router'
-import { Credentials, generateCredentials, getUserCredentials, logIn } from '../utils/userSession'
+import { Credentials, generateCredentials, UserContext } from '../utils/userSession'
 
 type State = {
-    state: undefined | 'loading' | 'valid' | 'invalid'
+    state: undefined | 'Logging in...' | 'Invalid credentials'
 }
   
 type Action =
     { type: 'set-loading' } |
-    { type: 'set-validation', isValid: boolean }
+    { type: 'set-invalid' }
     
 function reducer(state: State, action: Action): State {
     switch (action.type) {
-        case 'set-loading': return { state: 'loading' }
-        case 'set-validation': return { state: action.isValid ? 'valid' : 'invalid'}  
+        case 'set-loading': return { state: 'Logging in...' }
+        case 'set-invalid': return { state: 'Invalid credentials' }  
     }
 }
 
@@ -26,7 +26,8 @@ type LoginPageProps = {
 
 function LoginPage({ redirectPath, validator }: LoginPageProps): JSX.Element {
     const [{ state }, dispatch] = useReducer(reducer, { state: undefined })
-    const isLoggedIn = getUserCredentials() != null
+    const ctx = useContext(UserContext)
+    const isLoggedIn = ctx?.credentials != null
 
     const userNameRef = useRef<HTMLInputElement>(null)
     const passwordRef = useRef<HTMLInputElement>(null)
@@ -43,8 +44,8 @@ function LoginPage({ redirectPath, validator }: LoginPageProps): JSX.Element {
             const credentials = generateCredentials(username, password)
             validator(credentials)
                 .then(isValid => {
-                    if (isValid) logIn(username, password)
-                    dispatch({ type: 'set-validation', isValid: isValid})
+                    if (isValid) ctx.logIn(username, password)
+                    else dispatch({type: 'set-invalid'})
                 })
         }
     }
@@ -58,7 +59,7 @@ function LoginPage({ redirectPath, validator }: LoginPageProps): JSX.Element {
                 <br></br>
                 <button onClick = {handleLogin}>LOGIN</button>
                 <h1>{state}</h1>
-            </div>        
+            </div>
     )
 }
 

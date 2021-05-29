@@ -1,7 +1,8 @@
+import { createContext } from 'react'
 
 const SESSION_STORAGE_KEY = 'UserCredentials'
 
-type Credentials = { 
+type Credentials = {
     scheme: 'Basic',
     content: string,
     username: string
@@ -11,9 +12,9 @@ function logIn(username: string, password: string): Credentials {
     const credentials = generateCredentials(username, password)
     sessionStorage.setItem(SESSION_STORAGE_KEY, credentials.content)
     return credentials
-} 
+}
 
-function getUserCredentials(): Credentials {
+function getStoredCredentials(): Credentials {
     let toReturn = null
     const storedCredentials = sessionStorage.getItem(SESSION_STORAGE_KEY)
     if (storedCredentials) {
@@ -41,10 +42,33 @@ function logOut(): void {
     sessionStorage.removeItem(SESSION_STORAGE_KEY)
 }
 
+function getInitialContext(state: Credentials, setState: (cred: Credentials) => void): UserContextType {
+    return {
+        credentials: state,
+        logIn: (username: string, password: string) => {
+            const credentials = logIn(username, password)
+            setState(credentials)
+        },
+        logOut: () => {
+            logOut()
+            setState(null)
+        }
+    } as UserContextType
+}
+
+type UserContextType = {
+    credentials?: Credentials,
+    logIn: (username: string, password: string) => Credentials
+    logOut: () => void
+}
+
+const UserContext = createContext<UserContextType | undefined>(undefined)
+
 export {
-    logIn,
-    getUserCredentials,
-    logOut,
     generateCredentials,
+    getInitialContext,
+    getStoredCredentials,
+    UserContext,
+    UserContextType,
     Credentials
 }
