@@ -53,8 +53,8 @@ SELECT
     COMMENT.create_date AS create_date,
     
     COMMENT.iid AS issue_id,
-    ISSUE.name AS issue_name,
-    ISSUE.number AS issue_number,
+    V_ISSUE.name AS issue_name,
+    V_ISSUE.number AS issue_number,
     
     V_ISSUE.project_id AS project_id,
     V_ISSUE.project_name AS project_name,
