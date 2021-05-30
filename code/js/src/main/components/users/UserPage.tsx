@@ -1,6 +1,7 @@
-import React, { useContext, useEffect, useReducer, useState } from 'react'
+import React, { useContext, useEffect, useReducer } from 'react'
 import { useParams } from 'react-router'
-import { Credentials, UserContext } from '../utils/userSession'
+import { Link } from 'react-router-dom'
+import { Credentials, UserContext } from '../../utils/userSession'
 
 type UserPageProps = {
     getUser: (userId: number, credentials: Credentials) => Promise<User>
@@ -51,22 +52,32 @@ function UserPage({ getUser }: UserPageProps): JSX.Element {
                 if (user) dispatch({ type: 'set-user', user: user })
                 else dispatch({ type: 'set-no-user' })
             })
-    }, [])
+    }, [userId])
 
+    let toReturn: JSX.Element
     switch(state) {
         case 'loading-user': 
-            return (
+            toReturn = (
                 <h1> Loading user... </h1> 
             )
+            break
         case 'has-user':
-            return (
+            toReturn = (
                 <User user={user}/>
             )
+            break
         case 'no-user':
-            return (
+            toReturn = (
                 <h1> User not found </h1> 
             )
+            break
     }
+    return (
+        <div>
+            <Link to="/users">View all users</Link>
+            {toReturn}
+        </div>
+    )
 }
 
 export {

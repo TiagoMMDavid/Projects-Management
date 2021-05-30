@@ -13,7 +13,7 @@ function Header(): JSX.Element {
         <UserContext.Consumer>
             {ctx => ctx?.credentials ? 
                 <div>
-                    <span>{ctx.credentials.username} </span>
+                    <span><Link to={`/users/${ctx.credentials.userId}`}>{ctx.credentials.username}</Link> </span>
                     <span><Link to="/projects">Projects</Link> </span>
                     <span><a href="#" onClick={logOutHandler}>Log-out</a> </span>
                     <hr></hr>

@@ -17,14 +17,14 @@ function reducer(state: State, action: Action): State {
     }
 }
 
-type Validator = (credentials: Credentials) => Promise<boolean>
+type AuthUserGetter = (credentials: Credentials) => Promise<User>
 
 type LoginPageProps = {
     redirectPath: string,
-    validator: Validator
+    getAuthUser: AuthUserGetter
 }
 
-function LoginPage({ redirectPath, validator }: LoginPageProps): JSX.Element {
+function LoginPage({ redirectPath, getAuthUser }: LoginPageProps): JSX.Element {
     const [{ state }, dispatch] = useReducer(reducer, { state: undefined })
     const ctx = useContext(UserContext)
     const isLoggedIn = ctx?.credentials != null
@@ -42,11 +42,13 @@ function LoginPage({ redirectPath, validator }: LoginPageProps): JSX.Element {
             dispatch({ type: 'set-loading' })
 
             const credentials = generateCredentials(username, password)
-            validator(credentials)
-                .then(isValid => {
-                    if (isValid) ctx.logIn(username, password)
+            getAuthUser(credentials)
+                .then(user => {
+                    if (user) ctx.logIn(username, password, user.id)
                     else dispatch({type: 'set-invalid'})
                 })
+        } else {
+            dispatch({type: 'set-invalid'})
         }
     }
 

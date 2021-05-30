@@ -1,19 +1,52 @@
 import React, { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom'
+
+import { UserContext, Credentials, getInitialContext, getStoredCredentials } from './utils/userSession'
 import { ApiRoutes, fetchRoutes } from './api/apiRoutes'
-import { getProjects } from './api/projects'
-import { getUser, validateUser } from './api/users'
+import { getProject, getProjects } from './api/projects'
+import { getUser, getAuthUser, getUsers } from './api/users'
+
+import { RequiresAuth } from './components/RequiresAuth'
 import { Header } from './components/Header'
 import { LoginPage } from './components/LoginPage'
-import { ProjectsPage } from './components/ProjectsPage'
-import { RequiresAuth } from './components/RequiresAuth'
-import { UserPage } from './components/UserPage'
-import { registerExtensions } from './utils/stringExtensions'
-import { UserContext, Credentials, getInitialContext, getStoredCredentials } from './utils/userSession'
+import { ProjectsPage } from './components/projects/ProjectsPage'
+import { ProjectPage } from './components/projects/ProjectPage'
+import { getLabel, getLabels } from './api/labels'
+import { getState, getStates } from './api/states'
+import { getIssue, getIssues } from './api/issues'
+import { getComment, getComments } from './api/comments'
+import { LabelsPage } from './components/labels/LabelsPage'
+import { LabelPage } from './components/labels/LabelPage'
+import { StatesPage } from './components/states/StatesPage'
+import { StatePage } from './components/states/StatePage'
+import { IssuesPage } from './components/issues/IssuesPage'
+import { IssuePage } from './components/issues/IssuePage'
+import { CommentsPage } from './components/comments/CommentsPage'
+import { CommentPage } from './components/comments/CommentPage'
+import { UserPage } from './components/users/UserPage'
+import { UsersPage } from './components/users/UsersPage'
+
 
 const LOGIN_PATH = '/login'
+
 const PROJECTS_PATH = '/projects'
-const USER_PATH = '/users/:userId'
+const PROJECT_PATH = `${PROJECTS_PATH}/:projectId`
+
+const LABELS_PATH = `${PROJECT_PATH}/labels`
+const LABEL_PATH = `${LABELS_PATH}/:labelNumber`
+
+const STATES_PATH = `${PROJECT_PATH}/states`
+const STATE_PATH = `${STATES_PATH}/:stateNumber`
+
+const ISSUES_PATH = `${PROJECT_PATH}/issues`
+const ISSUE_PATH = `${ISSUES_PATH}/:issueNumber`
+
+const COMMENTS_PATH = `${ISSUE_PATH}/comments`
+const COMMENT_PATH = `${COMMENTS_PATH}/:commentNumber`
+
+const USERS_PATH = '/users'
+const USER_PATH = `${USERS_PATH}/:userId`
+
 
 function LoadingPage() {
     return (
@@ -28,8 +61,6 @@ function NotFound() {
 }
 
 function App(): JSX.Element {
-    registerExtensions()
-
     const [resources, setResources] = useState<ApiRoutes>(null)
     const [userCredentials, setUserCredentials] = useState<Credentials>(getStoredCredentials())
 
@@ -48,15 +79,106 @@ function App(): JSX.Element {
                     <Route exact path={LOGIN_PATH}>
                         {
                             !resources ? <LoadingPage /> :
-                                <LoginPage redirectPath='/' validator={ validateUser }/> 
+                                <LoginPage redirectPath='/' getAuthUser={ getAuthUser }/> 
                         }
                     </Route>
 
+                    {/* Projects Routes*/}
                     <Route exact path={PROJECTS_PATH}>
                         <RequiresAuth loginPageRoute={LOGIN_PATH}>
                             {
                                 !resources ? <LoadingPage /> :
                                     <ProjectsPage getProjects={ getProjects }/>
+                            }
+                        </RequiresAuth>
+                    </Route>
+                    <Route exact path={PROJECT_PATH}>
+                        <RequiresAuth loginPageRoute={LOGIN_PATH}>
+                            {
+                                !resources ? <LoadingPage /> :
+                                    <ProjectPage getProject={ getProject }/>
+                            }
+                        </RequiresAuth>
+                    </Route>
+
+                    {/* Labels Routes*/}
+                    <Route exact path={LABELS_PATH}>
+                        <RequiresAuth loginPageRoute={LOGIN_PATH}>
+                            {
+                                !resources ? <LoadingPage /> :
+                                    <LabelsPage getLabels={ getLabels }/>
+                            }
+                        </RequiresAuth>
+                    </Route>
+                    <Route exact path={LABEL_PATH}>
+                        <RequiresAuth loginPageRoute={LOGIN_PATH}>
+                            {
+                                !resources ? <LoadingPage /> :
+                                    <LabelPage getLabel={ getLabel }/>
+                            }
+                        </RequiresAuth>
+                    </Route>
+
+                    {/* States Routes*/}
+                    <Route exact path={STATES_PATH}>
+                        <RequiresAuth loginPageRoute={LOGIN_PATH}>
+                            {
+                                !resources ? <LoadingPage /> :
+                                    <StatesPage getStates={ getStates }/>
+                            }
+                        </RequiresAuth>
+                    </Route>
+                    <Route exact path={STATE_PATH}>
+                        <RequiresAuth loginPageRoute={LOGIN_PATH}>
+                            {
+                                !resources ? <LoadingPage /> :
+                                    <StatePage getState={ getState }/>
+                            }
+                        </RequiresAuth>
+                    </Route>
+
+                    {/* Issues Routes*/}
+                    <Route exact path={ISSUES_PATH}>
+                        <RequiresAuth loginPageRoute={LOGIN_PATH}>
+                            {
+                                !resources ? <LoadingPage /> :
+                                    <IssuesPage getIssues={ getIssues }/>
+                            }
+                        </RequiresAuth>
+                    </Route>
+                    <Route exact path={ISSUE_PATH}>
+                        <RequiresAuth loginPageRoute={LOGIN_PATH}>
+                            {
+                                !resources ? <LoadingPage /> :
+                                    <IssuePage getIssue={ getIssue }/>
+                            }
+                        </RequiresAuth>
+                    </Route>
+
+                    {/* Comments Routes*/}
+                    <Route exact path={COMMENTS_PATH}>
+                        <RequiresAuth loginPageRoute={LOGIN_PATH}>
+                            {
+                                !resources ? <LoadingPage /> :
+                                    <CommentsPage getComments={ getComments }/>
+                            }
+                        </RequiresAuth>
+                    </Route>
+                    <Route exact path={COMMENT_PATH}>
+                        <RequiresAuth loginPageRoute={LOGIN_PATH}>
+                            {
+                                !resources ? <LoadingPage /> :
+                                    <CommentPage getComment={ getComment }/>
+                            }
+                        </RequiresAuth>
+                    </Route>
+
+                    {/* Users Routes*/}
+                    <Route exact path={USERS_PATH}>
+                        <RequiresAuth loginPageRoute={LOGIN_PATH}>
+                            {
+                                !resources ? <LoadingPage /> :
+                                    <UsersPage getUsers={ getUsers }/>
                             }
                         </RequiresAuth>
                     </Route>
@@ -69,6 +191,7 @@ function App(): JSX.Element {
                         </RequiresAuth>
                     </Route>
                     
+                    {/* 404 */}
                     <Route exact path='/'>
                         <Redirect to={PROJECTS_PATH} />
                     </Route>

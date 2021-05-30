@@ -1,51 +1,54 @@
 import { Credentials } from '../utils/userSession'
 import { apiRoutes, getRequestOptions } from '../api/apiRoutes'
 
-const PROJECTS_LIMIT = 10
+const LABELS_LIMIT = 10
 
-function getProjects(page: number, credentials: Credentials): Promise<Projects> {
+function getLabels(projectId: number, page: number, credentials: Credentials): Promise<Labels> {
     return fetch(
-        apiRoutes.project.getProjectsRoute.href.toPaginatedUri(page, PROJECTS_LIMIT), 
+        apiRoutes.label.getLabelsRoute.hrefTemplate.expandUriTemplate(projectId).toPaginatedUri(page, LABELS_LIMIT), 
         getRequestOptions('GET', credentials)
     )
         .then(res => res.status != 200 ? null : res.json())
         .then(collection => {
+
             if (!collection) return null
 
             const entities = Array.from(collection.entities) as any[]
             const actions: SirenAction[] = Array.from(collection.actions || [])
             const links: SirenLink[] = Array.from(collection.links)
 
-            const projects = entities.map(entity => {
+            const labels = entities.map(entity => {
                 const actions: SirenAction[] = Array.from(entity.actions || [])
                 const links: SirenLink[] = Array.from(entity.links)
 
                 return {
                     id: entity.properties.id,
+                    number: entity.properties.number,
                     name: entity.properties.name,
-                    description: entity.properties.description,
+                    project: entity.properties.project,
+                    projectId: entity.properties.projectId,
                     author: entity.properties.author,
                     authorId: entity.properties.authorId,
 
                     links: links,
                     actions: actions
-                } as Project
+                } as Label
             })
 
             return {
-                projects: projects,
+                labels: labels,
                 page: page,
-                isLastPage: PROJECTS_LIMIT * (collection.properties.pageIndex + 1) >= collection.properties.collectionSize,
+                isLastPage: LABELS_LIMIT * (collection.properties.pageIndex + 1) >= collection.properties.collectionSize,
             
                 links: links,
                 actions: actions,
-            } as Projects
+            } as Labels
         })
 }
 
-function getProject(projectId: number, credentials: Credentials): Promise<Project> {
+function getLabel(projectId: number, labelNumber: number, credentials: Credentials): Promise<Label> {
     return fetch(
-        apiRoutes.project.getProjectRoute.hrefTemplate.expandUriTemplate(projectId), 
+        apiRoutes.label.getLabelRoute.hrefTemplate.expandUriTemplate(projectId, labelNumber), 
         getRequestOptions('GET', credentials)
     )
         .then(res => res.status != 200 ? null : res.json())
@@ -54,51 +57,51 @@ function getProject(projectId: number, credentials: Credentials): Promise<Projec
 
             return {
                 id: entity.properties.id,
+                number: entity.properties.number,
                 name: entity.properties.name,
-                description: entity.properties.description,
+                project: entity.properties.project,
+                projectId: entity.properties.projectId,
                 author: entity.properties.author,
                 authorId: entity.properties.authorId,
-            
+
                 links: entity.links,
                 actions: entity.actions
-            } as Project
+            } as Label
         })
 }
 
-function createProject(name: string, description: string, credentials: Credentials): Promise<boolean> {
+function createLabel(projectId: number, name: string, credentials: Credentials): Promise<boolean> {
     return fetch(
-        apiRoutes.project.getProjectsRoute.href, 
+        apiRoutes.label.getLabelsRoute.hrefTemplate.expandUriTemplate(projectId), 
         getRequestOptions('POST', credentials, {
-            name: name,
-            description: description
+            name: name
         })
     )
         .then(res => res.status == 201)
 }
 
-function editProject(projectId: number, name: string, description: string, credentials: Credentials): Promise<boolean> {
+function editLabel(projectId: number, labelNumber: number, name: string, credentials: Credentials): Promise<boolean> {
     return fetch(
-        apiRoutes.project.getProjectRoute.hrefTemplate.expandUriTemplate(projectId), 
+        apiRoutes.label.getLabelRoute.hrefTemplate.expandUriTemplate(projectId, labelNumber), 
         getRequestOptions('PUT', credentials, {
-            name: name,
-            description: description
+            name: name
         })
     )
         .then(res => res.status == 200)
 }
 
-function deleteProject(projectId: number, credentials: Credentials): Promise<boolean> {
+function deleteLabel(projectId: number, labelNumber: number, credentials: Credentials): Promise<boolean> {
     return fetch(
-        apiRoutes.project.getProjectRoute.hrefTemplate.expandUriTemplate(projectId), 
+        apiRoutes.label.getLabelRoute.hrefTemplate.expandUriTemplate(projectId, labelNumber), 
         getRequestOptions('DELETE', credentials)
     )
         .then(res => res.status == 200)
 }
 
 export {
-    getProjects,
-    getProject,
-    createProject,
-    editProject,
-    deleteProject
+    getLabels,
+    getLabel,
+    createLabel,
+    editLabel,
+    deleteLabel
 }

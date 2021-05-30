@@ -1,11 +1,11 @@
 import { Credentials } from '../utils/userSession'
 import { apiRoutes, getRequestOptions } from '../api/apiRoutes'
 
-const PROJECTS_LIMIT = 10
+const STATES_LIMIT = 10
 
-function getProjects(page: number, credentials: Credentials): Promise<Projects> {
+function getStates(projectId: number, page: number, credentials: Credentials): Promise<States> {
     return fetch(
-        apiRoutes.project.getProjectsRoute.href.toPaginatedUri(page, PROJECTS_LIMIT), 
+        apiRoutes.state.getStatesRoute.hrefTemplate.expandUriTemplate(projectId).toPaginatedUri(page, STATES_LIMIT), 
         getRequestOptions('GET', credentials)
     )
         .then(res => res.status != 200 ? null : res.json())
@@ -16,36 +16,39 @@ function getProjects(page: number, credentials: Credentials): Promise<Projects> 
             const actions: SirenAction[] = Array.from(collection.actions || [])
             const links: SirenLink[] = Array.from(collection.links)
 
-            const projects = entities.map(entity => {
+            const states = entities.map(entity => {
                 const actions: SirenAction[] = Array.from(entity.actions || [])
                 const links: SirenLink[] = Array.from(entity.links)
 
                 return {
                     id: entity.properties.id,
+                    number: entity.properties.number,
                     name: entity.properties.name,
-                    description: entity.properties.description,
+                    isStartState: entity.properties.isStartState,
+                    project: entity.properties.project,
+                    projectId: entity.properties.projectId,
                     author: entity.properties.author,
                     authorId: entity.properties.authorId,
 
                     links: links,
                     actions: actions
-                } as Project
+                } as State
             })
 
             return {
-                projects: projects,
+                states: states,
                 page: page,
-                isLastPage: PROJECTS_LIMIT * (collection.properties.pageIndex + 1) >= collection.properties.collectionSize,
+                isLastPage: STATES_LIMIT * (collection.properties.pageIndex + 1) >= collection.properties.collectionSize,
             
                 links: links,
                 actions: actions,
-            } as Projects
+            } as States
         })
 }
 
-function getProject(projectId: number, credentials: Credentials): Promise<Project> {
+function getState(projectId: number, stateNumber: number, credentials: Credentials): Promise<State> {
     return fetch(
-        apiRoutes.project.getProjectRoute.hrefTemplate.expandUriTemplate(projectId), 
+        apiRoutes.state.getStateRoute.hrefTemplate.expandUriTemplate(projectId, stateNumber), 
         getRequestOptions('GET', credentials)
     )
         .then(res => res.status != 200 ? null : res.json())
@@ -54,51 +57,54 @@ function getProject(projectId: number, credentials: Credentials): Promise<Projec
 
             return {
                 id: entity.properties.id,
+                number: entity.properties.number,
                 name: entity.properties.name,
-                description: entity.properties.description,
+                isStartState: entity.properties.isStartState,
+                project: entity.properties.project,
+                projectId: entity.properties.projectId,
                 author: entity.properties.author,
                 authorId: entity.properties.authorId,
-            
+
                 links: entity.links,
                 actions: entity.actions
-            } as Project
+            } as State
         })
 }
 
-function createProject(name: string, description: string, credentials: Credentials): Promise<boolean> {
+function createState(projectId: number, name: string, isStartState: boolean, credentials: Credentials): Promise<boolean> {
     return fetch(
-        apiRoutes.project.getProjectsRoute.href, 
+        apiRoutes.state.getStatesRoute.hrefTemplate.expandUriTemplate(projectId), 
         getRequestOptions('POST', credentials, {
             name: name,
-            description: description
+            isStart: isStartState
         })
     )
         .then(res => res.status == 201)
 }
 
-function editProject(projectId: number, name: string, description: string, credentials: Credentials): Promise<boolean> {
+function editState(projectId: number, stateNumber: number, name: string, isStartState: boolean, credentials: Credentials): Promise<boolean> {
     return fetch(
-        apiRoutes.project.getProjectRoute.hrefTemplate.expandUriTemplate(projectId), 
+        apiRoutes.state.getStateRoute.hrefTemplate.expandUriTemplate(projectId, stateNumber), 
         getRequestOptions('PUT', credentials, {
             name: name,
-            description: description
+            isStartState: isStartState
         })
     )
         .then(res => res.status == 200)
 }
 
-function deleteProject(projectId: number, credentials: Credentials): Promise<boolean> {
+function deleteState(projectId: number, stateNumber: number, credentials: Credentials): Promise<boolean> {
     return fetch(
-        apiRoutes.project.getProjectRoute.hrefTemplate.expandUriTemplate(projectId), 
+        apiRoutes.state.getStateRoute.hrefTemplate.expandUriTemplate(projectId, stateNumber), 
         getRequestOptions('DELETE', credentials)
     )
         .then(res => res.status == 200)
 }
 
 export {
-    getProjects,
-    getProject,
-    createProject,
-    editProject,
-    deleteProject
+    getStates,
+    getState,
+    createState,
+    editState,
+    deleteState
 }

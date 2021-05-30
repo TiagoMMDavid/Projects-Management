@@ -5,48 +5,53 @@ const SESSION_STORAGE_KEY = 'UserCredentials'
 type Credentials = {
     scheme: 'Basic',
     content: string,
-    username: string
+    username: string,
+    userId: number
 }
 
-function logIn(username: string, password: string): Credentials {
-    const credentials = generateCredentials(username, password)
-    sessionStorage.setItem(SESSION_STORAGE_KEY, credentials.content)
-    return credentials
+function generateCredentials(username: string, password: string, userId: number = null): Credentials {
+    return {
+        scheme: 'Basic',
+        content: btoa(`${username}:${password}`),
+        username: username,
+        userId: userId
+    } as Credentials
 }
 
 function getStoredCredentials(): Credentials {
     let toReturn = null
     const storedCredentials = sessionStorage.getItem(SESSION_STORAGE_KEY)
     if (storedCredentials) {
-        const decoded = atob(storedCredentials)
-        const username = decoded.split(':')[0]
-        toReturn = {
-            scheme: 'Basic',
-            content: storedCredentials,
-            username: username
-        } as Credentials
+        toReturn = JSON.parse(storedCredentials)
     }
 
     return toReturn
 }
 
-function generateCredentials(username: string, password: string): Credentials {
-    return {
-        scheme: 'Basic',
-        content: btoa(`${username}:${password}`),
-        username: username
-    } as Credentials
+function logIn(username: string, password: string, userId: number): Credentials {
+    const credentials = generateCredentials(username, password, userId)
+    sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(credentials))
+    return credentials
 }
 
 function logOut(): void {
     sessionStorage.removeItem(SESSION_STORAGE_KEY)
 }
 
+
+type UserContextType = {
+    credentials?: Credentials,
+    logIn: (username: string, password: string, userId: number) => Credentials
+    logOut: () => void
+}
+
+const UserContext = createContext<UserContextType | undefined>(undefined)
+
 function getInitialContext(state: Credentials, setState: (cred: Credentials) => void): UserContextType {
     return {
         credentials: state,
-        logIn: (username: string, password: string) => {
-            const credentials = logIn(username, password)
+        logIn: (username: string, password: string, userId: number) => {
+            const credentials = logIn(username, password, userId)
             setState(credentials)
         },
         logOut: () => {
@@ -55,14 +60,6 @@ function getInitialContext(state: Credentials, setState: (cred: Credentials) => 
         }
     } as UserContextType
 }
-
-type UserContextType = {
-    credentials?: Credentials,
-    logIn: (username: string, password: string) => Credentials
-    logOut: () => void
-}
-
-const UserContext = createContext<UserContextType | undefined>(undefined)
 
 export {
     generateCredentials,
