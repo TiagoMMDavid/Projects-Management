@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useReducer } from 'react'
+import React, { useContext, useEffect, useReducer, } from 'react'
 import { useParams } from 'react-router'
 import { Link, Redirect } from 'react-router-dom'
 import { Credentials, UserContext } from '../../utils/userSession'
@@ -23,7 +23,7 @@ function Project({ project }: ProjectProps): JSX.Element {
             <p>Name: {project.name}</p>
             <p>Description: {project.description}</p>
             <p>Author: <Link to={`/users/${project.authorId}`}>{project.author}</Link></p>
-            <p><Link to={`/projects/${project.id}/labels`}>View labels</Link></p>
+            <p><Link to={`/projects/${project.id}/labels`}>View Labels</Link></p>
             <p><Link to={`/projects/${project.id}/states`}>View States</Link></p>
             <p><Link to={`/projects/${project.id}/issues`}>View Issues</Link></p>
         </div>
@@ -31,30 +31,31 @@ function Project({ project }: ProjectProps): JSX.Element {
 }
 
 type State = {
-    state: 'has-project' | 'loading-project' | 'no-project' | 'deleted-project' | 'edited-project'
+    state: 'has-project' | 'loading-project' | 'deleted-project' | 'edited-project' | 'message'
+    message: string
     project: Project
 }
   
 type Action =
-    { type: 'set-loading' } |
     { type: 'set-project', project: Project} |
-    { type: 'set-no-project' } |
+    { type: 'loading-project' } |
     { type: 'set-deleted-project' } |
-    { type: 'set-edited-project' }
+    { type: 'set-edited-project' } |
+    { type: 'set-message', message: string }
     
 function reducer(state: State, action: Action): State {
     switch (action.type) {
-        case 'set-loading': return { state: 'loading-project', project: null}
-        case 'set-project': return { state: 'has-project', project: action.project}
-        case 'set-no-project': return { state: 'no-project', project: null}
-        case 'set-deleted-project': return { state: 'deleted-project', project: null}
-        case 'set-edited-project': return { state: 'edited-project', project: null}
+        case 'set-project': return { state: 'has-project', project: action.project} as State
+        case 'loading-project': return { state: 'loading-project' } as State
+        case 'set-deleted-project': return { state: 'deleted-project' } as State
+        case 'set-edited-project': return { state: 'edited-project' } as State
+        case 'set-message': return { state: 'message', message: action.message} as State
     }
 }
 
 function ProjectPage({ getProject }: ProjectPageProps): JSX.Element {
     const { projectId } = useParams<ProjectPageParams>()
-    const [{ state, project }, dispatch] = useReducer(reducer, {state: 'loading-project', project: null})
+    const [{ state, project, message }, dispatch] = useReducer(reducer, {state: 'loading-project'} as State) 
     const ctx = useContext(UserContext)
 
     useEffect(() => {
@@ -62,7 +63,7 @@ function ProjectPage({ getProject }: ProjectPageProps): JSX.Element {
             getProject(Number(projectId), ctx.credentials)
                 .then(project => {
                     if (project) dispatch({ type: 'set-project', project: project })
-                    else dispatch({ type: 'set-no-project' })
+                    else dispatch({ type: 'set-message', message: 'Project Not Found' })
                 })
         }
     }, [projectId, state])
@@ -72,33 +73,34 @@ function ProjectPage({ getProject }: ProjectPageProps): JSX.Element {
             <Redirect to="/projects" />
         )
 
-    let toReturn: JSX.Element
+    let body: JSX.Element
     switch(state) {
-        case 'edited-project':
-        case 'loading-project': 
-            toReturn = (
-                <h1> Loading project... </h1> 
+        case 'message':
+            body = (
+                <h1>{message}</h1>
             )
             break
-        case 'no-project':
-            toReturn = (
-                <h1> Project not found </h1> 
+        case 'edited-project':
+        case 'loading-project': 
+            body = (
+                <h1>Loading project...</h1> 
             )
             break
         case 'has-project':
-            toReturn = (
+            body = (
                 <div>
                     <EditProject
                         project={project}
                         onFinishEdit={() => dispatch({ type: 'set-edited-project' })}
+                        onEdit={() => dispatch({ type: 'set-message', message: 'Editing Project...' })}
                         credentials={ctx.credentials} 
                     />
                     <DeleteProject
                         project={project}
                         onFinishDelete={() => dispatch({ type: 'set-deleted-project' })}
+                        onDelete={() => dispatch({ type: 'set-message', message: 'Deleting Project...' })}
                         credentials={ctx.credentials}
                     />
-                    <Project project={project}/>
                 </div>
             )
             break
@@ -106,7 +108,8 @@ function ProjectPage({ getProject }: ProjectPageProps): JSX.Element {
     return (
         <div>
             <Link to="/projects">View all projects</Link>
-            {toReturn}
+            {body}
+            {project == null ? <></> :  <Project project={project}/>}
         </div>
     )
 }

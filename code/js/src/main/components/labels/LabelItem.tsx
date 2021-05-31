@@ -11,6 +11,7 @@ function LabelItem({ label }: LabelProps): JSX.Element {
             <li>
                 <p>Number: <Link to={`/projects/${label.projectId}/labels/${label.number}`}>{label.number}</Link></p>
                 <p>Name: {label.name}</p>
+                <p>Author: <Link to={`/users/${label.authorId}`}>{label.author}</Link></p>
             </li>
         </ul>
     )

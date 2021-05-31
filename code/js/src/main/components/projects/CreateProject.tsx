@@ -4,10 +4,11 @@ import { Credentials } from '../../utils/userSession'
 
 type CreateProjectProps = {
     onFinishCreating: () => void
+    onCreating: () => void
     credentials: Credentials
 }
 
-function CreateProject({onFinishCreating, credentials}: CreateProjectProps): JSX.Element {
+function CreateProject({onFinishCreating, onCreating, credentials}: CreateProjectProps): JSX.Element {
     const [message, setMessage] = useState(null)
     const name = useRef<HTMLInputElement>(null)
     const description = useRef<HTMLInputElement>(null)
@@ -26,11 +27,11 @@ function CreateProject({onFinishCreating, credentials}: CreateProjectProps): JSX
         description.current.value = ''
 
         setMessage('Creating project...')
+        onCreating()
         createProject(nameInput, descriptionInput, credentials)
             .then(res => {
                 if (!res) setMessage('Failed to create project!')
-
-                setMessage(null)
+                else setMessage(null)
                 onFinishCreating()
             })
     }

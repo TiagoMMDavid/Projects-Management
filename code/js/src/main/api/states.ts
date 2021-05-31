@@ -3,7 +3,7 @@ import { apiRoutes, getRequestOptions } from '../api/apiRoutes'
 
 const STATES_LIMIT = 10
 
-function getStates(projectId: number, page: number, credentials: Credentials): Promise<States> {
+function getStates(projectId: number, page: number, credentials: Credentials): Promise<IssueStates> {
     return fetch(
         apiRoutes.state.getStatesRoute.hrefTemplate.expandUriTemplate(projectId).toPaginatedUri(page, STATES_LIMIT), 
         getRequestOptions('GET', credentials)
@@ -32,7 +32,7 @@ function getStates(projectId: number, page: number, credentials: Credentials): P
 
                     links: links,
                     actions: actions
-                } as State
+                } as IssueState
             })
 
             return {
@@ -42,11 +42,11 @@ function getStates(projectId: number, page: number, credentials: Credentials): P
             
                 links: links,
                 actions: actions,
-            } as States
+            } as IssueStates
         })
 }
 
-function getState(projectId: number, stateNumber: number, credentials: Credentials): Promise<State> {
+function getState(projectId: number, stateNumber: number, credentials: Credentials): Promise<IssueState> {
     return fetch(
         apiRoutes.state.getStateRoute.hrefTemplate.expandUriTemplate(projectId, stateNumber), 
         getRequestOptions('GET', credentials)
@@ -67,7 +67,7 @@ function getState(projectId: number, stateNumber: number, credentials: Credentia
 
                 links: entity.links,
                 actions: entity.actions
-            } as State
+            } as IssueState
         })
 }
 

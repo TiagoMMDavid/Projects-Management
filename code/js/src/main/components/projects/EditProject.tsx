@@ -5,10 +5,11 @@ import { Credentials } from '../../utils/userSession'
 type EditProjectProps = {
     project: Project
     onFinishEdit: () => void
+    onEdit: () => void
     credentials: Credentials
 }
 
-function EditProject({project, onFinishEdit, credentials}: EditProjectProps): JSX.Element {
+function EditProject({project, onFinishEdit, onEdit, credentials}: EditProjectProps): JSX.Element {
     const [message, setMessage] = useState(null)
     const name = useRef<HTMLInputElement>(null)
     const description = useRef<HTMLInputElement>(null)
@@ -26,11 +27,11 @@ function EditProject({project, onFinishEdit, credentials}: EditProjectProps): JS
         name.current.value = ''
         description.current.value = ''
         setMessage('Editing project...')
+        onEdit()
         editProject(project.id, newName, newDesc, credentials)
             .then(res => {
                 if (!res) setMessage('Failed to edit project!')
-
-                setMessage(null)
+                else setMessage(null)
                 onFinishEdit()
             })
     }
@@ -38,8 +39,8 @@ function EditProject({project, onFinishEdit, credentials}: EditProjectProps): JS
     return (
         <div>
             <h2>Edit Project</h2>
-            <input type="text" maxLength={64} placeholder="Project Name" ref={name} onChange={() => setMessage(null)} />
-            <input type="text" maxLength={256} placeholder="Project Description" ref={description} onChange={() => setMessage(null)} />
+            <input type="text" maxLength={64} placeholder={project.name} ref={name} onChange={() => setMessage(null)} />
+            <input type="text" maxLength={256} placeholder={project.description} ref={description} onChange={() => setMessage(null)} />
             <button onClick={editProjectHandler}>Edit</button>
             <p>{message}</p>
         </div>

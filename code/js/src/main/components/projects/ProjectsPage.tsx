@@ -13,20 +13,22 @@ type ProjectsPageProps = {
 }
 
 type State = {
-    state: 'has-projects' | 'loading-projects' | 'page-reset'
+    state: 'has-projects' | 'loading-projects' | 'page-reset' | 'hide'
     projects: Projects
 }
   
 type Action =
     { type: 'set-loading' } |
     { type: 'set-projects', projects: Projects } |
-    { type: 'reset-page' }
+    { type: 'reset-page' } |
+    { type: 'hide' }
     
 function reducer(state: State, action: Action): State {
     switch (action.type) {
         case 'set-loading': return { state: 'loading-projects', projects: null}
         case 'set-projects': return { state: 'has-projects', projects: action.projects }
         case 'reset-page': return { state: 'page-reset', projects: null }
+        case 'hide': return { state: 'hide', projects: null }
     }
 }
 
@@ -54,6 +56,8 @@ function ProjectsPage({ getProjects }: ProjectsPageProps): JSX.Element {
 
     let projectsView: JSX.Element
     switch(state) {
+        case 'hide':
+            break
         case 'page-reset':
         case 'loading-projects':
             projectsView = <h1>Loading projects...</h1>
@@ -74,6 +78,7 @@ function ProjectsPage({ getProjects }: ProjectsPageProps): JSX.Element {
         <div>
             <CreateProject 
                 onFinishCreating={() => dispatch({type: 'reset-page'})} 
+                onCreating={() => dispatch({type: 'hide'})}
                 credentials={ctx.credentials} 
             />
             { projectsView }
