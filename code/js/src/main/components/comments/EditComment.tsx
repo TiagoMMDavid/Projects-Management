@@ -4,7 +4,7 @@ import { Credentials } from '../../utils/userSession'
 
 type EditCommentProps = {
     comment: IssueComment
-    onFinishEdit: () => void
+    onFinishEdit: (success: boolean, message: string) => void
     onEdit: () => void
     credentials: Credentials
 }
@@ -26,9 +26,7 @@ function EditComment({comment, onFinishEdit, onEdit, credentials}: EditCommentPr
         onEdit()
         editComment(comment.projectId, comment.issueNumber, comment.number, newName, credentials)
             .then(res => {
-                if (!res) setMessage('Failed to edit comment!')
-                else setMessage(null)
-                onFinishEdit()
+                onFinishEdit(res, 'Failed to edit comment!')
             })
     }
 

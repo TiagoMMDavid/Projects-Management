@@ -4,7 +4,7 @@ import { Credentials } from '../../utils/userSession'
 
 type DeleteProjectProps = {
     project: Project
-    onFinishDelete: () => void
+    onFinishDelete: (success: boolean, message: string) => void
     onDelete: () => void
     credentials: Credentials
 }
@@ -17,9 +17,7 @@ function DeleteProject({project, onFinishDelete, onDelete, credentials}: DeleteP
         onDelete()
         deleteProject(project.id, credentials)
             .then(res => {
-                if (!res) setMessage('Failed to delete project!')
-                else setMessage(null)
-                onFinishDelete()
+                onFinishDelete(res, 'Failed to delete project!')
             })
     }
 

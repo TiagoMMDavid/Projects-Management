@@ -58,9 +58,9 @@ class StatesDb(
             )
         )
 
-    fun getNextStates(page: Int, perPage: Int, projectId: Int, stateNumber: Int): List<State> {
+    fun getNextStates(projectId: Int, stateNumber: Int): List<State> {
         projectsDb.getProjectById(projectId) // Check if project exists (will throw exception if not found)
-        return jdbi.getList(GET_NEXT_STATES_QUERY, State::class.java, page, perPage,
+        return jdbi.getList(GET_NEXT_STATES_QUERY, State::class.java,
             mapOf(
                 "projectId" to projectId,
                 "stateNumber" to stateNumber

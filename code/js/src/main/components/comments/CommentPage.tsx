@@ -36,16 +36,16 @@ type State = {
 }
   
 type Action =
-    { type: 'set-comment', comment: IssueComment} |
-    { type: 'loading-comment' } |
+    { type: 'set-comment', comment: IssueComment, message: string } |
+    { type: 'loading-comment', message: string } |
     { type: 'set-deleted-comment' } |
     { type: 'set-edited-comment' } |
     { type: 'set-message', message: string }
     
 function reducer(state: State, action: Action): State {
     switch (action.type) {
-        case 'set-comment': return { state: 'has-comment', comment: action.comment} as State
-        case 'loading-comment': return { state: 'loading-comment' } as State
+        case 'set-comment': return { state: 'has-comment', comment: action.comment, message: action.message } as State
+        case 'loading-comment': return { state: 'loading-comment', message: action.message } as State
         case 'set-deleted-comment': return { state: 'deleted-comment' } as State
         case 'set-edited-comment': return { state: 'edited-comment' } as State
         case 'set-message': return { state: 'message', message: action.message} as State
@@ -61,7 +61,7 @@ function CommentPage({ getComment }: CommentPageProps): JSX.Element {
         if (state == 'edited-comment' || state == 'loading-comment') {
             getComment(Number(projectId), Number(issueNumber), Number(commentNumber), ctx.credentials)
                 .then(comment => {
-                    if (comment) dispatch({ type: 'set-comment', comment: comment })
+                    if (comment) dispatch({ type: 'set-comment', comment: comment, message: message })
                     else dispatch({ type: 'set-message', message: 'Comment Not Found' })
                 })
         }
@@ -88,15 +88,28 @@ function CommentPage({ getComment }: CommentPageProps): JSX.Element {
         case 'has-comment':
             body = (
                 <div>
+                    <h4>{message}</h4>
                     <EditComment
                         comment={comment}
-                        onFinishEdit={() => dispatch({ type: 'set-edited-comment' })}
+                        onFinishEdit={(success, message) => {
+                            if (success) {
+                                dispatch({ type: 'set-edited-comment' })
+                            } else {
+                                dispatch({ type: 'loading-comment', message: message })
+                            }
+                        }}
                         onEdit={() => dispatch({ type: 'set-message', message: 'Editing Comment...' })}
                         credentials={ctx.credentials} 
                     />
                     <DeleteComment
                         comment={comment}
-                        onFinishDelete={() => dispatch({ type: 'set-deleted-comment' })}
+                        onFinishDelete={(success, message) => {
+                            if (success) {
+                                dispatch({ type: 'set-deleted-comment' })
+                            } else {
+                                dispatch({ type: 'loading-comment', message: message })
+                            }
+                        }}
                         onDelete={() => dispatch({ type: 'set-message', message: 'Deleting Comment...' })}
                         credentials={ctx.credentials}
                     />

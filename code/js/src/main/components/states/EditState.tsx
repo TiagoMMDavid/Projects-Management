@@ -4,7 +4,7 @@ import { Credentials } from '../../utils/userSession'
 
 type EditStateProps = {
     state: IssueState
-    onFinishEdit: () => void
+    onFinishEdit: (success: boolean, message: string) => void
     onEdit: () => void
     credentials: Credentials
 }
@@ -26,9 +26,7 @@ function EditState({state, onFinishEdit, onEdit, credentials}: EditStateProps): 
         onEdit()
         editState(state.projectId, state.number, newName, null, credentials)
             .then(res => {
-                if (!res) setMessage('Failed to edit state!')
-                else setMessage(null)
-                onFinishEdit()
+                onFinishEdit(res, 'Failed to edit state!')
             })
     }
 

@@ -7,9 +7,14 @@ import { EditIssue } from './EditIssue'
 
 type IssuePageProps = {
     getIssue: (projectId: number, issueNumber: number, credentials: Credentials) => Promise<Issue>
+    getNextStates: (projectId: number, stateNumber: number, credentials: Credentials) => Promise<NextStates>
 }
 type IssueProps = {
     issue: Issue
+}
+type IssueNextStates = {
+    issue: Issue,
+    nextStates: NextStates
 }
 
 type IssuePageParams = {
@@ -35,37 +40,44 @@ function Issue({ issue }: IssueProps): JSX.Element {
 type State = {
     state: 'has-issue' | 'loading-issue' | 'deleted-issue' | 'edited-issue' | 'message'
     message: string
-    issue: Issue
+    issueStates: IssueNextStates
 }
   
 type Action =
-    { type: 'set-issue', issue: Issue} |
-    { type: 'loading-issue' } |
+    { type: 'set-issue', issueStates: IssueNextStates, message: string } |
+    { type: 'loading-issue', message: string } |
     { type: 'set-deleted-issue' } |
     { type: 'set-edited-issue' } |
     { type: 'set-message', message: string }
     
 function reducer(state: State, action: Action): State {
     switch (action.type) {
-        case 'set-issue': return { state: 'has-issue', issue: action.issue} as State
-        case 'loading-issue': return { state: 'loading-issue' } as State
+        case 'set-issue': return { state: 'has-issue', issueStates: action.issueStates, message: action.message } as State
+        case 'loading-issue': return { state: 'loading-issue', message: action.message } as State
         case 'set-deleted-issue': return { state: 'deleted-issue' } as State
         case 'set-edited-issue': return { state: 'edited-issue' } as State
         case 'set-message': return { state: 'message', message: action.message} as State
     }
 }
 
-function IssuePage({ getIssue }: IssuePageProps): JSX.Element {
+function IssuePage({ getIssue, getNextStates }: IssuePageProps): JSX.Element {
     const { projectId, issueNumber } = useParams<IssuePageParams>()
-    const [{ state, issue, message }, dispatch] = useReducer(reducer, {state: 'loading-issue'} as State) 
+    const [{ state, issueStates, message }, dispatch] = useReducer(reducer, {state: 'loading-issue'} as State) 
     const ctx = useContext(UserContext)
 
     useEffect(() => {
         if (state == 'edited-issue' || state == 'loading-issue') {
             getIssue(Number(projectId), Number(issueNumber), ctx.credentials)
-                .then(issue => {
-                    if (issue) dispatch({ type: 'set-issue', issue: issue })
-                    else dispatch({ type: 'set-message', message: 'Issue Not Found' })
+                .then(async issue => {
+                    return {
+                        issue: issue,
+                        nextStates: issue == null ? null : await getNextStates(issue.projectId, issue.stateNumber, ctx.credentials)
+                    } as IssueNextStates
+                })
+                .then(issueNextStates => {
+                    if (!issueNextStates.issue) dispatch({ type: 'set-message', message: 'Issue Not Found' })
+                    else if (!issueNextStates.nextStates) dispatch({ type: 'set-message', message: 'Error While Getting Issue' })
+                    else dispatch({type: 'set-issue', issueStates: issueNextStates, message: message})
                 })
         }
     }, [projectId, issueNumber, state])
@@ -91,15 +103,29 @@ function IssuePage({ getIssue }: IssuePageProps): JSX.Element {
         case 'has-issue':
             body = (
                 <div>
+                    <h4>{message}</h4>
                     <EditIssue
-                        issue={issue}
-                        onFinishEdit={() => dispatch({ type: 'set-edited-issue' })}
+                        issue={issueStates.issue}
+                        nextStates={issueStates.nextStates}
+                        onFinishEdit={(success, message) => {
+                            if (success) {
+                                dispatch({ type: 'set-edited-issue' })
+                            } else {
+                                dispatch({ type: 'loading-issue', message: message })
+                            }
+                        }}
                         onEdit={() => dispatch({ type: 'set-message', message: 'Editing Issue...' })}
                         credentials={ctx.credentials} 
                     />
                     <DeleteIssue
-                        issue={issue}
-                        onFinishDelete={() => dispatch({ type: 'set-deleted-issue' })}
+                        issue={issueStates.issue}
+                        onFinishDelete={(success, message) => {
+                            if (success) {
+                                dispatch({ type: 'set-deleted-issue' })
+                            } else {
+                                dispatch({ type: 'loading-issue', message: message })
+                            }
+                        }}
                         onDelete={() => dispatch({ type: 'set-message', message: 'Deleting Issue...' })}
                         credentials={ctx.credentials}
                     />
@@ -111,7 +137,7 @@ function IssuePage({ getIssue }: IssuePageProps): JSX.Element {
         <div>
             <Link to={`/projects/${projectId}/issues`}>View all issues</Link>
             {body}
-            {issue == null ? <></> :  <Issue issue={issue}/>}
+            {issueStates?.issue == null ? <></> :  <Issue issue={issueStates.issue}/>}
         </div>
     )
 }

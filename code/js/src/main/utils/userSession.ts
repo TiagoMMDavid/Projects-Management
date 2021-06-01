@@ -20,7 +20,7 @@ function generateCredentials(username: string, password: string, userId: number 
 
 function getStoredCredentials(): Credentials {
     let toReturn = null
-    const storedCredentials = sessionStorage.getItem(SESSION_STORAGE_KEY)
+    const storedCredentials = localStorage.getItem(SESSION_STORAGE_KEY)
     if (storedCredentials) {
         toReturn = JSON.parse(storedCredentials)
     }
@@ -30,12 +30,12 @@ function getStoredCredentials(): Credentials {
 
 function logIn(username: string, password: string, userId: number): Credentials {
     const credentials = generateCredentials(username, password, userId)
-    sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(credentials))
+    localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(credentials))
     return credentials
 }
 
 function logOut(): void {
-    sessionStorage.removeItem(SESSION_STORAGE_KEY)
+    localStorage.removeItem(SESSION_STORAGE_KEY)
 }
 
 

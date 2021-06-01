@@ -17,6 +17,16 @@ fun <T> Jdbi.getList(query: String, mapTo: Class<T>, page: Int, perPage: Int, bi
             .list()
     }
 
+fun <T> Jdbi.getList(query: String, mapTo: Class<T>, binds: Map<String, Any>? = null): List<T> =
+    this.withHandle<List<T>, Exception> {
+        val handle = it.createQuery(query)
+        binds?.forEach { entry -> handle.bind(entry.key, entry.value) }
+
+        handle
+            .mapTo(mapTo)
+            .list()
+    }
+
 fun <T> Jdbi.getOne(query: String, mapTo: Class<T>, binds: Map<String, Any>? = null): T =
     this.withHandle<T, Exception> {
         val handle = it.createQuery(query)

@@ -4,7 +4,7 @@ import { Credentials } from '../../utils/userSession'
 
 type DeleteIssueProps = {
     issue: Issue
-    onFinishDelete: () => void
+    onFinishDelete: (success: boolean, message: string) => void
     onDelete: () => void
     credentials: Credentials
 }
@@ -17,9 +17,7 @@ function DeleteIssue({issue, onFinishDelete, onDelete, credentials}: DeleteIssue
         onDelete()
         deleteIssue(issue.projectId, issue.number, credentials)
             .then(res => {
-                if (!res) setMessage('Failed to delete issue!')
-                else setMessage(null)
-                onFinishDelete()
+                onFinishDelete(res, 'Failed to delete issue!')
             })
     }
 

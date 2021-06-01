@@ -4,7 +4,7 @@ import { Credentials } from '../../utils/userSession'
 
 type DeleteLabelProps = {
     label: Label
-    onFinishDelete: () => void
+    onFinishDelete: (success: boolean, message: string) => void
     onDelete: () => void
     credentials: Credentials
 }
@@ -17,9 +17,7 @@ function DeleteLabel({label, onFinishDelete, onDelete, credentials}: DeleteLabel
         onDelete()
         deleteLabel(label.projectId, label.number, credentials)
             .then(res => {
-                if (!res) setMessage('Failed to delete label!')
-                else setMessage(null)
-                onFinishDelete()
+                onFinishDelete(res, 'Failed to delete label!')
             })
     }
 

@@ -31,25 +31,25 @@ function Project({ project }: ProjectProps): JSX.Element {
 }
 
 type State = {
-    state: 'has-project' | 'loading-project' | 'deleted-project' | 'edited-project' | 'message'
+    state: 'has-project' | 'loading-project' | 'deleted-project' | 'edited-project' | 'project-fail' | 'message'
     message: string
     project: Project
 }
   
 type Action =
-    { type: 'set-project', project: Project} |
-    { type: 'loading-project' } |
+    { type: 'set-project', project: Project, message: string } |
+    { type: 'loading-project', message: string } |
     { type: 'set-deleted-project' } |
     { type: 'set-edited-project' } |
     { type: 'set-message', message: string }
     
 function reducer(state: State, action: Action): State {
     switch (action.type) {
-        case 'set-project': return { state: 'has-project', project: action.project} as State
-        case 'loading-project': return { state: 'loading-project' } as State
+        case 'set-project': return { state: 'has-project', project: action.project, message: action.message } as State
+        case 'loading-project': return { state: 'loading-project', message: action.message } as State
         case 'set-deleted-project': return { state: 'deleted-project' } as State
         case 'set-edited-project': return { state: 'edited-project' } as State
-        case 'set-message': return { state: 'message', message: action.message} as State
+        case 'set-message': return { state: 'message', message: action.message } as State
     }
 }
 
@@ -59,10 +59,10 @@ function ProjectPage({ getProject }: ProjectPageProps): JSX.Element {
     const ctx = useContext(UserContext)
 
     useEffect(() => {
-        if (state == 'edited-project' || state == 'loading-project') {
+        if (state == 'edited-project' || state == 'loading-project' || state == 'project-fail') {
             getProject(Number(projectId), ctx.credentials)
                 .then(project => {
-                    if (project) dispatch({ type: 'set-project', project: project })
+                    if (project) dispatch({ type: 'set-project', project: project, message: message })
                     else dispatch({ type: 'set-message', message: 'Project Not Found' })
                 })
         }
@@ -89,15 +89,28 @@ function ProjectPage({ getProject }: ProjectPageProps): JSX.Element {
         case 'has-project':
             body = (
                 <div>
+                    <h4>{message}</h4>
                     <EditProject
                         project={project}
-                        onFinishEdit={() => dispatch({ type: 'set-edited-project' })}
+                        onFinishEdit={(success, message) => {
+                            if (success) {
+                                dispatch({ type: 'set-edited-project' })
+                            } else {
+                                dispatch({ type: 'loading-project', message: message })
+                            }
+                        }}
                         onEdit={() => dispatch({ type: 'set-message', message: 'Editing Project...' })}
                         credentials={ctx.credentials} 
                     />
                     <DeleteProject
                         project={project}
-                        onFinishDelete={() => dispatch({ type: 'set-deleted-project' })}
+                        onFinishDelete={(success, message) => {
+                            if (success) {
+                                dispatch({ type: 'set-deleted-project' })
+                            } else {
+                                dispatch({ type: 'loading-project', message: message })
+                            }
+                        }}
                         onDelete={() => dispatch({ type: 'set-message', message: 'Deleting Project...' })}
                         credentials={ctx.credentials}
                     />

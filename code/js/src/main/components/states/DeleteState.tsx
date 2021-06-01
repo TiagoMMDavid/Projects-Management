@@ -4,7 +4,7 @@ import { Credentials } from '../../utils/userSession'
 
 type DeleteStateProps = {
     state: IssueState
-    onFinishDelete: () => void
+    onFinishDelete: (success: boolean, message: string) => void
     onDelete: () => void
     credentials: Credentials
 }
@@ -17,9 +17,7 @@ function DeleteState({state, onFinishDelete, onDelete, credentials}: DeleteState
         onDelete()
         deleteState(state.projectId, state.number, credentials)
             .then(res => {
-                if (!res) setMessage('Failed to delete state!')
-                else setMessage(null)
-                onFinishDelete()
+                onFinishDelete(res, 'Failed to delete state!')
             })
     }
 

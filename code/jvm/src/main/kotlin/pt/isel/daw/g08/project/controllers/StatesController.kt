@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.util.UriTemplate
 import pt.isel.daw.g08.project.Routes
 import pt.isel.daw.g08.project.Routes.INPUT_CONTENT_TYPE
 import pt.isel.daw.g08.project.Routes.NEXT_STATES_HREF
@@ -26,6 +27,7 @@ import pt.isel.daw.g08.project.Routes.getStateByNumberUri
 import pt.isel.daw.g08.project.Routes.getStatesUri
 import pt.isel.daw.g08.project.Routes.getUserByIdUri
 import pt.isel.daw.g08.project.controllers.models.NextStateInputModel
+import pt.isel.daw.g08.project.controllers.models.NextStatesOutputModel
 import pt.isel.daw.g08.project.controllers.models.StateInputModel
 import pt.isel.daw.g08.project.controllers.models.StateOutputModel
 import pt.isel.daw.g08.project.controllers.models.StatesOutputModel
@@ -42,6 +44,8 @@ import pt.isel.daw.g08.project.responses.siren.SirenFieldType.hidden
 import pt.isel.daw.g08.project.responses.siren.SirenFieldType.text
 import pt.isel.daw.g08.project.responses.siren.SirenLink
 import pt.isel.daw.g08.project.responses.toResponseEntity
+
+const val MAX_NEXT_STATES = 50
 
 @RestController
 class StatesController(val db: StatesDb) {
@@ -166,15 +170,12 @@ class StatesController(val db: StatesDb) {
     @GetMapping(NEXT_STATES_HREF)
     fun getNextStates(
         @PathVariable(name = PROJECT_PARAM) projectId: Int,
-        @PathVariable(name = STATE_PARAM) stateNumber: Int,
-        pagination: Pagination
+        @PathVariable(name = STATE_PARAM) stateNumber: Int
     ): ResponseEntity<Response> {
-        val states = db.getNextStates(pagination.page, pagination.limit, projectId, stateNumber)
+        val states = db.getNextStates(projectId, stateNumber)
         val collectionSize = db.getNextStatesCount(projectId, stateNumber)
-        val statesModel = StatesOutputModel(
+        val statesModel = NextStatesOutputModel(
             collectionSize = collectionSize,
-            pageIndex = pagination.page,
-            pageSize = states.size
         )
 
         val nextStatesUri = getNextStatesUri(projectId, stateNumber)
@@ -229,12 +230,8 @@ class StatesController(val db: StatesDb) {
                         )
                     )
                 ),
-                links = Routes.createSirenLinkListForPagination(
-                    nextStatesUri,
-                    pagination.page,
-                    pagination.limit,
-                    collectionSize
-                ) + listOf(
+                links = listOf(
+                    SirenLink(rel = listOf("self"), href = getNextStatesUri(projectId, stateNumber)),
                     SirenLink(rel = listOf("project"), href = getProjectByIdUri(projectId)),
                     SirenLink(rel = listOf("state"), href = getStateByNumberUri(projectId, stateNumber))
                 )
@@ -296,6 +293,7 @@ class StatesController(val db: StatesDb) {
         @RequestBody input: NextStateInputModel
     ): ResponseEntity<Any> {
         if (input.state == null) throw InvalidInputException("Missing state")
+        if (db.getNextStatesCount(projectId, stateNumber) >= MAX_NEXT_STATES) throw InvalidInputException("Max next states reached (50)")
         db.addNextState(projectId, stateNumber, input.state)
 
         return ResponseEntity

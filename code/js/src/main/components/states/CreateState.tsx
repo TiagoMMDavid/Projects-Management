@@ -40,7 +40,7 @@ function CreateState({onFinishCreating, onCreating, credentials, projectId}: Cre
             <h2>Create State</h2>
             <input type="text" maxLength={64} placeholder="State Name" ref={name} onChange={() => setMessage(null)} />
             <input type="checkbox" ref={isStart} id="isStart"/>
-            <label htmlFor="isStart">Is Start</label>
+            <label htmlFor="isStart">Is Start </label>
             <button onClick={createStateHandler}>Create</button>
             <p>{message}</p>
         </div>

@@ -4,7 +4,7 @@ import { Credentials } from '../../utils/userSession'
 
 type DeleteCommentProps = {
     comment: IssueComment
-    onFinishDelete: () => void
+    onFinishDelete: (success: boolean, message: string) => void
     onDelete: () => void
     credentials: Credentials
 }
@@ -17,9 +17,7 @@ function DeleteComment({comment, onFinishDelete, onDelete, credentials}: DeleteC
         onDelete()
         deleteComment(comment.projectId, comment.issueNumber, comment.number, credentials)
             .then(res => {
-                if (!res) setMessage('Failed to delete comment!')
-                else setMessage(null)
-                onFinishDelete()
+                onFinishDelete(res, 'Failed to delete comment!')
             })
     }
 

@@ -29,22 +29,22 @@ function State({ issueState }: StateProps): JSX.Element {
 }
 
 type State = {
-    state: 'has-state' | 'loading-state' | 'deleted-state' | 'edited-state' | 'message'
+    state: 'has-state' | 'loading-state' | 'deleted-state' | 'edited-state' | 'state-fail' | 'message'
     message: string
     issueState: IssueState
 }
   
 type Action =
-    { type: 'set-state', issueState: IssueState} |
-    { type: 'loading-state' } |
+    { type: 'set-state', issueState: IssueState, message: string} |
+    { type: 'loading-state', message: string } |
     { type: 'set-deleted-state' } |
     { type: 'set-edited-state' } |
     { type: 'set-message', message: string }
     
 function reducer(state: State, action: Action): State {
     switch (action.type) {
-        case 'set-state': return { state: 'has-state', issueState: action.issueState} as State
-        case 'loading-state': return { state: 'loading-state' } as State
+        case 'set-state': return { state: 'has-state', issueState: action.issueState, message: action.message} as State
+        case 'loading-state': return { state: 'loading-state', message: action.message } as State
         case 'set-deleted-state': return { state: 'deleted-state' } as State
         case 'set-edited-state': return { state: 'edited-state' } as State
         case 'set-message': return { state: 'message', message: action.message} as State
@@ -60,7 +60,7 @@ function StatePage({ getState }: StatePageProps): JSX.Element {
         if (state == 'edited-state' || state == 'loading-state') {
             getState(Number(projectId), Number(stateNumber), ctx.credentials)
                 .then(issueState => {
-                    if (issueState) dispatch({ type: 'set-state', issueState: issueState })
+                    if (issueState) dispatch({ type: 'set-state', issueState: issueState, message: message })
                     else dispatch({ type: 'set-message', message: 'State Not Found' })
                 })
         }
@@ -87,15 +87,28 @@ function StatePage({ getState }: StatePageProps): JSX.Element {
         case 'has-state':
             body = (
                 <div>
+                    <h4>{message}</h4>
                     <EditState
                         state={issueState}
-                        onFinishEdit={() => dispatch({ type: 'set-edited-state' })}
+                        onFinishEdit={(success, message) => {
+                            if (success) {
+                                dispatch({ type: 'set-edited-state' })
+                            } else {
+                                dispatch({ type: 'loading-state', message: message })
+                            }
+                        }}
                         onEdit={() => dispatch({ type: 'set-message', message: 'Editing State...' })}
                         credentials={ctx.credentials} 
                     />
                     <DeleteState
                         state={issueState}
-                        onFinishDelete={() => dispatch({ type: 'set-deleted-state' })}
+                        onFinishDelete={(success, message) => {
+                            if (success) {
+                                dispatch({ type: 'set-deleted-state' })
+                            } else {
+                                dispatch({ type: 'loading-state', message: message })
+                            }
+                        }}
                         onDelete={() => dispatch({ type: 'set-message', message: 'Deleting State...' })}
                         credentials={ctx.credentials}
                     />

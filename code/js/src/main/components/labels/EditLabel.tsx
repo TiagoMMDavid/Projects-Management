@@ -4,7 +4,7 @@ import { Credentials } from '../../utils/userSession'
 
 type EditLabelProps = {
     label: Label
-    onFinishEdit: () => void
+    onFinishEdit: (success: boolean, message: string) => void
     onEdit: () => void
     credentials: Credentials
 }
@@ -26,9 +26,7 @@ function EditLabel({label, onFinishEdit, onEdit, credentials}: EditLabelProps): 
         onEdit()
         editLabel(label.projectId, label.number, newName, credentials)
             .then(res => {
-                if (!res) setMessage('Failed to edit label!')
-                else setMessage(null)
-                onFinishEdit()
+                onFinishEdit(res, 'Failed to edit label!')
             })
     }
 

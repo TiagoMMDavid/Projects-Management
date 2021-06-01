@@ -46,6 +46,47 @@ function getStates(projectId: number, page: number, credentials: Credentials): P
         })
 }
 
+function getNextStates(projectId: number, stateNumber: number, credentials: Credentials): Promise<NextStates> {
+    return fetch(
+        apiRoutes.state.getNextStatesRoute.hrefTemplate.expandUriTemplate(projectId, stateNumber), 
+        getRequestOptions('GET', credentials)
+    )
+        .then(res => res.status != 200 ? null : res.json())
+        .then(collection => {
+            if (!collection) return null
+
+            const entities = Array.from(collection.entities) as any[]
+            const actions: SirenAction[] = Array.from(collection.actions || [])
+            const links: SirenLink[] = Array.from(collection.links)
+
+            const states = entities.map(entity => {
+                const actions: SirenAction[] = Array.from(entity.actions || [])
+                const links: SirenLink[] = Array.from(entity.links)
+
+                return {
+                    id: entity.properties.id,
+                    number: entity.properties.number,
+                    name: entity.properties.name,
+                    isStartState: entity.properties.isStartState,
+                    project: entity.properties.project,
+                    projectId: entity.properties.projectId,
+                    author: entity.properties.author,
+                    authorId: entity.properties.authorId,
+
+                    links: links,
+                    actions: actions
+                } as IssueState
+            })
+
+            return {
+                states: states,
+            
+                links: links,
+                actions: actions,
+            } as NextStates
+        })
+}
+
 function getState(projectId: number, stateNumber: number, credentials: Credentials): Promise<IssueState> {
     return fetch(
         apiRoutes.state.getStateRoute.hrefTemplate.expandUriTemplate(projectId, stateNumber), 
@@ -103,6 +144,7 @@ function deleteState(projectId: number, stateNumber: number, credentials: Creden
 
 export {
     getStates,
+    getNextStates,
     getState,
     createState,
     editState,

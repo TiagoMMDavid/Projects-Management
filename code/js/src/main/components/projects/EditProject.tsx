@@ -4,7 +4,7 @@ import { Credentials } from '../../utils/userSession'
 
 type EditProjectProps = {
     project: Project
-    onFinishEdit: () => void
+    onFinishEdit: (success: boolean, message: string) => void
     onEdit: () => void
     credentials: Credentials
 }
@@ -30,9 +30,7 @@ function EditProject({project, onFinishEdit, onEdit, credentials}: EditProjectPr
         onEdit()
         editProject(project.id, newName, newDesc, credentials)
             .then(res => {
-                if (!res) setMessage('Failed to edit project!')
-                else setMessage(null)
-                onFinishEdit()
+                onFinishEdit(res, 'Failed to edit project!')
             })
     }
 

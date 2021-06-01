@@ -12,7 +12,7 @@ import { LoginPage } from './components/LoginPage'
 import { ProjectsPage } from './components/projects/ProjectsPage'
 import { ProjectPage } from './components/projects/ProjectPage'
 import { getLabel, getLabels } from './api/labels'
-import { getState, getStates } from './api/states'
+import { getNextStates, getState, getStates } from './api/states'
 import { getIssue, getIssues } from './api/issues'
 import { getComment, getComments } from './api/comments'
 import { LabelsPage } from './components/labels/LabelsPage'
@@ -150,7 +150,7 @@ function App(): JSX.Element {
                         <RequiresAuth loginPageRoute={LOGIN_PATH}>
                             {
                                 !resources ? <LoadingPage /> :
-                                    <IssuePage getIssue={ getIssue }/>
+                                    <IssuePage getIssue={ getIssue } getNextStates={ getNextStates }/>
                             }
                         </RequiresAuth>
                     </Route>
