@@ -61,7 +61,7 @@ const apiRoutes = {
 } as ApiRoutes
 
 
-function getRequestOptions(method: string, credentials: Credentials, body: any = null) {
+function getRequestOptions(method: string, credentials: Credentials, body: any = null): RequestInit {
     return {
         method: method,
         headers: {
@@ -83,8 +83,7 @@ function getSirenLink(links: SirenLink[], rel: string): SirenLink {
 }
 
 function getSirenAction(actions: SirenAction[], name: string): SirenAction {
-    return actions
-        .find(action => action.name == name)
+    return actions?.find(action => action.name == name)
 }
 
 function fetchRoutes(): Promise<ApiRoutes> {
@@ -167,6 +166,7 @@ export {
     fetchRoutes,
     apiRoutes,
     ApiRoutes,
-    getRequestOptions
+    getRequestOptions,
+    getSirenAction
 }
 

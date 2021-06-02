@@ -12,6 +12,7 @@ import pt.isel.daw.g08.project.auth.AuthHeaderValidator.AUTH_SCHEME
 import pt.isel.daw.g08.project.database.PsqlErrorCode
 import pt.isel.daw.g08.project.database.getPsqlErrorCode
 import pt.isel.daw.g08.project.exceptions.AuthorizationException
+import pt.isel.daw.g08.project.exceptions.ForbiddenException
 import pt.isel.daw.g08.project.exceptions.InvalidInputException
 import pt.isel.daw.g08.project.exceptions.NotFoundException
 import pt.isel.daw.g08.project.exceptions.PaginationException
@@ -47,15 +48,14 @@ class ExceptionHandler {
     private fun handleNotFoundException(
         ex: NotFoundException,
         request: HttpServletRequest
-    ): ResponseEntity<Response> {
-        return handleExceptionResponse(
+    ) =
+        handleExceptionResponse(
             URI("/problems/resource-not-found"),
             "Resource Not Found",
             HttpStatus.NOT_FOUND,
             ex.localizedMessage,
             request.requestURI
         )
-    }
 
     @ExceptionHandler(value = [AuthorizationException::class])
     private fun handleAuthorizationException(
@@ -79,29 +79,40 @@ class ExceptionHandler {
     private fun handlePaginationException(
         ex: PaginationException,
         request: HttpServletRequest
-    ): ResponseEntity<Response> {
-        return handleExceptionResponse(
+    ) =
+        handleExceptionResponse(
             URI("/problems/invalid-pagination-parameters"),
             "Invalid Pagination Parameters",
             HttpStatus.BAD_REQUEST,
             ex.localizedMessage,
             request.requestURI
         )
-    }
 
     @ExceptionHandler(value = [InvalidInputException::class])
     private fun handleInvalidInputException(
         ex: InvalidInputException,
         request: HttpServletRequest
-    ): ResponseEntity<Response> {
-        return handleExceptionResponse(
+    ) =
+        handleExceptionResponse(
             URI("/problems/invalid-input"),
             "Invalid Input",
             HttpStatus.BAD_REQUEST,
             ex.localizedMessage,
             request.requestURI
         )
-    }
+
+    @ExceptionHandler(value = [ForbiddenException::class])
+    private fun handleForbiddenException(
+        ex: ForbiddenException,
+        request: HttpServletRequest
+    ): ResponseEntity<Response> =
+        handleExceptionResponse(
+            URI("/problems/forbidden-operation"),
+            "Forbidden Operation",
+            HttpStatus.FORBIDDEN,
+            ex.localizedMessage,
+            request.requestURI,
+        )
 
     @ExceptionHandler(value = [JdbiException::class])
     private fun handleJdbiException(
@@ -144,7 +155,7 @@ class ExceptionHandler {
                 handleExceptionResponse(
                     URI("/problems/invalid-creation-request"),
                     "Invalid Creation Request",
-                    HttpStatus.BAD_REQUEST,
+                    HttpStatus.FORBIDDEN,
                     cause.localizedMessage,
                     request.requestURI
                 )
@@ -162,7 +173,7 @@ class ExceptionHandler {
                 handleExceptionResponse(
                     URI("/problems/no-start-state"),
                     "No Start State",
-                    HttpStatus.BAD_REQUEST,
+                    HttpStatus.FORBIDDEN,
                     "Can't create issue due to no starting state defined in the project",
                     request.requestURI
                 )
@@ -171,7 +182,7 @@ class ExceptionHandler {
                 handleExceptionResponse(
                     URI("/problems/invalid-state-transition"),
                     "Invalid State Transition",
-                    HttpStatus.BAD_REQUEST,
+                    HttpStatus.FORBIDDEN,
                     "Current state can't transition to the requested state",
                     request.requestURI
                 )
@@ -180,8 +191,17 @@ class ExceptionHandler {
                 handleExceptionResponse(
                     URI("/problems/archived-issue"),
                     "Issue Is Archived",
-                    HttpStatus.BAD_REQUEST,
-                    "Can't add a comment to an archived issue",
+                    HttpStatus.FORBIDDEN,
+                    "Can't add or edit a comment to an archived issue",
+                    request.requestURI
+                )
+            }
+            PsqlErrorCode.ForbiddenStateModification -> {
+                handleExceptionResponse(
+                    URI("/problems/forbidden-state-modification"),
+                    "State is reserved",
+                    HttpStatus.FORBIDDEN,
+                    "Cannot modify the 'closed' and 'archived' states",
                     request.requestURI
                 )
             }

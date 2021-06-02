@@ -282,15 +282,13 @@ class LabelsController(val db: LabelsDb, val issuesDb: IssuesDb) {
     }
 
     @RequiresAuth
-    @PutMapping(LABELS_OF_ISSUE_HREF)
+    @PutMapping(LABEL_BY_NUMBER_OF_ISSUE_HREF)
     fun addLabelToIssue(
         @PathVariable(name = PROJECT_PARAM) projectId: Int,
         @PathVariable(name = ISSUE_PARAM) issueNumber: Int,
-        @RequestBody input: LabelInputModel,
+        @PathVariable(name = LABEL_PARAM) labelNumber: Int,
     ): ResponseEntity<Response> {
-        if (input.name == null) throw InvalidInputException("Missing name")
-
-        db.addLabelToIssue(projectId, issueNumber, input.name)
+        db.addLabelToIssue(projectId, issueNumber, labelNumber)
 
         return ResponseEntity
             .status(HttpStatus.CREATED)

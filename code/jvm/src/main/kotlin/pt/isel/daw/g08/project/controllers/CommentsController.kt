@@ -27,6 +27,8 @@ import pt.isel.daw.g08.project.controllers.models.CommentOutputModel
 import pt.isel.daw.g08.project.controllers.models.CommentsOutputModel
 import pt.isel.daw.g08.project.database.dto.User
 import pt.isel.daw.g08.project.database.helpers.CommentsDb
+import pt.isel.daw.g08.project.database.helpers.IssuesDb
+import pt.isel.daw.g08.project.exceptions.ForbiddenException
 import pt.isel.daw.g08.project.exceptions.InvalidInputException
 import pt.isel.daw.g08.project.pipeline.argumentresolvers.Pagination
 import pt.isel.daw.g08.project.pipeline.interceptors.RequiresAuth
@@ -38,7 +40,10 @@ import pt.isel.daw.g08.project.responses.siren.SirenLink
 import pt.isel.daw.g08.project.responses.toResponseEntity
 
 @RestController
-class CommentsController(val db: CommentsDb) {
+class CommentsController(
+    val commentsDb: CommentsDb,
+    val issuesDb: IssuesDb
+) {
 
     @RequiresAuth
     @GetMapping(COMMENTS_HREF)
@@ -47,13 +52,34 @@ class CommentsController(val db: CommentsDb) {
         @PathVariable(name = ISSUE_PARAM) issueNumber: Int,
         pagination: Pagination
     ): ResponseEntity<Response> {
-        val comments = db.getAllCommentsFromIssue(pagination.page, pagination.limit, projectId, issueNumber)
-        val collectionSize = db.getCommentsCount(projectId, issueNumber)
+        val issue = issuesDb.getIssueByNumber(projectId, issueNumber)
+        val comments = commentsDb.getAllCommentsFromIssue(pagination.page, pagination.limit, projectId, issueNumber)
+        val collectionSize = commentsDb.getCommentsCount(projectId, issueNumber)
         val commentsModel = CommentsOutputModel(
             collectionSize = collectionSize,
             pageIndex = pagination.page,
             pageSize = comments.size
         )
+
+        val actions =
+            if (issue.state_name == "archived") {
+                null
+            } else {
+                listOf(
+                    SirenAction(
+                        name = "create-comment",
+                        title = "Create Comment",
+                        method = HttpMethod.PUT,
+                        href = getCommentsUri(projectId, issueNumber),
+                        type = INPUT_CONTENT_TYPE,
+                        fields = listOf(
+                            SirenActionField(name = "projectId", type = SirenFieldType.hidden, value = projectId),
+                            SirenActionField(name = "issueNumber", type = SirenFieldType.hidden, value = issueNumber),
+                            SirenActionField(name = "content", type = SirenFieldType.text)
+                        )
+                    )
+                )
+            }
 
         return commentsModel.toSirenObject(
             entities = comments.map {
@@ -78,20 +104,7 @@ class CommentsController(val db: CommentsDb) {
                     )
                 )
             },
-            actions = listOf(
-                SirenAction(
-                    name = "create-comment",
-                    title = "Create Comment",
-                    method = HttpMethod.PUT,
-                    href = getCommentsUri(projectId, issueNumber),
-                    type = INPUT_CONTENT_TYPE,
-                    fields = listOf(
-                        SirenActionField(name = "projectId", type = SirenFieldType.hidden, value = projectId),
-                        SirenActionField(name = "issueNumber", type = SirenFieldType.hidden, value = issueNumber),
-                        SirenActionField(name = "content", type = SirenFieldType.text)
-                    )
-                )
-            ),
+            actions = actions,
             links = createSirenLinkListForPagination(
                 getCommentsUri(projectId, issueNumber),
                 pagination.page,
@@ -111,7 +124,43 @@ class CommentsController(val db: CommentsDb) {
         @PathVariable(name = ISSUE_PARAM) issueNumber: Int,
         @PathVariable(name = COMMENT_PARAM) commentNumber: Int
     ): ResponseEntity<Response> {
-        val comment = db.getCommentByNumber(projectId, issueNumber, commentNumber)
+        val selfUri = getCommentByNumberUri(projectId, issueNumber, commentNumber)
+
+        val issue = issuesDb.getIssueByNumber(projectId, issueNumber)
+        val comment = commentsDb.getCommentByNumber(projectId, issueNumber, commentNumber)
+
+        val actions =
+            if (issue.state_name == "archived") {
+                null
+            } else {
+                listOf(
+                    SirenAction(
+                        name = "edit-comment",
+                        title = "Edit Comment",
+                        method = HttpMethod.PUT,
+                        href = selfUri,
+                        type = INPUT_CONTENT_TYPE,
+                        fields = listOf(
+                            SirenActionField(name = "projectId", type = SirenFieldType.hidden, value = projectId),
+                            SirenActionField(name = "issueNumber", type = SirenFieldType.hidden, value = issueNumber),
+                            SirenActionField(name = "commentNumber", type = SirenFieldType.hidden, value = comment.number),
+                            SirenActionField(name = "content", type = SirenFieldType.text)
+                        )
+                    ),
+                    SirenAction(
+                        name = "delete-comment",
+                        title = "Delete Comment",
+                        method = HttpMethod.DELETE,
+                        href = selfUri,
+                        fields = listOf(
+                            SirenActionField(name = "projectId", type = SirenFieldType.hidden, value = projectId),
+                            SirenActionField(name = "issueNumber", type = SirenFieldType.hidden, value = issueNumber),
+                            SirenActionField(name = "commentNumber", type = SirenFieldType.hidden, value = comment.number),
+                        )
+                    )
+                )
+            }
+
         val commentModel = CommentOutputModel(
             id = comment.cid,
             number = comment.number,
@@ -125,35 +174,8 @@ class CommentsController(val db: CommentsDb) {
             authorId = comment.author_id
         )
 
-        val selfUri = getCommentByNumberUri(projectId, issueNumber, commentNumber)
-
         return commentModel.toSirenObject(
-            actions = listOf(
-                SirenAction(
-                    name = "edit-comment",
-                    title = "Edit Comment",
-                    method = HttpMethod.PUT,
-                    href = selfUri,
-                    type = INPUT_CONTENT_TYPE,
-                    fields = listOf(
-                        SirenActionField(name = "projectId", type = SirenFieldType.hidden, value = projectId),
-                        SirenActionField(name = "issueNumber", type = SirenFieldType.hidden, value = issueNumber),
-                        SirenActionField(name = "commentNumber", type = SirenFieldType.hidden, value = commentModel.number),
-                        SirenActionField(name = "content", type = SirenFieldType.text)
-                    )
-                ),
-                SirenAction(
-                    name = "delete-comment",
-                    title = "Delete Comment",
-                    method = HttpMethod.DELETE,
-                    href = selfUri,
-                    fields = listOf(
-                        SirenActionField(name = "projectId", type = SirenFieldType.hidden, value = projectId),
-                        SirenActionField(name = "issueNumber", type = SirenFieldType.hidden, value = issueNumber),
-                        SirenActionField(name = "commentNumber", type = SirenFieldType.hidden, value = commentModel.number),
-                    )
-                )
-            ),
+            actions = actions,
             links = listOf(
                 SirenLink(listOf("self"), selfUri),
                 SirenLink(listOf("issue"), getIssueByNumberUri(projectId, issueNumber)),
@@ -173,7 +195,7 @@ class CommentsController(val db: CommentsDb) {
     ): ResponseEntity<Any> {
         if (input.content == null) throw InvalidInputException("Missing content")
 
-        val comment = db.createComment(projectId, issueNumber, user.uid, input.content)
+        val comment = commentsDb.createComment(projectId, issueNumber, user.uid, input.content)
         return ResponseEntity
             .status(HttpStatus.CREATED)
             .header("Location", getCommentByNumberUri(projectId, issueNumber, comment.number).toString())
@@ -190,7 +212,7 @@ class CommentsController(val db: CommentsDb) {
     ): ResponseEntity<Any> {
         if (input.content == null) throw InvalidInputException("Missing content")
 
-        db.editComment(projectId, issueNumber, commentNumber, input.content)
+        commentsDb.editComment(projectId, issueNumber, commentNumber, input.content)
         return ResponseEntity
             .status(HttpStatus.OK)
             .header("Location", getCommentByNumberUri(projectId, issueNumber, commentNumber).toString())
@@ -204,7 +226,10 @@ class CommentsController(val db: CommentsDb) {
         @PathVariable(name = ISSUE_PARAM) issueNumber: Int,
         @PathVariable(name = COMMENT_PARAM) commentNumber: Int
     ): ResponseEntity<Any> {
-        db.deleteComment(projectId, issueNumber, commentNumber)
+        val issue = issuesDb.getIssueByNumber(projectId, issueNumber)
+        if (issue.state_name == "archived") throw ForbiddenException("Cannot delete comments from 'archived' issues")
+
+        commentsDb.deleteComment(projectId, issueNumber, commentNumber)
 
         return ResponseEntity
             .status(HttpStatus.OK)

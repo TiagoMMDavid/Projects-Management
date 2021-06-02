@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useReducer, } from 'react'
 import { useParams } from 'react-router'
 import { Link, Redirect } from 'react-router-dom'
+import { getSirenAction } from '../../api/apiRoutes'
 import { Credentials, UserContext } from '../../utils/userSession'
 import { DeleteComment } from './DeleteComment'
 import { EditComment } from './EditComment'
@@ -89,37 +90,43 @@ function CommentPage({ getComment }: CommentPageProps): JSX.Element {
             body = (
                 <div>
                     <h4>{message}</h4>
-                    <EditComment
-                        comment={comment}
-                        onFinishEdit={(success, message) => {
-                            if (success) {
-                                dispatch({ type: 'set-edited-comment' })
-                            } else {
-                                dispatch({ type: 'loading-comment', message: message })
-                            }
-                        }}
-                        onEdit={() => dispatch({ type: 'set-message', message: 'Editing Comment...' })}
-                        credentials={ctx.credentials} 
-                    />
-                    <DeleteComment
-                        comment={comment}
-                        onFinishDelete={(success, message) => {
-                            if (success) {
-                                dispatch({ type: 'set-deleted-comment' })
-                            } else {
-                                dispatch({ type: 'loading-comment', message: message })
-                            }
-                        }}
-                        onDelete={() => dispatch({ type: 'set-message', message: 'Deleting Comment...' })}
-                        credentials={ctx.credentials}
-                    />
+                    { getSirenAction(comment.actions, 'edit-comment') != null ?
+                        <EditComment
+                            comment={comment}
+                            onFinishEdit={(success, message) => {
+                                if (success) {
+                                    dispatch({ type: 'set-edited-comment' })
+                                } else {
+                                    dispatch({ type: 'loading-comment', message: message })
+                                }
+                            }}
+                            onEdit={() => dispatch({ type: 'set-message', message: 'Editing Comment...' })}
+                            credentials={ctx.credentials} 
+                        /> 
+                        : <></>
+                    }
+                    { getSirenAction(comment.actions, 'delete-comment') != null ?
+                        <DeleteComment
+                            comment={comment}
+                            onFinishDelete={(success, message) => {
+                                if (success) {
+                                    dispatch({ type: 'set-deleted-comment' })
+                                } else {
+                                    dispatch({ type: 'loading-comment', message: message })
+                                }
+                            }}
+                            onDelete={() => dispatch({ type: 'set-message', message: 'Deleting Comment...' })}
+                            credentials={ctx.credentials}
+                        /> 
+                        : <></>
+                    }
                 </div>
             )
             break
     }
     return (
         <div>
-            <Link to={`/projects/${projectId}/comments`}>View all comments</Link>
+            <Link to={`/projects/${projectId}/issues/${issueNumber}/comments`}>View all comments</Link>
             {body}
             {comment == null ? <></> :  <Comment comment={comment}/>}
         </div>

@@ -104,9 +104,9 @@ class LabelsDb(
             )
         )
 
-    fun addLabelToIssue(projectId: Int, issueNumber: Int, labelName: String) {
+    fun addLabelToIssue(projectId: Int, issueNumber: Int, labelNumber: Int) {
         val issueId = issuesDb.getIssueByNumber(projectId, issueNumber).iid
-        val labelId = getLabelByName(projectId, labelName).lid
+        val labelId = getLabelByNumber(projectId, labelNumber).lid
 
         jdbi.insert(
             INSERT_LABEL_IN_ISSUE_QUERY, mapOf(

@@ -11,6 +11,7 @@ enum class PsqlErrorCode(val code: String) {
     NoStartState("P0005"),
     InvalidStateTransition("P0006"),
     ArchivedIssue("P0007"),
+    ForbiddenStateModification("P0008"),
 }
 
 fun JdbiException.getPsqlErrorCode(): PsqlErrorCode? {

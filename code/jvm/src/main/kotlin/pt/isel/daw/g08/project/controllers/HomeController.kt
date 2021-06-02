@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.RestController
 import pt.isel.daw.g08.project.Routes.BASE_URI
 import pt.isel.daw.g08.project.Routes.COMMENTS_HREF
 import pt.isel.daw.g08.project.Routes.COMMENT_BY_NUMBER_HREF
-import pt.isel.daw.g08.project.Routes.HOST
 import pt.isel.daw.g08.project.Routes.ISSUES_HREF
 import pt.isel.daw.g08.project.Routes.ISSUE_BY_NUMBER_HREF
 import pt.isel.daw.g08.project.Routes.LABELS_HREF
@@ -16,7 +15,6 @@ import pt.isel.daw.g08.project.Routes.LABEL_BY_NUMBER_HREF
 import pt.isel.daw.g08.project.Routes.NEXT_STATES_HREF
 import pt.isel.daw.g08.project.Routes.PROJECTS_HREF
 import pt.isel.daw.g08.project.Routes.PROJECT_BY_ID_HREF
-import pt.isel.daw.g08.project.Routes.SCHEME
 import pt.isel.daw.g08.project.Routes.STATES_HREF
 import pt.isel.daw.g08.project.Routes.STATE_BY_NUMBER_HREF
 import pt.isel.daw.g08.project.Routes.USERS_HREF

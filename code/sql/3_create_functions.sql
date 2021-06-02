@@ -36,13 +36,18 @@ $$
 $$
 LANGUAGE 'plpgsql';
 
--- Function to check if there is another start state
-CREATE FUNCTION func_validate_start_state()
+-- Function to check if there is another start state and to disable modifications to 'closed' and 'archived' states
+CREATE FUNCTION func_validate_state()
 RETURNS TRIGGER AS
 $$
     DECLARE
         oldStartState INT;
     BEGIN
+        -- Don't allow changing 'closed' and 'archived' states
+        IF OLD.name = 'closed' OR OLD.name = 'archived' THEN
+            RAISE SQLSTATE 'P0008' USING message = 'Cannot modify "closed" and "archived" states!';
+        END IF;
+	    
         IF NEW.is_start THEN
             SELECT sid INTO oldStartState
             FROM STATE
@@ -53,6 +58,26 @@ $$
             END IF;
         END IF;
 
+        RETURN NEW;
+    END;
+$$
+LANGUAGE 'plpgsql';
+
+-- Function to control state transitions
+CREATE FUNCTION func_validate_state_transitions()
+RETURNS TRIGGER AS
+$$
+    DECLARE
+        stateName VARCHAR(64);
+    BEGIN
+        SELECT name INTO stateName
+        FROM STATE
+        WHERE sid = NEW.from_sid;
+        
+        IF stateName = 'archived' THEN
+            RAISE SQLSTATE 'P0008' USING message = 'Cannot add transitions to "archived" state!';
+        END IF;
+        
         RETURN NEW;
     END;
 $$
@@ -103,7 +128,7 @@ $$
         WHERE ISSUE.iid = NEW.iid;
 
         IF stateName = 'archived' THEN
-            RAISE SQLSTATE 'P0007' USING message = 'Cannot add a comment to an archived issue!';
+            RAISE SQLSTATE 'P0007' USING message = 'Cannot add or edit a comment to an archived issue!';
         END IF;
         
         RETURN NEW;

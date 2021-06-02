@@ -9,7 +9,8 @@ DELETE FROM USERS;
 
 DROP TRIGGER IF EXISTS trig_insert_default_states ON PROJECT;
 DROP TRIGGER IF EXISTS trig_insert_start_state ON ISSUE;
-DROP TRIGGER IF EXISTS trig_validate_start_state ON STATE;
+DROP TRIGGER IF EXISTS trig_validate_state ON STATE;
+DROP TRIGGER IF EXISTS trig_validate_state_transitions ON STATETRANSITION;
 DROP TRIGGER IF EXISTS trig_check_issue_update ON ISSUE;
 DROP TRIGGER IF EXISTS trig_check_comment_validity ON COMMENT;
 DROP TRIGGER IF EXISTS trig_create_project_seq ON PROJECT;
@@ -22,7 +23,8 @@ DROP TRIGGER IF EXISTS trig_get_comment_number ON COMMENT;
 
 DROP FUNCTION IF EXISTS func_insert_default_states;
 DROP FUNCTION IF EXISTS func_insert_start_state;
-DROP FUNCTION IF EXISTS func_validate_start_state;
+DROP FUNCTION IF EXISTS func_validate_state;
+DROP FUNCTION IF EXISTS func_validate_state_transitions;
 DROP FUNCTION IF EXISTS func_check_issue_update;
 DROP FUNCTION IF EXISTS func_check_comment_validity;
 DROP FUNCTION IF EXISTS func_create_project_seq;

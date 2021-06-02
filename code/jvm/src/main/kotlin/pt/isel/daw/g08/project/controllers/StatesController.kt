@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
-import org.springframework.web.util.UriTemplate
 import pt.isel.daw.g08.project.Routes
 import pt.isel.daw.g08.project.Routes.INPUT_CONTENT_TYPE
 import pt.isel.daw.g08.project.Routes.NEXT_STATES_HREF
@@ -33,6 +32,7 @@ import pt.isel.daw.g08.project.controllers.models.StateOutputModel
 import pt.isel.daw.g08.project.controllers.models.StatesOutputModel
 import pt.isel.daw.g08.project.database.dto.User
 import pt.isel.daw.g08.project.database.helpers.StatesDb
+import pt.isel.daw.g08.project.exceptions.ForbiddenException
 import pt.isel.daw.g08.project.exceptions.InvalidInputException
 import pt.isel.daw.g08.project.pipeline.argumentresolvers.Pagination
 import pt.isel.daw.g08.project.pipeline.interceptors.RequiresAuth
@@ -130,8 +130,13 @@ class StatesController(val db: StatesDb) {
             authorId = state.author_id
         )
 
-        return stateModel.toSirenObject(
-                actions = listOf(
+        val actions =
+            if (state.name == "archived" || state.name == "closed") {
+                // Reserved states (cannot delete or edit)
+                null
+            } else {
+                listOf(
+
                     SirenAction(
                         name = "edit-state",
                         title = "Edit State",
@@ -154,8 +159,13 @@ class StatesController(val db: StatesDb) {
                             SirenActionField(name = "projectId", type = hidden, value = projectId),
                             SirenActionField(name = "stateNumber", type = hidden, value = stateNumber),
                         )
-                    ),
-                ),
+                    )
+                )
+            }
+
+
+        return stateModel.toSirenObject(
+                actions = actions,
                 links = listOf(
                     SirenLink(rel = listOf("self"), href = getStateByNumberUri(projectId, stateNumber)),
                     SirenLink(rel = listOf("author"), href = getUserByIdUri(state.author_id)),
@@ -252,7 +262,7 @@ class StatesController(val db: StatesDb) {
 
         return ResponseEntity
             .status(HttpStatus.CREATED)
-            .header("Location", Routes.getStateByNumberUri(projectId, state.number).toString())
+            .header("Location", getStateByNumberUri(projectId, state.number).toString())
             .body(null)
     }
 
@@ -261,7 +271,7 @@ class StatesController(val db: StatesDb) {
     fun editState(
         @PathVariable(name = PROJECT_PARAM) projectId: Int,
         @PathVariable(name = STATE_PARAM) stateNumber: Int,
-        @RequestBody input: StateInputModel,
+        @RequestBody input: StateInputModel
     ): ResponseEntity<Any> {
         if (input.name == null && input.isStart == null) throw InvalidInputException("Missing new name or new isStart")
 
@@ -278,6 +288,10 @@ class StatesController(val db: StatesDb) {
         @PathVariable(name = PROJECT_PARAM) projectId: Int,
         @PathVariable(name = STATE_PARAM) stateNumber: Int,
     ): ResponseEntity<Any> {
+        val state = db.getStateByNumber(projectId, stateNumber)
+        if (state.name == "archived" || state.name == "closed")
+            throw ForbiddenException("Cannot delete 'closed' and 'archived' states")
+
         db.deleteState(projectId, stateNumber)
 
         return ResponseEntity
@@ -293,7 +307,7 @@ class StatesController(val db: StatesDb) {
         @RequestBody input: NextStateInputModel
     ): ResponseEntity<Any> {
         if (input.state == null) throw InvalidInputException("Missing state")
-        if (db.getNextStatesCount(projectId, stateNumber) >= MAX_NEXT_STATES) throw InvalidInputException("Max next states reached (50)")
+        if (db.getNextStatesCount(projectId, stateNumber) >= MAX_NEXT_STATES) throw ForbiddenException("Maximum next states reached (50)")
         db.addNextState(projectId, stateNumber, input.state)
 
         return ResponseEntity
@@ -309,6 +323,11 @@ class StatesController(val db: StatesDb) {
         @PathVariable(name = STATE_PARAM) stateNumber: Int,
         @PathVariable(name = NEXT_STATE_PARAM) nextStateNumber: Int,
     ): ResponseEntity<Any> {
+        val state = db.getStateByNumber(projectId, stateNumber)
+        val nextState = db.getStateByNumber(projectId, nextStateNumber)
+        if (state.name == "closed" && nextState.name == "archived")
+            throw ForbiddenException("Cannot remove 'closed' to 'archived' transition")
+
         db.deleteNextState(projectId, stateNumber, nextStateNumber)
 
         return ResponseEntity

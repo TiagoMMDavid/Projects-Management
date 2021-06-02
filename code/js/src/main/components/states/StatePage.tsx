@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useReducer, } from 'react'
 import { useParams } from 'react-router'
 import { Link, Redirect } from 'react-router-dom'
+import { getSirenAction } from '../../api/apiRoutes'
 import { Credentials, UserContext } from '../../utils/userSession'
 import { DeleteState } from './DeleteState'
 import { EditState } from './EditState'
@@ -88,30 +89,36 @@ function StatePage({ getState }: StatePageProps): JSX.Element {
             body = (
                 <div>
                     <h4>{message}</h4>
-                    <EditState
-                        state={issueState}
-                        onFinishEdit={(success, message) => {
-                            if (success) {
-                                dispatch({ type: 'set-edited-state' })
-                            } else {
-                                dispatch({ type: 'loading-state', message: message })
-                            }
-                        }}
-                        onEdit={() => dispatch({ type: 'set-message', message: 'Editing State...' })}
-                        credentials={ctx.credentials} 
-                    />
-                    <DeleteState
-                        state={issueState}
-                        onFinishDelete={(success, message) => {
-                            if (success) {
-                                dispatch({ type: 'set-deleted-state' })
-                            } else {
-                                dispatch({ type: 'loading-state', message: message })
-                            }
-                        }}
-                        onDelete={() => dispatch({ type: 'set-message', message: 'Deleting State...' })}
-                        credentials={ctx.credentials}
-                    />
+                    { getSirenAction(issueState.actions, 'edit-state') != null ?
+                        <EditState
+                            state={issueState}
+                            onFinishEdit={(success, message) => {
+                                if (success) {
+                                    dispatch({ type: 'set-edited-state' })
+                                } else {
+                                    dispatch({ type: 'loading-state', message: message })
+                                }
+                            }}
+                            onEdit={() => dispatch({ type: 'set-message', message: 'Editing State...' })}
+                            credentials={ctx.credentials} 
+                        />
+                        : <></>
+                    }
+                    { getSirenAction(issueState.actions, 'delete-state') != null ?
+                        <DeleteState
+                            state={issueState}
+                            onFinishDelete={(success, message) => {
+                                if (success) {
+                                    dispatch({ type: 'set-deleted-state' })
+                                } else {
+                                    dispatch({ type: 'loading-state', message: message })
+                                }
+                            }}
+                            onDelete={() => dispatch({ type: 'set-message', message: 'Deleting State...' })}
+                            credentials={ctx.credentials}
+                        />
+                        : <></>
+                    }
                 </div>
             )
             break

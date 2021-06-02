@@ -3,10 +3,10 @@ import { createComment } from '../../api/comments'
 import { Credentials } from '../../utils/userSession'
 
 type CreateCommentProps = {
-    onFinishCreating: () => void
+    onFinishCreating: (success: boolean, message: string) => void
     onCreating: () => void
-    credentials: Credentials,
-    projectId: number,
+    credentials: Credentials
+    projectId: number
     issueNumber: number
 }
 
@@ -26,12 +26,7 @@ function CreateComment({onFinishCreating, onCreating, credentials, projectId, is
         setMessage('Creating comment...')
         onCreating()
         createComment(projectId, issueNumber, contentInput, credentials)
-            .then(res => {
-                if (!res) setMessage('Failed to create comment!')
-
-                setMessage(null)
-                onFinishCreating()
-            })
+            .then(res => onFinishCreating(res, res ? null : 'Failed to create comment'))
     }
 
     return (

@@ -5,6 +5,7 @@ import queryString from 'query-string'
 import { Paginated } from '../Paginated'
 import { CommentItem } from './CommentItem'
 import { CreateComment } from './CreateComment'
+import { getSirenAction } from '../../api/apiRoutes'
 
 type CommentsGetter = (projectId: number, issueNumber: number, page: number, credentials: Credentials) => Promise<IssueComments>
 
@@ -24,17 +25,17 @@ type State = {
 }
   
 type Action =
-    { type: 'set-loading' } |
-    { type: 'set-comments', comments: IssueComments } |
-    { type: 'reset-page' } |
+    { type: 'set-loading', message: string } |
+    { type: 'set-comments', comments: IssueComments, message: string } |
+    { type: 'reset-page', message: string} |
     { type: 'hide'} | 
     { type: 'set-message', message: string }
     
 function reducer(state: State, action: Action): State {
     switch (action.type) {
-        case 'set-loading': return { state: 'loading-comments', comments: null } as State
-        case 'set-comments': return { state: 'has-comments', comments: action.comments } as State
-        case 'reset-page': return { state: 'page-reset', comments: null } as State
+        case 'set-loading': return { state: 'loading-comments', comments: null, message: action.message } as State
+        case 'set-comments': return { state: 'has-comments', comments: action.comments, message: action.message } as State
+        case 'reset-page': return { state: 'page-reset', comments: null, message: action.message } as State
         case 'set-message': return { state: 'message', message: action.message} as State
         case 'hide': return { state: 'hide' } as State
     }
@@ -49,11 +50,11 @@ function CommentsPage({ getComments }: CommentsPageProps): JSX.Element {
     const ctx = useContext(UserContext)
 
     function getPage(page: number): void {
-        dispatch({type: 'set-loading'})
+        dispatch({type: 'set-loading'} as Action)
         getComments(Number(projectId), Number(issueNumber), page, ctx.credentials)
             .then(comments => {
                 if (!comments) dispatch({ type: 'set-message', message: 'Failed to get comments' } as Action)
-                else dispatch({ type: 'set-comments', comments: comments})
+                else dispatch({ type: 'set-comments', comments: comments, message: message})
             })
     }
 
@@ -77,6 +78,17 @@ function CommentsPage({ getComments }: CommentsPageProps): JSX.Element {
         case 'has-comments':
             commentsView = 
                 <div>
+                    <h4>{message}</h4>
+                    { getSirenAction(comments.actions, 'create-comment') != null ?
+                        <CreateComment
+                            onFinishCreating={(success, message) => dispatch({ type: 'reset-page', message: message } as Action)}
+                            onCreating={() => dispatch({type: 'hide'})}
+                            credentials={ctx.credentials} 
+                            projectId={Number(projectId)}
+                            issueNumber={Number(issueNumber)}
+                        />
+                        : <> </>
+                    }
                     <Paginated onChangePage={getPage} isLastPage={comments.isLastPage} page={comments.page}>
                         <h1>Comments</h1>
                         { comments.comments.length == 0 ? <p> No comments found </p> :
@@ -89,13 +101,6 @@ function CommentsPage({ getComments }: CommentsPageProps): JSX.Element {
     return (
         <div>
             <Link to={`/projects/${projectId}/issues/${issueNumber}`}>Back to issue</Link>
-            <CreateComment
-                onFinishCreating={() => dispatch({type: 'reset-page'})} 
-                onCreating={() => dispatch({type: 'hide'})}
-                credentials={ctx.credentials} 
-                projectId={Number(projectId)}
-                issueNumber={Number(issueNumber)}
-            />
             { commentsView }
         </div>
     )
