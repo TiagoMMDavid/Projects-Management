@@ -78,3 +78,5 @@ CREATE TABLE ISSUE_LABEL
     lid         INT REFERENCES LABEL(lid),
     PRIMARY KEY (iid, lid)
 );
+
+CREATE EXTENSION pg_trgm;

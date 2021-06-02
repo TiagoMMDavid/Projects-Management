@@ -28,7 +28,8 @@ type ProjectRoutes = {
 
 type LabelRoutes = {
     getLabelsRoute: NavigationLink,
-    getLabelRoute: NavigationLink
+    getLabelRoute: NavigationLink,
+    getIssueLabelsRoute: NavigationLink
 } 
 
 type StateRoutes = {
@@ -40,7 +41,6 @@ type StateRoutes = {
 type IssueRoutes = {
     getIssuesRoute: NavigationLink,
     getIssueRoute: NavigationLink,
-    getIssueLabelsRoute: NavigationLink
 }
 
 type CommentRoutes = {
@@ -109,6 +109,9 @@ function fetchRoutes(): Promise<ApiRoutes> {
                 },
                 getLabelRoute: {
                     hrefTemplate: getSirenLink(links, 'label').hrefTemplate 
+                },
+                getIssueLabelsRoute: {
+                    hrefTemplate: getSirenLink(links, 'issueLabels').hrefTemplate
                 }
             }
 
@@ -130,11 +133,7 @@ function fetchRoutes(): Promise<ApiRoutes> {
                 },
                 getIssueRoute: {
                     hrefTemplate: getSirenLink(links, 'issue').hrefTemplate
-                },
-                getIssueLabelsRoute: {
-                    hrefTemplate: getSirenLink(links, 'issueLabels').hrefTemplate
-                },
-
+                }
             }
 
             apiRoutes.comment = {

@@ -11,7 +11,7 @@ import { Header } from './components/Header'
 import { LoginPage } from './components/LoginPage'
 import { ProjectsPage } from './components/projects/ProjectsPage'
 import { ProjectPage } from './components/projects/ProjectPage'
-import { getLabel, getLabels } from './api/labels'
+import { getIssueLabels, getLabel, getProjectLabels, searchLabels } from './api/labels'
 import { getNextStates, getState, getStates } from './api/states'
 import { getIssue, getIssues } from './api/issues'
 import { getComment, getComments } from './api/comments'
@@ -25,6 +25,7 @@ import { CommentsPage } from './components/comments/CommentsPage'
 import { CommentPage } from './components/comments/CommentPage'
 import { UserPage } from './components/users/UserPage'
 import { UsersPage } from './components/users/UsersPage'
+import { IssueLabelsPage } from './components/issues/labels/IssueLabelsPage'
 
 
 const LOGIN_PATH = '/login'
@@ -40,6 +41,7 @@ const STATE_PATH = `${STATES_PATH}/:stateNumber`
 
 const ISSUES_PATH = `${PROJECT_PATH}/issues`
 const ISSUE_PATH = `${ISSUES_PATH}/:issueNumber`
+const ISSUE_LABELS_PATH = `${ISSUE_PATH}/labels`
 
 const COMMENTS_PATH = `${ISSUE_PATH}/comments`
 const COMMENT_PATH = `${COMMENTS_PATH}/:commentNumber`
@@ -106,7 +108,7 @@ function App(): JSX.Element {
                         <RequiresAuth loginPageRoute={LOGIN_PATH}>
                             {
                                 !resources ? <LoadingPage /> :
-                                    <LabelsPage getLabels={ getLabels }/>
+                                    <LabelsPage getLabels={ getProjectLabels }/>
                             }
                         </RequiresAuth>
                     </Route>
@@ -151,6 +153,14 @@ function App(): JSX.Element {
                             {
                                 !resources ? <LoadingPage /> :
                                     <IssuePage getIssue={ getIssue } getNextStates={ getNextStates }/>
+                            }
+                        </RequiresAuth>
+                    </Route>
+                    <Route exact path={ISSUE_LABELS_PATH}>
+                        <RequiresAuth loginPageRoute={LOGIN_PATH}>
+                            {
+                                !resources ? <LoadingPage /> :
+                                    <IssueLabelsPage getIssue={ getIssue } getIssueLabels={ getIssueLabels } searchLabels={ searchLabels }/>
                             }
                         </RequiresAuth>
                     </Route>

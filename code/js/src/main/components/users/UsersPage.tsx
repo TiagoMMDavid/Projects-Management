@@ -60,8 +60,12 @@ function UsersPage({ getUsers }: UsersPageProps): JSX.Element {
                 <div>
                     <Paginated onChangePage={getPage} isLastPage={users.isLastPage} page={users.page}>
                         <h1>Users</h1>
-                        { users.users.length == 0 ? <p> No users found </p> :
-                            users.users.map((user: User) => <UserItem key={user.id} user={user} />)}
+                        { users.users.length == 0 ? 
+                            <p> No users found </p> :
+                            <ul>
+                                {users.users.map((user: User) => <UserItem key={user.id} user={user} />)}
+                            </ul>
+                        }
                     </Paginated>
                 </div>
             )

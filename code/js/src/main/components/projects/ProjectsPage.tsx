@@ -67,8 +67,12 @@ function ProjectsPage({ getProjects }: ProjectsPageProps): JSX.Element {
                 <div>
                     <Paginated onChangePage={getPage} isLastPage={projects.isLastPage} page={projects.page}>
                         <h1>Projects</h1>
-                        { projects.projects.length == 0 ? <p> No projects found </p> :
-                            projects.projects.map((project: Project) => <ProjectItem key={project.id} project={project} />)}
+                        { projects.projects.length == 0 ? 
+                            <p> No projects found </p> :
+                            <ul>
+                                {projects.projects.map((project: Project) => <ProjectItem key={project.id} project={project} />)}
+                            </ul>
+                        }
                     </Paginated>
                 </div>
             break

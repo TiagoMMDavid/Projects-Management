@@ -3,11 +3,40 @@ import { apiRoutes, getRequestOptions } from '../api/apiRoutes'
 
 const LABELS_LIMIT = 10
 
-function getLabels(projectId: number, page: number, credentials: Credentials): Promise<Labels> {
-    return fetch(
-        apiRoutes.label.getLabelsRoute.hrefTemplate.expandUriTemplate(projectId).toPaginatedUri(page, LABELS_LIMIT), 
-        getRequestOptions('GET', credentials)
+function getProjectLabels(projectId: number, page: number, credentials: Credentials): Promise<Labels> {
+    return getLabels(
+        fetch(
+            apiRoutes.label.getLabelsRoute.hrefTemplate.expandUriTemplate(projectId).toPaginatedUri(page, LABELS_LIMIT), 
+            getRequestOptions('GET', credentials)
+        ), page
     )
+}
+
+function searchLabels(projectId: number, searchName: string, excludeIssueId: number, credentials: Credentials): Promise<Labels> {
+    let issueParam
+    if (excludeIssueId == null) issueParam = ''
+    else issueParam = `${searchName != null ? '&' : ''}excludeIssue=${excludeIssueId}`
+
+    const uri = `${apiRoutes.label.getLabelsRoute.hrefTemplate.expandUriTemplate(projectId)}` +
+                `?${searchName != null ? `q=${searchName}` : ''}` +
+                issueParam
+
+    return getLabels(
+        fetch(uri, getRequestOptions('GET', credentials))
+    )
+}
+
+function getIssueLabels(projectId: number, issueNumber: number, page: number, credentials: Credentials): Promise<Labels> {
+    return getLabels(
+        fetch(
+            apiRoutes.label.getIssueLabelsRoute.hrefTemplate.expandUriTemplate(projectId, issueNumber).toPaginatedUri(page, LABELS_LIMIT), 
+            getRequestOptions('GET', credentials)
+        ), page
+    )
+}
+
+function getLabels(promise: Promise<Response>, page = 0): Promise<Labels> {
+    return promise
         .then(res => res.status != 200 ? null : res.json())
         .then(collection => {
 
@@ -98,10 +127,31 @@ function deleteLabel(projectId: number, labelNumber: number, credentials: Creden
         .then(res => res.status == 200)
 }
 
+function addLabelToIssue(projectId: number, issueNumber: number, labelNumber: number, credentials: Credentials): Promise<boolean> {
+    return fetch(
+        `${apiRoutes.label.getIssueLabelsRoute.hrefTemplate.expandUriTemplate(projectId, issueNumber)}/${labelNumber}`,
+        getRequestOptions('PUT', credentials)
+    )
+        .then(res => res.status == 201)
+}
+
+
+function removeLabelFromIssue(projectId: number, issueNumber: number, labelNumber: number, credentials: Credentials): Promise<boolean> {
+    return fetch(
+        `${apiRoutes.label.getIssueLabelsRoute.hrefTemplate.expandUriTemplate(projectId, issueNumber)}/${labelNumber}`,
+        getRequestOptions('DELETE', credentials)
+    )
+        .then(res => res.status == 200)
+}
+
 export {
-    getLabels,
+    getProjectLabels,
+    getIssueLabels,
+    searchLabels,
     getLabel,
     createLabel,
     editLabel,
-    deleteLabel
+    deleteLabel,
+    addLabelToIssue,
+    removeLabelFromIssue
 }

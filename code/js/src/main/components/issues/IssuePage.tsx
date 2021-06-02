@@ -32,7 +32,8 @@ function Issue({ issue }: IssueProps): JSX.Element {
             <p>Creation Date: {new Date(issue.createDate).toLocaleString()}</p>
             {issue.closeDate == null ? <></> : <p>Close Date: {new Date(issue.closeDate).toLocaleString()}</p>}
             <p>Author: <Link to={`/users/${issue.authorId}`}>{issue.author}</Link></p>
-            <Link to={`/projects/${issue.projectId}/issues/${issue.number}/comments`}>View comments</Link>
+            <p><Link to={`/projects/${issue.projectId}/issues/${issue.number}/comments`}>View comments</Link></p>
+            <p><Link to={`/projects/${issue.projectId}/issues/${issue.number}/labels`}>View labels</Link></p>
         </div>
     )
 }

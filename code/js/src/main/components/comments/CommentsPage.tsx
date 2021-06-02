@@ -91,8 +91,12 @@ function CommentsPage({ getComments }: CommentsPageProps): JSX.Element {
                     }
                     <Paginated onChangePage={getPage} isLastPage={comments.isLastPage} page={comments.page}>
                         <h1>Comments</h1>
-                        { comments.comments.length == 0 ? <p> No comments found </p> :
-                            comments.comments.map((comment: IssueComment) => <CommentItem key={comment.id} comment={comment} />)}
+                        { comments.comments.length == 0 ? 
+                            <p> No comments found </p> :
+                            <ul>
+                                {comments.comments.map((comment: IssueComment) => <CommentItem key={comment.id} comment={comment} />)}
+                            </ul>
+                        }
                     </Paginated>
                 </div>
             break

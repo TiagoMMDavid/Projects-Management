@@ -7,13 +7,11 @@ type ProjectProps = {
 
 function ProjectItem({ project }: ProjectProps): JSX.Element {
     return (
-        <ul>
-            <li>
-                <p>Name: <Link to={`/projects/${project.id}`}>{project.name}</Link></p>
-                <p>Description: {project.description}</p>
-                <p>Author: <Link to={`/users/${project.authorId}`}>{project.author}</Link></p>
-            </li>
-        </ul>
+        <li>
+            <p>Name: <Link to={`/projects/${project.id}`}>{project.name}</Link></p>
+            <p>Description: {project.description}</p>
+            <p>Author: <Link to={`/users/${project.authorId}`}>{project.author}</Link></p>
+        </li>
     )
 }
 

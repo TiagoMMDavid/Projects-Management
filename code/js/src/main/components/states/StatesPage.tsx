@@ -78,8 +78,12 @@ function StatesPage({ getStates }: StatesPageProps): JSX.Element {
                 <div>
                     <Paginated onChangePage={getPage} isLastPage={states.isLastPage} page={states.page}>
                         <h1>States</h1>
-                        { states.states.length == 0 ? <p> No states found </p> :
-                            states.states.map((state: IssueState) => <StateItem key={state.id} state={state} />)}
+                        { states.states.length == 0 ? 
+                            <p> No states found </p> :
+                            <ul>
+                                {states.states.map((state: IssueState) => <StateItem key={state.id} state={state} />)}
+                            </ul>
+                        }
                     </Paginated>
                 </div>
             break

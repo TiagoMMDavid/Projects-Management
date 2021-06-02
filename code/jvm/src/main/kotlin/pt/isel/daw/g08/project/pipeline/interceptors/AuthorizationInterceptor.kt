@@ -41,8 +41,6 @@ class AuthorizationInterceptor(val db: UsersDb) : HandlerInterceptor {
     override fun preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any): Boolean {
         val routeHandler = handler as? HandlerMethod
 
-        Thread.sleep(500)
-
         if (routeHandler == null || !routeHandler.hasMethodAnnotation(RequiresAuth::class.java)) {
             return true
         }

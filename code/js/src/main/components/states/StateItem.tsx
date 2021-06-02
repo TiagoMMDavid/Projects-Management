@@ -7,12 +7,10 @@ type StateProps = {
 
 function StateItem({ state }: StateProps): JSX.Element {
     return (
-        <ul>
-            <li>
-                <p>Name: <Link to={`/projects/${state.projectId}/states/${state.number}`}>{state.name}</Link></p>
-                <p>Author: <Link to={`/users/${state.authorId}`}>{state.author}</Link></p>
-            </li>
-        </ul>
+        <li>
+            <p>Name: <Link to={`/projects/${state.projectId}/states/${state.number}`}>{state.name}</Link></p>
+            <p>Author: <Link to={`/users/${state.authorId}`}>{state.author}</Link></p>
+        </li>
     )
 }
 

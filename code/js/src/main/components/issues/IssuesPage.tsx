@@ -78,8 +78,12 @@ function IssuesPage({ getIssues }: IssuesPageProps): JSX.Element {
                 <div>
                     <Paginated onChangePage={getPage} isLastPage={issues.isLastPage} page={issues.page}>
                         <h1>Issues</h1>
-                        { issues.issues.length == 0 ? <p> No issues found </p> :
-                            issues.issues.map((issue: Issue) => <IssueItem key={issue.id} issue={issue} />)}
+                        { issues.issues.length == 0 ? 
+                            <p> No issues found </p> :
+                            <ul>
+                                {issues.issues.map((issue: Issue) => <IssueItem key={issue.id} issue={issue} />)}
+                            </ul>
+                        }
                     </Paginated>
                 </div>
             break

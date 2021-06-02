@@ -78,8 +78,12 @@ function LabelsPage({ getLabels }: LabelsPageProps): JSX.Element {
                 <div>
                     <Paginated onChangePage={getPage} isLastPage={labels.isLastPage} page={labels.page}>
                         <h1>Labels</h1>
-                        { labels.labels.length == 0 ? <p> No labels found </p> :
-                            labels.labels.map((label: Label) => <LabelItem key={label.id} label={label} />)}
+                        { labels.labels.length == 0 ? 
+                            <p> No labels found </p> :
+                            <ul>
+                                {labels.labels.map((label: Label) => <LabelItem key={label.id} label={label} />)}
+                            </ul>
+                        }
                     </Paginated>
                 </div>
             break

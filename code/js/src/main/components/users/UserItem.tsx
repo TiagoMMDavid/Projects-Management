@@ -7,12 +7,10 @@ type UserProps = {
 
 function UserItem({ user }: UserProps): JSX.Element {
     return (
-        <ul>
-            <li>
-                <p>Id: <Link to={`/users/${user.id}`}>{user.id}</Link></p>
-                <p>Name: {user.name}</p>
-            </li>
-        </ul>
+        <li>
+            <p>Id: <Link to={`/users/${user.id}`}>{user.id}</Link></p>
+            <p>Name: {user.name}</p>
+        </li>
     )
 }
 

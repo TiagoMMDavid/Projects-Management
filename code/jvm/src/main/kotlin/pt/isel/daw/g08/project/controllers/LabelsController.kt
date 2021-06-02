@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import pt.isel.daw.g08.project.Routes.EXCLUDE_ISSUE_PARAM
 import pt.isel.daw.g08.project.Routes.INPUT_CONTENT_TYPE
 import pt.isel.daw.g08.project.Routes.ISSUE_PARAM
 import pt.isel.daw.g08.project.Routes.LABELS_HREF
@@ -18,6 +20,7 @@ import pt.isel.daw.g08.project.Routes.LABEL_BY_NUMBER_HREF
 import pt.isel.daw.g08.project.Routes.LABEL_BY_NUMBER_OF_ISSUE_HREF
 import pt.isel.daw.g08.project.Routes.LABEL_PARAM
 import pt.isel.daw.g08.project.Routes.PROJECT_PARAM
+import pt.isel.daw.g08.project.Routes.SEARCH_PARAM
 import pt.isel.daw.g08.project.Routes.createSirenLinkListForPagination
 import pt.isel.daw.g08.project.Routes.getIssueByNumberUri
 import pt.isel.daw.g08.project.Routes.getLabelByNumberOfIssueUri
@@ -30,7 +33,6 @@ import pt.isel.daw.g08.project.controllers.models.LabelInputModel
 import pt.isel.daw.g08.project.controllers.models.LabelOutputModel
 import pt.isel.daw.g08.project.controllers.models.LabelsOutputModel
 import pt.isel.daw.g08.project.database.dto.User
-import pt.isel.daw.g08.project.database.helpers.IssuesDb
 import pt.isel.daw.g08.project.database.helpers.LabelsDb
 import pt.isel.daw.g08.project.exceptions.InvalidInputException
 import pt.isel.daw.g08.project.pipeline.argumentresolvers.Pagination
@@ -43,16 +45,18 @@ import pt.isel.daw.g08.project.responses.siren.SirenLink
 import pt.isel.daw.g08.project.responses.toResponseEntity
 
 @RestController
-class LabelsController(val db: LabelsDb, val issuesDb: IssuesDb) {
+class LabelsController(val db: LabelsDb) {
 
     @RequiresAuth
     @GetMapping(LABELS_HREF)
     fun getAllLabels(
         @PathVariable(name = PROJECT_PARAM) projectId: Int,
+        @RequestParam(name = SEARCH_PARAM) searchLabel: String?,
+        @RequestParam(name = EXCLUDE_ISSUE_PARAM) excludeIssue: Int?,
         pagination: Pagination
     ): ResponseEntity<Response> {
-        val labels = db.getAllLabelsFromProject(pagination.page, pagination.limit, projectId)
-        val collectionSize = db.getLabelsCountFromProject(projectId)
+        val labels = db.getAllLabelsFromProject(pagination.page, pagination.limit, projectId, searchLabel, excludeIssue)
+        val collectionSize = db.getLabelsCountFromProject(projectId, searchLabel, excludeIssue)
         val labelsModel = LabelsOutputModel(
             collectionSize = collectionSize,
             pageIndex = pagination.page,

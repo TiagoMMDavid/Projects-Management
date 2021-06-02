@@ -18,6 +18,8 @@ object Routes {
 
     const val PROJECT_PARAM = "projectId"
     const val ISSUE_PARAM = "issueNumber"
+    const val SEARCH_PARAM = "q"
+    const val EXCLUDE_ISSUE_PARAM = "excludeIssue"
     const val LABEL_PARAM = "labelNumber"
     const val STATE_PARAM = "stateNumber"
     const val NEXT_STATE_PARAM = "nextStateNumber"
