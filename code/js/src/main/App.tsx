@@ -12,7 +12,7 @@ import { LoginPage } from './components/LoginPage'
 import { ProjectsPage } from './components/projects/ProjectsPage'
 import { ProjectPage } from './components/projects/ProjectPage'
 import { getIssueLabels, getLabel, getProjectLabels, searchLabels } from './api/labels'
-import { getNextStates, getState, getStates } from './api/states'
+import { getNextStates, getProjectStates, getState, searchStates } from './api/states'
 import { getIssue, getIssues } from './api/issues'
 import { getComment, getComments } from './api/comments'
 import { LabelsPage } from './components/labels/LabelsPage'
@@ -26,6 +26,7 @@ import { CommentPage } from './components/comments/CommentPage'
 import { UserPage } from './components/users/UserPage'
 import { UsersPage } from './components/users/UsersPage'
 import { IssueLabelsPage } from './components/issues/labels/IssueLabelsPage'
+import { NextStatesPage } from './components/states/nextStates/NextStatesPage'
 
 
 const LOGIN_PATH = '/login'
@@ -38,6 +39,7 @@ const LABEL_PATH = `${LABELS_PATH}/:labelNumber`
 
 const STATES_PATH = `${PROJECT_PATH}/states`
 const STATE_PATH = `${STATES_PATH}/:stateNumber`
+const NEXT_STATES_PATH = `${STATE_PATH}/nextStates`
 
 const ISSUES_PATH = `${PROJECT_PATH}/issues`
 const ISSUE_PATH = `${ISSUES_PATH}/:issueNumber`
@@ -126,7 +128,7 @@ function App(): JSX.Element {
                         <RequiresAuth loginPageRoute={LOGIN_PATH}>
                             {
                                 !resources ? <LoadingPage /> :
-                                    <StatesPage getStates={ getStates }/>
+                                    <StatesPage getStates={ getProjectStates }/>
                             }
                         </RequiresAuth>
                     </Route>
@@ -135,6 +137,15 @@ function App(): JSX.Element {
                             {
                                 !resources ? <LoadingPage /> :
                                     <StatePage getState={ getState }/>
+                            }
+                        </RequiresAuth>
+                    </Route>
+
+                    <Route exact path={NEXT_STATES_PATH}>
+                        <RequiresAuth loginPageRoute={LOGIN_PATH}>
+                            {
+                                !resources ? <LoadingPage /> :
+                                    <NextStatesPage getState={ getState } getNextStates = { getNextStates } />
                             }
                         </RequiresAuth>
                     </Route>
@@ -160,7 +171,7 @@ function App(): JSX.Element {
                         <RequiresAuth loginPageRoute={LOGIN_PATH}>
                             {
                                 !resources ? <LoadingPage /> :
-                                    <IssueLabelsPage getIssue={ getIssue } getIssueLabels={ getIssueLabels } searchLabels={ searchLabels }/>
+                                    <IssueLabelsPage getIssue={ getIssue } getIssueLabels={ getIssueLabels } />
                             }
                         </RequiresAuth>
                     </Route>

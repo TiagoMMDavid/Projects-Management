@@ -20,6 +20,7 @@ object Routes {
     const val ISSUE_PARAM = "issueNumber"
     const val SEARCH_PARAM = "q"
     const val EXCLUDE_ISSUE_PARAM = "excludeIssue"
+    const val EXCLUDE_STATE_PARAM = "excludeState"
     const val LABEL_PARAM = "labelNumber"
     const val STATE_PARAM = "stateNumber"
     const val NEXT_STATE_PARAM = "nextStateNumber"

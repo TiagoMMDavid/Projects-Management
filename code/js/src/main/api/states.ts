@@ -2,12 +2,33 @@ import { Credentials } from '../utils/userSession'
 import { apiRoutes, getRequestOptions } from '../api/apiRoutes'
 
 const STATES_LIMIT = 10
+const MAX_NEXT_STATES = 50
 
-function getStates(projectId: number, page: number, credentials: Credentials): Promise<IssueStates> {
-    return fetch(
-        apiRoutes.state.getStatesRoute.hrefTemplate.expandUriTemplate(projectId).toPaginatedUri(page, STATES_LIMIT), 
-        getRequestOptions('GET', credentials)
+function getProjectStates(projectId: number, page: number, credentials: Credentials): Promise<IssueStates> {
+    return getStates(
+        fetch(
+            apiRoutes.state.getStatesRoute.hrefTemplate.expandUriTemplate(projectId).toPaginatedUri(page, STATES_LIMIT), 
+            getRequestOptions('GET', credentials)
+        )
     )
+}
+
+function searchStates(projectId: number, searchName: string, excludeStateId: number, credentials: Credentials): Promise<IssueStates> {
+    let stateParam
+    if (excludeStateId == null) stateParam = ''
+    else stateParam = `${searchName != null ? '&' : ''}excludeState=${excludeStateId}`
+
+    const uri = `${apiRoutes.state.getStatesRoute.hrefTemplate.expandUriTemplate(projectId)}` +
+                `?${searchName != null ? `q=${searchName}` : ''}` +
+                stateParam
+
+    return getStates(
+        fetch(uri, getRequestOptions('GET', credentials))
+    )
+}
+
+function getStates(promise: Promise<Response>, page = 0): Promise<IssueStates> {
+    return promise
         .then(res => res.status != 200 ? null : res.json())
         .then(collection => {
             if (!collection) return null
@@ -46,9 +67,12 @@ function getStates(projectId: number, page: number, credentials: Credentials): P
         })
 }
 
-function getNextStates(projectId: number, stateNumber: number, credentials: Credentials): Promise<NextStates> {
+function getNextStates(projectId: number, stateNumber: number, credentials: Credentials, page: number = null): Promise<IssueStates> {
+    const baseUri = apiRoutes.state.getNextStatesRoute.hrefTemplate.expandUriTemplate(projectId, stateNumber)
+    const uri = page == null ? baseUri.toPaginatedUri(0, MAX_NEXT_STATES) : baseUri.toPaginatedUri(page, STATES_LIMIT)
+
     return fetch(
-        apiRoutes.state.getNextStatesRoute.hrefTemplate.expandUriTemplate(projectId, stateNumber), 
+        uri, 
         getRequestOptions('GET', credentials)
     )
         .then(res => res.status != 200 ? null : res.json())
@@ -80,10 +104,12 @@ function getNextStates(projectId: number, stateNumber: number, credentials: Cred
 
             return {
                 states: states,
+                page: page,
+                isLastPage: page == null ? null : STATES_LIMIT * (collection.properties.pageIndex + 1) >= collection.properties.collectionSize,
             
                 links: links,
                 actions: actions,
-            } as NextStates
+            } as IssueStates
         })
 }
 
@@ -123,6 +149,14 @@ function createState(projectId: number, name: string, isStartState: boolean, cre
         .then(res => res.status == 201)
 }
 
+function addNextState(projectId: number, stateNumber: number, nextStateNumber: number, credentials: Credentials): Promise<boolean> {
+    return fetch(
+        `${apiRoutes.state.getNextStatesRoute.hrefTemplate.expandUriTemplate(projectId, stateNumber)}/${nextStateNumber}`,
+        getRequestOptions('PUT', credentials)
+    )
+        .then(res => res.status == 201)
+}
+
 function editState(projectId: number, stateNumber: number, name: string, isStartState: boolean, credentials: Credentials): Promise<boolean> {
     return fetch(
         apiRoutes.state.getStateRoute.hrefTemplate.expandUriTemplate(projectId, stateNumber), 
@@ -142,11 +176,22 @@ function deleteState(projectId: number, stateNumber: number, credentials: Creden
         .then(res => res.status == 200)
 }
 
+function deleteNextState(projectId: number, stateNumber: number, nextStateNumber: number, credentials: Credentials): Promise<boolean> {
+    return fetch(
+        `${apiRoutes.state.getNextStatesRoute.hrefTemplate.expandUriTemplate(projectId, stateNumber)}/${nextStateNumber}`,
+        getRequestOptions('DELETE', credentials)
+    )
+        .then(res => res.status == 200)
+}
+
 export {
-    getStates,
+    getProjectStates,
+    searchStates,
     getNextStates,
     getState,
     createState,
+    addNextState,
     editState,
-    deleteState
+    deleteState,
+    deleteNextState
 }

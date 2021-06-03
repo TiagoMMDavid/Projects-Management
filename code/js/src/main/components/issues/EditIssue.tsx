@@ -4,7 +4,7 @@ import { Credentials } from '../../utils/userSession'
 
 type EditIssueProps = {
     issue: Issue
-    nextStates: NextStates
+    nextStates: IssueStates
     onFinishEdit: (success: boolean, message: string) => void
     onEdit: () => void
     credentials: Credentials

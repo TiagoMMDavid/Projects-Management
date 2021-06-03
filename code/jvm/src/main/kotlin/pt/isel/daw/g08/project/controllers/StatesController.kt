@@ -9,13 +9,17 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.util.UriTemplate
 import pt.isel.daw.g08.project.Routes
+import pt.isel.daw.g08.project.Routes.EXCLUDE_STATE_PARAM
 import pt.isel.daw.g08.project.Routes.INPUT_CONTENT_TYPE
 import pt.isel.daw.g08.project.Routes.NEXT_STATES_HREF
 import pt.isel.daw.g08.project.Routes.NEXT_STATE_BY_NUMBER_HREF
 import pt.isel.daw.g08.project.Routes.NEXT_STATE_PARAM
 import pt.isel.daw.g08.project.Routes.PROJECT_PARAM
+import pt.isel.daw.g08.project.Routes.SEARCH_PARAM
 import pt.isel.daw.g08.project.Routes.STATES_HREF
 import pt.isel.daw.g08.project.Routes.STATE_BY_NUMBER_HREF
 import pt.isel.daw.g08.project.Routes.STATE_PARAM
@@ -26,7 +30,6 @@ import pt.isel.daw.g08.project.Routes.getStateByNumberUri
 import pt.isel.daw.g08.project.Routes.getStatesUri
 import pt.isel.daw.g08.project.Routes.getUserByIdUri
 import pt.isel.daw.g08.project.controllers.models.NextStateInputModel
-import pt.isel.daw.g08.project.controllers.models.NextStatesOutputModel
 import pt.isel.daw.g08.project.controllers.models.StateInputModel
 import pt.isel.daw.g08.project.controllers.models.StateOutputModel
 import pt.isel.daw.g08.project.controllers.models.StatesOutputModel
@@ -41,6 +44,7 @@ import pt.isel.daw.g08.project.responses.siren.SirenAction
 import pt.isel.daw.g08.project.responses.siren.SirenActionField
 import pt.isel.daw.g08.project.responses.siren.SirenFieldType.checkbox
 import pt.isel.daw.g08.project.responses.siren.SirenFieldType.hidden
+import pt.isel.daw.g08.project.responses.siren.SirenFieldType.number
 import pt.isel.daw.g08.project.responses.siren.SirenFieldType.text
 import pt.isel.daw.g08.project.responses.siren.SirenLink
 import pt.isel.daw.g08.project.responses.toResponseEntity
@@ -54,11 +58,13 @@ class StatesController(val db: StatesDb) {
     @GetMapping(STATES_HREF)
     fun getAllStates(
         @PathVariable(PROJECT_PARAM) projectId: Int,
+        @RequestParam(name = SEARCH_PARAM) searchState: String?,
+        @RequestParam(name = EXCLUDE_STATE_PARAM) excludeState: Int?,
         pagination: Pagination
     ): ResponseEntity<Response> {
-        val states = db.getAllStatesFromProject(pagination.page, pagination.limit, projectId)
+        val states = db.getAllStatesFromProject(pagination.page, pagination.limit, projectId, searchState, excludeState)
 
-        val collectionSize = db.getStatesCount(projectId)
+        val collectionSize = db.getStatesCount(projectId, searchState, excludeState)
         val statesModel = StatesOutputModel(
             collectionSize = collectionSize,
             pageIndex = pagination.page,
@@ -93,7 +99,7 @@ class StatesController(val db: StatesDb) {
                     SirenAction(
                         name = "create-state",
                         title = "Create State",
-                        method = HttpMethod.PUT,
+                        method = HttpMethod.POST,
                         href = statesUri,
                         type = INPUT_CONTENT_TYPE,
                         fields = listOf(
@@ -180,15 +186,40 @@ class StatesController(val db: StatesDb) {
     @GetMapping(NEXT_STATES_HREF)
     fun getNextStates(
         @PathVariable(name = PROJECT_PARAM) projectId: Int,
-        @PathVariable(name = STATE_PARAM) stateNumber: Int
+        @PathVariable(name = STATE_PARAM) stateNumber: Int,
+        pagination: Pagination
     ): ResponseEntity<Response> {
-        val states = db.getNextStates(projectId, stateNumber)
+        val states = db.getNextStates(projectId, stateNumber, pagination.page, pagination.limit)
         val collectionSize = db.getNextStatesCount(projectId, stateNumber)
-        val statesModel = NextStatesOutputModel(
+        val statesModel = StatesOutputModel(
             collectionSize = collectionSize,
+            pageIndex = pagination.page,
+            pageSize = states.size
         )
 
         val nextStatesUri = getNextStatesUri(projectId, stateNumber)
+
+        val state = db.getStateByNumber(projectId, stateNumber)
+
+        val actions =
+            if (state.name == "archived") {
+                null
+            } else {
+                listOf(
+                    SirenAction(
+                        name = "create-next-state",
+                        title = "Create Next State",
+                        method = HttpMethod.PUT,
+                        hrefTemplate = UriTemplate("$nextStatesUri/{$NEXT_STATE_PARAM}"),
+                        type = INPUT_CONTENT_TYPE,
+                        fields = listOf(
+                            SirenActionField(name = "projectId", type = hidden, value = projectId),
+                            SirenActionField(name = "stateNumber", type = hidden, value = stateNumber),
+                            SirenActionField(name = NEXT_STATE_PARAM, type = number),
+                        )
+                    )
+                )
+            }
 
         return statesModel.toSirenObject(
                 entities = states.map {
@@ -226,20 +257,7 @@ class StatesController(val db: StatesDb) {
                         )
                     )
                 },
-                actions = listOf(
-                    SirenAction(
-                        name = "create-next-state",
-                        title = "Create Next State",
-                        method = HttpMethod.PUT,
-                        href = nextStatesUri,
-                        type = INPUT_CONTENT_TYPE,
-                        fields = listOf(
-                            SirenActionField(name = "projectId", type = hidden, value = projectId),
-                            SirenActionField(name = "stateNumber", type = hidden, value = stateNumber),
-                            SirenActionField(name = "state", type = text),
-                        )
-                    )
-                ),
+                actions = actions,
                 links = listOf(
                     SirenLink(rel = listOf("self"), href = getNextStatesUri(projectId, stateNumber)),
                     SirenLink(rel = listOf("project"), href = getProjectByIdUri(projectId)),
@@ -300,15 +318,14 @@ class StatesController(val db: StatesDb) {
     }
 
     @RequiresAuth
-    @PutMapping(NEXT_STATES_HREF)
+    @PutMapping(NEXT_STATE_BY_NUMBER_HREF)
     fun addNextState(
         @PathVariable(name = PROJECT_PARAM) projectId: Int,
         @PathVariable(name = STATE_PARAM) stateNumber: Int,
-        @RequestBody input: NextStateInputModel
+        @PathVariable(name = NEXT_STATE_PARAM) nextStateNumber: Int
     ): ResponseEntity<Any> {
-        if (input.state == null) throw InvalidInputException("Missing state")
         if (db.getNextStatesCount(projectId, stateNumber) >= MAX_NEXT_STATES) throw ForbiddenException("Maximum next states reached (50)")
-        db.addNextState(projectId, stateNumber, input.state)
+        db.addNextState(projectId, stateNumber, nextStateNumber)
 
         return ResponseEntity
             .status(HttpStatus.CREATED)

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
+import org.springframework.web.util.UriTemplate
 import pt.isel.daw.g08.project.responses.Response
 import java.net.URI
 
@@ -14,7 +15,9 @@ data class SirenAction(
     val name: String,
     val title: String,
     val method: HttpMethod,
-    val href: URI,
+    val href: URI? = null,
+    @JsonSerialize(using = ToStringSerializer::class)
+    val hrefTemplate: UriTemplate? = null,
     @JsonSerialize(using = ToStringSerializer::class)
     val type: MediaType? = null,
     var fields: List<SirenActionField>? = null

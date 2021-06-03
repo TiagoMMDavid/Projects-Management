@@ -6,8 +6,13 @@ import pt.isel.daw.g08.project.database.dto.State
 
 private const val GET_STATES_BASE = "SELECT sid, number, name, is_start, project_id, project_name, author_id, author_name FROM V_STATE"
 
-private const val GET_STATES_FROM_PROJECT_QUERY = "$GET_STATES_BASE WHERE project_id = :pid ORDER BY number"
+private const val GET_STATES_FROM_PROJECT_QUERY = "$GET_STATES_BASE WHERE project_id = :pid"
 private const val GET_STATES_COUNT = "SELECT COUNT(sid) as count FROM STATE WHERE project = :pid"
+private const val GET_STATES_FROM_PROJECT_EXCLUDING_STATE_QUERY =
+    "$GET_STATES_BASE WHERE project_id = :pid AND sid NOT IN (SELECT to_sid FROM STATETRANSITION WHERE from_sid=:stateId)"
+private const val GET_STATES_COUNT_FROM_PROJECT_EXCLUDING_STATE =
+    "SELECT COUNT(sid) as count FROM STATE WHERE project = :pid AND sid NOT IN (SELECT to_sid FROM STATETRANSITION WHERE from_sid=:stateId)"
+
 private const val GET_STATE_QUERY = "$GET_STATES_BASE WHERE project_id = :projectId AND number = :stateNumber"
 private const val GET_STATE_BY_NAME_QUERY = "$GET_STATES_BASE WHERE project_id = :projectId AND name = :stateName"
 private const val GET_STATE_BY_ID_QUERY = "$GET_STATES_BASE WHERE sid = :sid"
@@ -34,12 +39,53 @@ class StatesDb(
     val jdbi: Jdbi
 ) {
 
-    fun getAllStatesFromProject(page: Int, perPage: Int, projectId: Int): List<State> {
+    fun getAllStatesFromProject(page: Int, perPage: Int, projectId: Int, searchState: String?, stateIdToExclude: Int?): List<State> {
         projectsDb.getProjectById(projectId) // Check if project exists (will throw exception if not found)
-        return jdbi.getList(GET_STATES_FROM_PROJECT_QUERY, State::class.java, page, perPage, mapOf("pid" to projectId))
+
+        val binds = mutableMapOf<String, Any>("pid" to projectId)
+
+        val query = buildString {
+            if (stateIdToExclude != null) {
+                binds["stateId"] = stateIdToExclude
+                append(GET_STATES_FROM_PROJECT_EXCLUDING_STATE_QUERY)
+            }
+            else {
+                append(GET_STATES_FROM_PROJECT_QUERY)
+            }
+
+            if (searchState == null) {
+                append(" ORDER BY number")
+            } else {
+                binds["search"] = searchState
+                append(" AND SIMILARITY(name, :search) > 0 ORDER BY SIMILARITY(name, :search) DESC")
+            }
+        }
+
+        return jdbi.getList(query, State::class.java, page, perPage, binds)
     }
 
-    fun getStatesCount(projectId: Int) = jdbi.getOne(GET_STATES_COUNT, Int::class.java, mapOf("pid" to projectId))
+    fun getStatesCount(projectId: Int, searchState: String?, stateIdToExclude: Int?): Int {
+        projectsDb.getProjectById(projectId) // Check if project exists (will throw exception if not found)
+
+        val binds = mutableMapOf<String, Any>("pid" to projectId)
+
+        val query = buildString {
+            if (stateIdToExclude != null) {
+                binds["stateId"] = stateIdToExclude
+                append(GET_STATES_COUNT_FROM_PROJECT_EXCLUDING_STATE)
+            }
+            else {
+                append(GET_STATES_COUNT)
+            }
+
+            if (searchState != null) {
+                binds["search"] = searchState
+                append(" AND SIMILARITY(name, :search) > 0")
+            }
+        }
+
+        return jdbi.getOne(query, Int::class.java, binds)
+    }
 
     fun getStateByNumber(projectId: Int, stateNumber: Int) =
         jdbi.getOne(GET_STATE_QUERY, State::class.java,
@@ -58,9 +104,10 @@ class StatesDb(
             )
         )
 
-    fun getNextStates(projectId: Int, stateNumber: Int): List<State> {
+    fun getNextStates(projectId: Int, stateNumber: Int, page: Int, limit: Int): List<State> {
         projectsDb.getProjectById(projectId) // Check if project exists (will throw exception if not found)
         return jdbi.getList(GET_NEXT_STATES_QUERY, State::class.java,
+            page, limit,
             mapOf(
                 "projectId" to projectId,
                 "stateNumber" to stateNumber
@@ -91,9 +138,9 @@ class StatesDb(
         )
     }
 
-    fun addNextState(projectId: Int, stateNumber: Int, toStateName: String) {
+    fun addNextState(projectId: Int, stateNumber: Int, nextStateNumber: Int) {
         val fromSid = getStateByNumber(projectId, stateNumber).sid
-        val toSid = getStateByName(projectId, toStateName).sid
+        val toSid = getStateByNumber(projectId, nextStateNumber).sid
 
         jdbi.insert(
             ADD_NEXT_STATE_QUERY,

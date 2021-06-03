@@ -1,4 +1,4 @@
-import React, { HTMLAttributes, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { addLabelToIssue, searchLabels } from '../../../api/labels'
 import { Credentials } from '../../../utils/userSession'
@@ -55,6 +55,7 @@ function SearchIssueLabels({ issue, onAdd, onFinishAdd, credentials }: SearchIss
 
     return (
         <div>
+            <h1>Add Label</h1>
             <input type="text" maxLength={64} placeholder="Search label" onChange={handleSearch} />
             <h4>{message}</h4>
             { searchResults ?

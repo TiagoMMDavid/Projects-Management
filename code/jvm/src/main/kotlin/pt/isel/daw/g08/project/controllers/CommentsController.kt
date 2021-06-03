@@ -69,7 +69,7 @@ class CommentsController(
                     SirenAction(
                         name = "create-comment",
                         title = "Create Comment",
-                        method = HttpMethod.PUT,
+                        method = HttpMethod.POST,
                         href = getCommentsUri(projectId, issueNumber),
                         type = INPUT_CONTENT_TYPE,
                         fields = listOf(

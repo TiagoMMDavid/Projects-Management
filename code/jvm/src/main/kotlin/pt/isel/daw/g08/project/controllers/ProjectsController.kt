@@ -77,7 +77,7 @@ class ProjectsController(val db: ProjectsDb) {
                 SirenAction(
                     name = "create-project",
                     title = "Create Project",
-                    method = HttpMethod.PUT,
+                    method = HttpMethod.POST,
                     href = URI(PROJECTS_HREF),
                     type = INPUT_CONTENT_TYPE,
                     fields = listOf(

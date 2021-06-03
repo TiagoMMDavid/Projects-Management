@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.util.UriTemplate
 import pt.isel.daw.g08.project.Routes.EXCLUDE_ISSUE_PARAM
 import pt.isel.daw.g08.project.Routes.INPUT_CONTENT_TYPE
 import pt.isel.daw.g08.project.Routes.ISSUE_PARAM
@@ -89,7 +90,7 @@ class LabelsController(val db: LabelsDb) {
                 SirenAction(
                     name = "create-label",
                     title = "Create Label",
-                    method = HttpMethod.PUT,
+                    method = HttpMethod.POST,
                     href = labelsUri,
                     type = INPUT_CONTENT_TYPE,
                     fields = listOf(
@@ -264,12 +265,12 @@ class LabelsController(val db: LabelsDb) {
                     name = "add-label-to-issue",
                     title = "Add Label To Issue",
                     method = HttpMethod.PUT,
-                    href = issueLabelsUri,
+                    hrefTemplate = UriTemplate("$issueLabelsUri/{$LABEL_PARAM}"),
                     type = INPUT_CONTENT_TYPE,
                     fields = listOf(
                         SirenActionField(name = "projectId", type = SirenFieldType.hidden, value = projectId),
                         SirenActionField(name = "issueNumber", type = SirenFieldType.hidden, value = issueNumber),
-                        SirenActionField(name = "name", type = SirenFieldType.text)
+                        SirenActionField(name = LABEL_PARAM, type = SirenFieldType.number)
                     )
                 )
             ),

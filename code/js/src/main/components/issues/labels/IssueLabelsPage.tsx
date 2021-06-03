@@ -10,7 +10,6 @@ import { SearchIssueLabels } from './SearchIssueLabels'
 type LabelsPageProps = {
     getIssue: (projectId: number, issueNumber: number, credentials: Credentials) => Promise<Issue>
     getIssueLabels: (projectId: number, issueNumber: number, page: number, credentials: Credentials) => Promise<Labels>
-    searchLabels: (projectId: number, searchLabel: string, excludeIssueId: number, credentials: Credentials) => Promise<Labels>
 }
 
 type LabelsPageParams = {
@@ -46,7 +45,7 @@ function reducer(state: State, action: Action): State {
     }
 }
 
-function IssueLabelsPage({ getIssue, getIssueLabels, searchLabels }: LabelsPageProps): JSX.Element {
+function IssueLabelsPage({ getIssue, getIssueLabels }: LabelsPageProps): JSX.Element {
     const { projectId, issueNumber } = useParams<LabelsPageParams>()
 
     const page = Number(queryString.parse(useLocation().search).page) || 0
@@ -65,7 +64,7 @@ function IssueLabelsPage({ getIssue, getIssueLabels, searchLabels }: LabelsPageP
             })
             .then(issueLabels => {
                 if (!issueLabels.issue) dispatch({ type: 'set-message', message: 'Issue Not Found' })
-                else if (!issueLabels.labels) dispatch({ type: 'set-message', message: 'Error While Getting labels' })
+                else if (!issueLabels.labels) dispatch({ type: 'set-message', message: 'Error While Getting Labels' })
                 else dispatch({type: 'set-labels', issueLabels: issueLabels, message: message})
             })
     }

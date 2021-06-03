@@ -127,7 +127,14 @@ function StatePage({ getState }: StatePageProps): JSX.Element {
         <div>
             <Link to={`/projects/${projectId}/states`}>View all states</Link>
             {body}
-            {issueState == null ? <></> :  <State issueState={issueState}/>}
+            {issueState == null ? <></> :  
+                <div>
+                    <State issueState={issueState}/>
+                    <Link to={`/projects/${projectId}/states/${issueState.number}/nextStates`}>View state transitions</Link>
+                </div>
+                
+            }
+            
         </div>
     )
 }

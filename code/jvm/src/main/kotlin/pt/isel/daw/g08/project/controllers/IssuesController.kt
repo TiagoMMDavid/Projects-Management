@@ -88,7 +88,7 @@ class IssuesController(val db: IssuesDb) {
                 SirenAction(
                     name = "create-issue",
                     title = "Create Issue",
-                    method = HttpMethod.PUT,
+                    method = HttpMethod.POST,
                     href = getIssuesUri(projectId),
                     type = INPUT_CONTENT_TYPE,
                     fields = listOf(

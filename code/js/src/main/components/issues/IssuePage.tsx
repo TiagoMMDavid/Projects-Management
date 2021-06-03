@@ -7,14 +7,14 @@ import { EditIssue } from './EditIssue'
 
 type IssuePageProps = {
     getIssue: (projectId: number, issueNumber: number, credentials: Credentials) => Promise<Issue>
-    getNextStates: (projectId: number, stateNumber: number, credentials: Credentials) => Promise<NextStates>
+    getNextStates: (projectId: number, stateNumber: number, credentials: Credentials) => Promise<IssueStates>
 }
 type IssueProps = {
     issue: Issue
 }
 type IssueNextStates = {
     issue: Issue,
-    nextStates: NextStates
+    nextStates: IssueStates
 }
 
 type IssuePageParams = {

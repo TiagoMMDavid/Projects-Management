@@ -27,13 +27,6 @@ class StatesOutputModel(
 
 }
 
-class NextStatesOutputModel(
-    val collectionSize: Int
-) : OutputModel() {
-    override fun getSirenClasses(): List<SirenClass> = listOf(state, collection)
-
-}
-
 data class StateInputModel(
     val name: String?,
     val isStart: Boolean?,

@@ -7,13 +7,6 @@ type IssueStates = {
     actions: SirenAction[]
 }
 
-type NextStates = {
-    states: IssueState[],
-
-    links: SirenLink[]
-    actions: SirenAction[]
-}
-
 type IssueState = {
     id: number,
     number: number,
