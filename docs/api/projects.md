@@ -144,7 +144,7 @@ Status: 200 OK
     {
       "name": "create-project",
       "title": "Create Project",
-      "method": "PUT",
+      "method": "POST",
       "href": "http://localhost:8080/api/projects",
       "type": "application/x-www-form-urlencoded",
       "fields": [
@@ -294,7 +294,7 @@ Status: 404 Not Found
 Create a project.
 
 ```http
-PUT /api/projects
+POST /api/projects
 ```
 
 #### Parameters
