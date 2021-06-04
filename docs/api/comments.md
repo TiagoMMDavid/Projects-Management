@@ -28,11 +28,31 @@ A comment is a short text, used to comment an issue. An issue can have a sequenc
     * non editable, auto-assigned
     * type: **text**
     * example: `"issue 1"`
+* `issueNumber` - Stable identifier of a issue relative to a project
+    * mandatory
+    * non editable, auto-assigned
+    * type: **number**
+    * example: `1`
+* `project` - Name of the project where the issue is inserted
+    * mandatory
+    * non editable, auto-assigned
+    * type: **text**
+    * example: `"project 1"`
+* `projectId` - Unique and stable global identifier of a project
+    * mandatory
+    * non editable, auto-assigned
+    * type: **number**
+    * example: `1`
 * `author` - Name of the comment's creator
     * mandatory
     * non editable, auto-assigned
     * type: **text**
     * example: `"John Doe"`
+* `authorId` - Unique and stable global identifier of the comment's creator
+    * mandatory
+    * non editable, auto-assigned
+    * type: **number**
+    * example: `1`
 
 ## Link relations
 * [self](#get-comment)
@@ -86,7 +106,11 @@ Status: 200 OK
         "content": "First comment",
         "createDate": "2021-04-20T20:00:00.123456+01:00",
         "issue": "issue 1",
-        "author": "user1"
+        "issueNumber": 1,
+        "project": "project 1",
+        "projectId": 1,
+        "author": "user1",
+        "authorId": 1
       },
       "links": [
         {
@@ -116,7 +140,11 @@ Status: 200 OK
         "content": "Second comment",
         "createDate": "2021-04-20T21:00:00.123456+01:00",
         "issue": "issue 1",
-        "author": "user1"
+        "issueNumber": 1,
+        "project": "project 1",
+        "projectId": 1,
+        "author": "user1",
+        "authorId": 1
       },
       "links": [
         {
@@ -142,9 +170,9 @@ Status: 200 OK
     {
       "name": "create-comment",
       "title": "Create Comment",
-      "method": "PUT",
+      "method": "POST",
       "href": "http://localhost:8080/api/projects/1/issues/1/comments",
-      "type": "application/x-www-form-urlencoded",
+      "type": "application/json",
       "fields": [
         {
           "name": "projectId",
@@ -228,7 +256,11 @@ Status: 200 OK
     "content": "First comment",
     "createDate": "2021-04-20T20:00:00.123456+01:00",
     "issue": "issue 1",
-    "author": "user1"
+    "issueNumber": 1,
+    "project": "project 1",
+    "projectId": 1,
+    "author": "user1",
+    "authorId": 1
   },
   "actions": [
     {
@@ -236,7 +268,7 @@ Status: 200 OK
       "title": "Edit Comment",
       "method": "PUT",
       "href": "http://localhost:8080/api/projects/1/issues/1/comments/1",
-      "type": "application/x-www-form-urlencoded",
+      "type": "application/json",
       "fields": [
         {
           "name": "projectId",
@@ -331,7 +363,7 @@ POST /api/projects/{projectId}/issues/{issueNumber}/comments
 | Name          | Type        | In         | Description                                                                           |
 | -----------   | ----------- | ---------- | ------------------------------------------------------------------------------------- |
 | accept        | string      | header     | Should be set to either `application/json` or `application/vnd.siren+json`            |
-| content-type  | string      | header     | Should be set to `application/x-www-form-urlencoded`                                  |
+| content-type  | string      | header     | Should be set to `application/json`                                                   |
 | projectId     | integer     | path       | The project's unique identifier                                                       |
 | issueNumber   | integer     | path       | The issue's identifier relative to the project                                        |
 | content       | string      | body       | **Required**. The content of the comment                                              |
@@ -369,7 +401,7 @@ PUT /api/projects/{projectId}/issues/{issueNumber}/comments/{commentNumber}
 | Name          | Type        | In         | Description                                                                           |
 | -----------   | ----------- | ---------- | ------------------------------------------------------------------------------------- |
 | accept        | string      | header     | Should be set to either `application/json` or `application/vnd.siren+json`            |
-| content-type  | string      | header     | Should be set to `application/x-www-form-urlencoded`                                  |
+| content-type  | string      | header     | Should be set to `application/json`                                                   |
 | projectId     | integer     | path       | The project's unique identifier                                                       |
 | issueNumber   | integer     | path       | The issue's identifier relative to the project                                        |
 | content       | string      | body       | **Required**. The content of the comment                                              |
@@ -425,6 +457,12 @@ Status: 400 Bad Request
 ```
 Status: 401 Unauthorized
 ```
+
+#### Forbidden Operation
+```
+Status: 403 Forbidden
+```
+
 
 #### Resource Not Found
 ```

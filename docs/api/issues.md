@@ -38,16 +38,26 @@ An issue is a task that needs to be done in the context of a project, such as ad
     * editable
     * type: **text**
     * example: `"closed"`
-* `project` - Name of the project where the issue is contained
+* `stateNumber` - Stable identifier of a state relative to a project
     * mandatory
-    * non editable
+    * editable
     * type: **text**
-    * example: `"project 1"`
+    * example: `"closed"`
+* `projectId` - Unique and stable global identifier of a project
+    * mandatory
+    * non editable, auto-assigned
+    * type: **number**
+    * example: `1`
 * `author` - Name of the issue's creator
     * mandatory
     * non editable, auto-assigned
     * type: **text**
     * example: `"John Doe"`
+* `authorId` - Unique and stable global identifier of the issue's creator
+    * mandatory
+    * non editable, auto-assigned
+    * type: **number**
+    * example: `1`
 
 ## Link Relations
 * [self](#get-issue)
@@ -105,8 +115,11 @@ Status: 200 OK
         "createDate": "2021-04-24T14:41:01.798825+01:00",
         "closeDate": null,
         "state": "start state",
+        "stateNumber": 2,
         "project": "project 1",
-        "author": "user1"
+        "projectId": 1,
+        "author": "user1",
+        "authorId": 1
       },
       "links": [
         {
@@ -150,8 +163,11 @@ Status: 200 OK
         "createDate": "2021-04-24T14:41:01.798825+01:00",
         "closeDate": null,
         "state": "start state",
+        "stateNumber": 2,
         "project": "project 1",
-        "author": "user2"
+        "projectId": 1,
+        "author": "user1",
+        "authorId": 1
       },
       "links": [
         {
@@ -191,7 +207,7 @@ Status: 200 OK
       "title": "Create Issue",
       "method": "PUT",
       "href": "http://localhost:8080/api/projects/1/issues",
-      "type": "application/x-www-form-urlencoded",
+      "type": "application/json",
       "fields": [
         {
           "name": "projectId",
@@ -271,8 +287,11 @@ Status: 200 OK
     "createDate": "2021-04-24T14:41:01.798825+01:00",
     "closeDate": null,
     "state": "start state",
+    "stateNumber": 2,
     "project": "project 1",
-    "author": "user1"
+    "projectId": 1,
+    "author": "user1",
+    "authorId": 1
   },
   "actions": [
     {
@@ -280,7 +299,7 @@ Status: 200 OK
       "title": "Edit Issue",
       "method": "PUT",
       "href": "http://localhost:8080/api/projects/1/issues/1",
-      "type": "application/x-www-form-urlencoded",
+      "type": "application/json",
       "fields": [
         {
           "name": "projectId",
@@ -377,14 +396,14 @@ Status: 404 Not Found
 Create an issue inside the project. In order to successfully create an issue, the project must have a start state already defined.
 
 ```http
-PUT /api/projects/{projectId}/issues
+POST /api/projects/{projectId}/issues
 ```
 
 #### Parameters
 | Name         | Type        | In         | Description                                                                           |
 | ------------ | ----------- | ---------- | ------------------------------------------------------------------------------------- |
 | accept       | string      | header     | Should be set to either `application/json` or `application/vnd.siren+json`            |
-| content-type | string      | header     | Should be set to `application/x-www-form-urlencoded`                                  |
+| content-type | string      | header     | Should be set to `application/json`                                                   |
 | projectId    | integer     | path       | The project's unique identifier                                                       |
 | name         | string      | body       | **Required**. Short name that defines the issue                                       |
 | description  | string      | body       | **Required**. Short description that characterizes the issue                          |
@@ -417,7 +436,7 @@ PUT /api/projects/{projectId}/issues/{issueNumber}
 | Name         | Type        | In         | Description                                                                                                               |
 | ------------ | ----------- | ---------- | ------------------------------------------------------------------------------------------------------------------------- |
 | accept       | string      | header     | Should be set to either `application/json` or `application/vnd.siren+json`                                                |
-| content-type | string      | header     | Should be set to `application/x-www-form-urlencoded`                                                                      |
+| content-type | string      | header     | Should be set to `application/json`                                                                                       |
 | projectId    | integer     | path       | The project's unique identifier                                                                                           |
 | issueNumber  | integer     | path       | The issue's identifier relative to the project                                                                            |
 | name         | string      | body       | **Required unless you provide `description` or `state`**. Short name that defines the issue                               |

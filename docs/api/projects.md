@@ -23,6 +23,11 @@ A project is a long-running development activity, such as "DAW Project" or "LS P
     * non editable, auto-assigned
     * type: **text**
     * example: `"John Doe"`
+* `authorId` - Unique and stable global identifier of the project's creator
+    * mandatory
+    * non editable, auto-assigned
+    * type: **number**
+    * example: `1`
 
 ## Link Relations
 * [self](#get-project)
@@ -74,7 +79,8 @@ Status: 200 OK
         "id": 1,
         "name": "project 1",
         "description": "description of project 1",
-        "author": "user1"
+        "author": "user1",
+        "authorId": 1
       },
       "links": [
         {
@@ -110,7 +116,8 @@ Status: 200 OK
         "id": 2,
         "name": "project 2",
         "description": "description of project 2",
-        "author": "user2"
+        "author": "user2",
+        "authorId": 2
       },
       "links": [
         {
@@ -146,7 +153,7 @@ Status: 200 OK
       "title": "Create Project",
       "method": "POST",
       "href": "http://localhost:8080/api/projects",
-      "type": "application/x-www-form-urlencoded",
+      "type": "application/json",
       "fields": [
         {
           "name": "name",
@@ -206,7 +213,8 @@ Status: 200 OK
     "id": 1,
     "name": "project 1",
     "description": "description of project 1",
-    "author": "user1"
+    "author": "user1",
+    "authorId": 1
   },
   "actions": [
     {
@@ -214,7 +222,7 @@ Status: 200 OK
       "title": "Edit Project",
       "method": "PUT",
       "href": "http://localhost:8080/api/projects/1",
-      "type": "application/x-www-form-urlencoded",
+      "type": "application/json",
       "fields": [
         {
           "name": "projectId",
@@ -301,7 +309,7 @@ POST /api/projects
 | Name         | Type        | In         | Description                                                                           |
 | ------------ | ----------- | ---------- | ------------------------------------------------------------------------------------- |
 | accept       | string      | header     | Should be set to either `application/json` or `application/vnd.siren+json`            |
-| content-type | string      | header     | Should be set to `application/x-www-form-urlencoded`                                  |
+| content-type | string      | header     | Should be set to `application/json`                                                   |
 | name         | string      | body       | **Required**. Unique and short name that defines the project                          |
 | description  | string      | body       | **Required**. Short description that characterizes the project                        |
 
@@ -338,7 +346,7 @@ PUT /api/projects/{projectId}
 | Name         | Type        | In         | Description                                                                                      |
 | ------------ | ----------- | ---------- | ------------------------------------------------------------------------------------------------ |
 | accept       | string      | header     | Should be set to either `application/json` or `application/vnd.siren+json`                       |
-| content-type | string      | header     | Should be set to `application/x-www-form-urlencoded`                                             |
+| content-type | string      | header     | Should be set to `application/json`                                                              |
 | projectId    | integer     | path       | The project's unique identifier                                                                  |
 | name         | string      | body       | **Required unless you provide `description`**. Unique and short name that defines the project    |
 | description  | string      | body       | **Required unless you provide `name`**. Short description that characterizes the project         |
