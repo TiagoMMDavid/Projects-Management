@@ -1,16 +1,11 @@
 import React, { useContext, useEffect, useReducer } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
-import { Credentials, UserContext } from '../../utils/userSession'
+import { UserContext } from '../../utils/userSession'
 import queryString from 'query-string'
 import { Paginated } from '../Paginated'
 import { IssueItem } from './IssueItem'
 import { CreateIssue } from './CreateIssue'
-
-type IssuesGetter = (projectId: number, page: number, credentials: Credentials) => Promise<Issues>
-
-type IssuesPageProps = {
-    getIssues: IssuesGetter
-}
+import { getIssues } from '../../api/issues'
 
 type IssuesPageParams = {
     projectId: string
@@ -39,10 +34,11 @@ function reducer(state: State, action: Action): State {
     }
 }
 
-function IssuesPage({ getIssues }: IssuesPageProps): JSX.Element {
+function IssuesPage(): JSX.Element {
     const { projectId } = useParams<IssuesPageParams>()
 
-    const page = Number(queryString.parse(useLocation().search).page) || 0
+    const pageQuery = Number(queryString.parse(useLocation().search).page) || 0
+    const page = pageQuery < 0 ? 0 : pageQuery
 
     const [{ state, issues, message }, dispatch] = useReducer(reducer, { state: 'page-reset' } as State)
     const ctx = useContext(UserContext)
@@ -50,10 +46,8 @@ function IssuesPage({ getIssues }: IssuesPageProps): JSX.Element {
     function getPage(page: number): void {
         dispatch({type: 'set-loading'})
         getIssues(Number(projectId), page, ctx.credentials)
-            .then(issues => {
-                if (!issues) dispatch({ type: 'set-message', message: 'Failed to get issues' } as Action)
-                else dispatch({ type: 'set-issues', issues: issues})
-            })
+            .then(issues => dispatch({ type: 'set-issues', issues: issues}))
+            .catch(err => dispatch({ type: 'set-message', message: err.message }))
     }
 
     useEffect(() => {
@@ -91,7 +85,7 @@ function IssuesPage({ getIssues }: IssuesPageProps): JSX.Element {
 
     return (
         <div>
-            <Link to={`/projects/${projectId}`}>Back to project</Link>
+            <Link to={`/projects/${projectId}`}>{'<< Back to project'}</Link>
             <CreateIssue
                 onFinishCreating={() => dispatch({type: 'reset-page'})} 
                 onCreating={() => dispatch({type: 'hide'})}

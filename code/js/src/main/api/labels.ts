@@ -1,5 +1,5 @@
 import { Credentials } from '../utils/userSession'
-import { apiRoutes, getRequestOptions } from '../api/apiRoutes'
+import { apiRoutes, getRequestOptions, throwErrorFromResponse } from '../api/apiRoutes'
 
 const LABELS_LIMIT = 10
 
@@ -37,11 +37,8 @@ function getIssueLabels(projectId: number, issueNumber: number, page: number, cr
 
 function getLabels(promise: Promise<Response>, page = 0): Promise<Labels> {
     return promise
-        .then(res => res.status != 200 ? null : res.json())
+        .then(res => res.status != 200 ? throwErrorFromResponse(res, 'Error while getting labels') : res.json())
         .then(collection => {
-
-            if (!collection) return null
-
             const entities = Array.from(collection.entities) as any[]
             const actions: SirenAction[] = Array.from(collection.actions || [])
             const links: SirenLink[] = Array.from(collection.links)
@@ -80,10 +77,8 @@ function getLabel(projectId: number, labelNumber: number, credentials: Credentia
         apiRoutes.label.getLabelRoute.hrefTemplate.expandUriTemplate(projectId, labelNumber), 
         getRequestOptions('GET', credentials)
     )
-        .then(res => res.status != 200 ? null : res.json())
+        .then(res => res.status != 200 ? throwErrorFromResponse(res, 'Error while getting label') : res.json())
         .then(entity => {
-            if (!entity) return null
-
             return {
                 id: entity.properties.id,
                 number: entity.properties.number,
@@ -99,49 +94,49 @@ function getLabel(projectId: number, labelNumber: number, credentials: Credentia
         })
 }
 
-function createLabel(projectId: number, name: string, credentials: Credentials): Promise<boolean> {
+function createLabel(projectId: number, name: string, credentials: Credentials): Promise<void> {
     return fetch(
         apiRoutes.label.getLabelsRoute.hrefTemplate.expandUriTemplate(projectId), 
         getRequestOptions('POST', credentials, {
             name: name
         })
     )
-        .then(res => res.status == 201)
+        .then(res => { if (res.status != 201) return throwErrorFromResponse(res, 'Error while creating label') })
 }
 
-function editLabel(projectId: number, labelNumber: number, name: string, credentials: Credentials): Promise<boolean> {
+function editLabel(projectId: number, labelNumber: number, name: string, credentials: Credentials): Promise<void> {
     return fetch(
         apiRoutes.label.getLabelRoute.hrefTemplate.expandUriTemplate(projectId, labelNumber), 
         getRequestOptions('PUT', credentials, {
             name: name
         })
     )
-        .then(res => res.status == 200)
+        .then(res => { if (res.status != 200) return throwErrorFromResponse(res, 'Error while editing label') })
 }
 
-function deleteLabel(projectId: number, labelNumber: number, credentials: Credentials): Promise<boolean> {
+function deleteLabel(projectId: number, labelNumber: number, credentials: Credentials): Promise<void> {
     return fetch(
         apiRoutes.label.getLabelRoute.hrefTemplate.expandUriTemplate(projectId, labelNumber), 
         getRequestOptions('DELETE', credentials)
     )
-        .then(res => res.status == 200)
+        .then(res => { if (res.status != 200) return throwErrorFromResponse(res, 'Error while deleting label') })
 }
 
-function addLabelToIssue(projectId: number, issueNumber: number, labelNumber: number, credentials: Credentials): Promise<boolean> {
+function addLabelToIssue(projectId: number, issueNumber: number, labelNumber: number, credentials: Credentials): Promise<void> {
     return fetch(
         `${apiRoutes.label.getIssueLabelsRoute.hrefTemplate.expandUriTemplate(projectId, issueNumber)}/${labelNumber}`,
         getRequestOptions('PUT', credentials)
     )
-        .then(res => res.status == 201)
+        .then(res => { if (res.status != 201) return throwErrorFromResponse(res, 'Error while adding label to issue') })
 }
 
 
-function removeLabelFromIssue(projectId: number, issueNumber: number, labelNumber: number, credentials: Credentials): Promise<boolean> {
+function removeLabelFromIssue(projectId: number, issueNumber: number, labelNumber: number, credentials: Credentials): Promise<void> {
     return fetch(
         `${apiRoutes.label.getIssueLabelsRoute.hrefTemplate.expandUriTemplate(projectId, issueNumber)}/${labelNumber}`,
         getRequestOptions('DELETE', credentials)
     )
-        .then(res => res.status == 200)
+        .then(res => { if (res.status != 200) return throwErrorFromResponse(res, 'Error while removing label from issue') })
 }
 
 export {

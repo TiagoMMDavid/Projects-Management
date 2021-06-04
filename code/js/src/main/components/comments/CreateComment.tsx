@@ -22,11 +22,11 @@ function CreateComment({onFinishCreating, onCreating, credentials, projectId, is
         }
 
         content.current.value = ''
-
-        setMessage('Creating comment...')
+        
         onCreating()
         createComment(projectId, issueNumber, contentInput, credentials)
-            .then(res => onFinishCreating(res, res ? null : 'Failed to create comment'))
+            .then(() => onFinishCreating(true, null))
+            .catch(err => onFinishCreating(false, err.message))
     }
 
     return (

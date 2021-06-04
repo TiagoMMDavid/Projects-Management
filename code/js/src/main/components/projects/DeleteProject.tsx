@@ -16,14 +16,13 @@ function DeleteProject({project, onFinishDelete, onDelete, credentials}: DeleteP
         setMessage('Deleting project...')
         onDelete()
         deleteProject(project.id, credentials)
-            .then(res => {
-                onFinishDelete(res, 'Failed to delete project!')
-            })
+            .then(() => onFinishDelete(true, null))
+            .catch(err => onFinishDelete(false, err.message))
     }
 
     return (
         <div>
-            <button onClick={deleteProjectHandler}>Delete Project</button>
+            <button className="danger" onClick={deleteProjectHandler}>Delete Project</button>
             <p>{message}</p>
         </div>
     )

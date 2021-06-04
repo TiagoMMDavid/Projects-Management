@@ -2,13 +2,11 @@ import React, { useContext, useEffect, useReducer, } from 'react'
 import { useParams } from 'react-router'
 import { Link, Redirect } from 'react-router-dom'
 import { getSirenAction } from '../../api/apiRoutes'
-import { Credentials, UserContext } from '../../utils/userSession'
+import { getComment } from '../../api/comments'
+import { UserContext } from '../../utils/userSession'
 import { DeleteComment } from './DeleteComment'
 import { EditComment } from './EditComment'
 
-type CommentPageProps = {
-    getComment: (projectId: number, issueNumber: number, commentNumber: number, credentials: Credentials) => Promise<IssueComment>
-}
 type CommentProps = {
     comment: IssueComment
 }
@@ -53,7 +51,7 @@ function reducer(state: State, action: Action): State {
     }
 }
 
-function CommentPage({ getComment }: CommentPageProps): JSX.Element {
+function CommentPage(): JSX.Element {
     const { projectId, issueNumber, commentNumber } = useParams<CommentPageParams>()
     const [{ state, comment, message }, dispatch] = useReducer(reducer, {state: 'loading-comment'} as State) 
     const ctx = useContext(UserContext)
@@ -61,10 +59,8 @@ function CommentPage({ getComment }: CommentPageProps): JSX.Element {
     useEffect(() => {
         if (state == 'edited-comment' || state == 'loading-comment') {
             getComment(Number(projectId), Number(issueNumber), Number(commentNumber), ctx.credentials)
-                .then(comment => {
-                    if (comment) dispatch({ type: 'set-comment', comment: comment, message: message })
-                    else dispatch({ type: 'set-message', message: 'Comment Not Found' })
-                })
+                .then(comment => dispatch({ type: 'set-comment', comment: comment, message: message }))
+                .catch(err => dispatch({ type: 'set-message', message: err.message }))
         }
     }, [projectId, commentNumber, state])
 
@@ -126,7 +122,7 @@ function CommentPage({ getComment }: CommentPageProps): JSX.Element {
     }
     return (
         <div>
-            <Link to={`/projects/${projectId}/issues/${issueNumber}/comments`}>View all comments</Link>
+            <Link to={`/projects/${projectId}/issues/${issueNumber}/comments`}>{'<< View all comments'}</Link>
             {body}
             {comment == null ? <></> :  <Comment comment={comment}/>}
         </div>

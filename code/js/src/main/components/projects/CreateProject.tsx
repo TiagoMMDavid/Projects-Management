@@ -29,9 +29,12 @@ function CreateProject({onFinishCreating, onCreating, credentials}: CreateProjec
         setMessage('Creating project...')
         onCreating()
         createProject(nameInput, descriptionInput, credentials)
-            .then(res => {
-                if (!res) setMessage('Failed to create project!')
-                else setMessage(null)
+            .then(() => {
+                setMessage(null)
+                onFinishCreating()
+            })
+            .catch(err => {
+                setMessage(err.message)
                 onFinishCreating()
             })
     }

@@ -1,17 +1,12 @@
 import React, { useContext, useEffect, useReducer } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
-import { Credentials, UserContext } from '../../../utils/userSession'
+import { UserContext } from '../../../utils/userSession'
 import queryString from 'query-string'
 import { Paginated } from '../../Paginated'
 import { NextStateItem } from './NextStateItem'
 import { SearchIssueStates } from './SearchStates'
 import { getSirenAction } from '../../../api/apiRoutes'
-
-
-type StatesPageProps = {
-    getState: (projectId: number, stateNumber: number, credentials: Credentials) => Promise<IssueState>
-    getNextStates: (projectId: number, stateNumber: number, credentials: Credentials, page: number) => Promise<IssueStates>
-}
+import { getNextStates, getState } from '../../../api/states'
 
 type StatesPageParams = {
     projectId: string,
@@ -24,7 +19,7 @@ type StateTransitions = {
 }
 
 type State = {
-    state: 'has-states' | 'loading-states' | 'page-reset' | 'hide' | 'message'
+    state: 'has-states' | 'loading-states' | 'page-reset' | 'message'
     stateTransitions: StateTransitions
     message: string
 }
@@ -33,7 +28,6 @@ type Action =
     { type: 'set-loading', message: string } |
     { type: 'set-states', stateTransitions: StateTransitions, message: string } |
     { type: 'reset-page', message: string } |
-    { type: 'hide'} | 
     { type: 'set-message', message: string }
     
 function reducer(state: State, action: Action): State {
@@ -41,15 +35,15 @@ function reducer(state: State, action: Action): State {
         case 'set-loading': return { state: 'loading-states', stateTransitions: null, message: action.message } as State
         case 'set-states': return { state: 'has-states', stateTransitions: action.stateTransitions, message: action.message } as State
         case 'reset-page': return { state: 'page-reset', stateTransitions: null, message: action.message } as State
-        case 'set-message': return { state: 'message', message: action.message} as State
-        case 'hide': return { state: 'hide' } as State
+        case 'set-message': return { state: 'message', message: action.message } as State
     }
 }
 
-function NextStatesPage({ getState, getNextStates }: StatesPageProps): JSX.Element {
+function NextStatesPage(): JSX.Element {
     const { projectId, stateNumber } = useParams<StatesPageParams>()
 
-    const page = Number(queryString.parse(useLocation().search).page) || 0
+    const pageQuery = Number(queryString.parse(useLocation().search).page) || 0
+    const page = pageQuery < 0 ? 0 : pageQuery
 
     const [{ state, stateTransitions, message }, dispatch] = useReducer(reducer, { state: 'page-reset' } as State)
     const ctx = useContext(UserContext)
@@ -60,14 +54,11 @@ function NextStatesPage({ getState, getNextStates }: StatesPageProps): JSX.Eleme
             .then(async state => {
                 return {
                     state: state,
-                    nextStates: state == null ? null : await getNextStates(Number(projectId), Number(stateNumber), ctx.credentials, page)
+                    nextStates: await getNextStates(Number(projectId), Number(stateNumber), ctx.credentials, page)
                 } as StateTransitions
             })
-            .then(stateTransitions => {
-                if (!stateTransitions.state) dispatch({ type: 'set-message', message: 'State Not Found' })
-                else if (!stateTransitions.nextStates) dispatch({ type: 'set-message', message: 'Error While Getting Next States' })
-                else dispatch({type: 'set-states', stateTransitions: stateTransitions, message: message})
-            })
+            .then(stateTransitions => dispatch({type: 'set-states', stateTransitions: stateTransitions, message: message}))
+            .catch(err => dispatch({ type: 'set-message', message: err.message }))
     }
 
     useEffect(() => {
@@ -76,13 +67,10 @@ function NextStatesPage({ getState, getNextStates }: StatesPageProps): JSX.Eleme
         }
     }, [state])
 
-    console.log(stateTransitions)
     let statesView: JSX.Element
     switch(state) {
         case 'message':
             statesView = <h1>{message}</h1>
-            break
-        case 'hide':
             break
         case 'page-reset':
         case 'loading-states':
@@ -93,7 +81,7 @@ function NextStatesPage({ getState, getNextStates }: StatesPageProps): JSX.Eleme
                 <div>
                     <h4>{message}</h4>
                     {
-                        getSirenAction(stateTransitions.nextStates.actions, 'create-next-state') != null ?
+                        getSirenAction(stateTransitions.nextStates.actions, 'add-next-state') != null ?
                             <SearchIssueStates
                                 state={stateTransitions.state}
                                 onAdd={() => dispatch({ type: 'set-message', message: 'Adding state...' })}
@@ -127,7 +115,7 @@ function NextStatesPage({ getState, getNextStates }: StatesPageProps): JSX.Eleme
 
     return (
         <div>
-            <Link to={`/projects/${projectId}/states/${stateNumber}`}>Back to state</Link>
+            <Link to={`/projects/${projectId}/states/${stateNumber}`}>{'<< Back to state'}</Link>
             { statesView }
         </div>
     )

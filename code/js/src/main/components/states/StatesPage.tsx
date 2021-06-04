@@ -1,16 +1,11 @@
 import React, { useContext, useEffect, useReducer } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
-import { Credentials, UserContext } from '../../utils/userSession'
+import { UserContext } from '../../utils/userSession'
 import queryString from 'query-string'
 import { Paginated } from '../Paginated'
 import { StateItem } from './StateItem'
 import { CreateState } from './CreateState'
-
-type StatesGetter = (projectId: number, page: number, credentials: Credentials) => Promise<IssueStates>
-
-type StatesPageProps = {
-    getStates: StatesGetter
-}
+import { getProjectStates } from '../../api/states'
 
 type StatesPageParams = {
     projectId: string
@@ -39,21 +34,20 @@ function reducer(state: State, action: Action): State {
     }
 }
 
-function StatesPage({ getStates }: StatesPageProps): JSX.Element {
+function StatesPage(): JSX.Element {
     const { projectId } = useParams<StatesPageParams>()
 
-    const page = Number(queryString.parse(useLocation().search).page) || 0
+    const pageQuery = Number(queryString.parse(useLocation().search).page) || 0
+    const page = pageQuery < 0 ? 0 : pageQuery
 
     const [{ state, states, message }, dispatch] = useReducer(reducer, { state: 'page-reset' } as State)
     const ctx = useContext(UserContext)
 
     function getPage(page: number): void {
         dispatch({type: 'set-loading'})
-        getStates(Number(projectId), page, ctx.credentials)
-            .then(states => {
-                if (!states) dispatch({ type: 'set-message', message: 'Failed to get states' } as Action)
-                else dispatch({ type: 'set-states', states: states})
-            })
+        getProjectStates(Number(projectId), page, ctx.credentials)
+            .then(states => dispatch({ type: 'set-states', states: states }))
+            .catch(err => dispatch({ type: 'set-message', message: err.message }))
     }
 
     useEffect(() => {
@@ -91,7 +85,7 @@ function StatesPage({ getStates }: StatesPageProps): JSX.Element {
 
     return (
         <div>
-            <Link to={`/projects/${projectId}`}>Back to project</Link>
+            <Link to={`/projects/${projectId}`}>{'<< Back to project'}</Link>
             <CreateState
                 onFinishCreating={() => dispatch({type: 'reset-page'})} 
                 onCreating={() => dispatch({type: 'hide'})}

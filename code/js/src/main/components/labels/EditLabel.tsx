@@ -25,9 +25,8 @@ function EditLabel({label, onFinishEdit, onEdit, credentials}: EditLabelProps): 
         setMessage('Editing label...')
         onEdit()
         editLabel(label.projectId, label.number, newName, credentials)
-            .then(res => {
-                onFinishEdit(res, 'Failed to edit label!')
-            })
+            .then(() => onFinishEdit(true, null))
+            .catch(err => onFinishEdit(false, err.message))
     }
 
     return (

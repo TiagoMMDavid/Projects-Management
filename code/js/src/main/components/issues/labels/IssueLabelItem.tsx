@@ -16,9 +16,8 @@ function IssueLabelItem({ label, issue, onRemove, onFinishRemove, credentials }:
         onRemove()
 
         removeLabelFromIssue(issue.projectId, issue.number, label.number, credentials)
-            .then(success => {
-                onFinishRemove(success, success ? '' : 'Error removing label')
-            })
+            .then(() => onFinishRemove(true, null))
+            .catch(err => onFinishRemove(false, err.message))
     }
 
     return (

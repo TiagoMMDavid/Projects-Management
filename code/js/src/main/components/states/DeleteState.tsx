@@ -16,9 +16,8 @@ function DeleteState({state, onFinishDelete, onDelete, credentials}: DeleteState
         setMessage('Deleting state...')
         onDelete()
         deleteState(state.projectId, state.number, credentials)
-            .then(res => {
-                onFinishDelete(res, 'Failed to delete state!')
-            })
+            .then(() => onFinishDelete(true, null))
+            .catch(err => onFinishDelete(false, err.message))
     }
 
     return (

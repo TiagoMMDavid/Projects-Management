@@ -1,5 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { getSirenAction } from '../../../api/apiRoutes'
 import { deleteNextState } from '../../../api/states'
 import { Credentials } from '../../../utils/userSession'
 
@@ -16,15 +17,14 @@ function NextStateItem({ state, nextState, onRemove, onFinishRemove, credentials
         onRemove()
 
         deleteNextState(state.projectId, state.number, nextState.number, credentials)
-            .then(success => {
-                onFinishRemove(success, success ? '' : 'Error removing state')
-            })
+            .then(() => onFinishRemove(true, null))
+            .catch(err => onFinishRemove(false, err.message))
     }
 
     return (
         <li>
             <p>Name: <Link to={`/projects/${state.projectId}/states/${nextState.number}`}>{nextState.name}</Link></p>
-            <button onClick={removeState}>Remove state</button>
+            { getSirenAction(nextState.actions, 'delete-next-state') == null ? <></> : <button onClick={removeState}>Remove state</button> }
         </li>
     )
 }

@@ -16,14 +16,13 @@ function DeleteLabel({label, onFinishDelete, onDelete, credentials}: DeleteLabel
         setMessage('Deleting label...')
         onDelete()
         deleteLabel(label.projectId, label.number, credentials)
-            .then(res => {
-                onFinishDelete(res, 'Failed to delete label!')
-            })
+            .then(() => onFinishDelete(true, null))
+            .catch(err => onFinishDelete(false, err.message))
     }
 
     return (
         <div>
-            <button onClick={deleteLabelHandler}>Delete Label</button>
+            <button className="danger" onClick={deleteLabelHandler}>Delete Label</button>
             <p>{message}</p>
         </div>
     )

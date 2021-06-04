@@ -1,5 +1,5 @@
 import { Credentials } from '../utils/userSession'
-import { apiRoutes, getRequestOptions } from '../api/apiRoutes'
+import { apiRoutes, getRequestOptions, throwErrorFromResponse } from '../api/apiRoutes'
 
 const PROJECTS_LIMIT = 10
 
@@ -8,10 +8,8 @@ function getProjects(page: number, credentials: Credentials): Promise<Projects> 
         apiRoutes.project.getProjectsRoute.href.toPaginatedUri(page, PROJECTS_LIMIT), 
         getRequestOptions('GET', credentials)
     )
-        .then(res => res.status != 200 ? null : res.json())
+        .then(res => res.status != 200 ? throwErrorFromResponse(res, 'Error while getting projects') : res.json())
         .then(collection => {
-            if (!collection) return null
-
             const entities = Array.from(collection.entities) as any[]
             const actions: SirenAction[] = Array.from(collection.actions || [])
             const links: SirenLink[] = Array.from(collection.links)
@@ -48,10 +46,8 @@ function getProject(projectId: number, credentials: Credentials): Promise<Projec
         apiRoutes.project.getProjectRoute.hrefTemplate.expandUriTemplate(projectId), 
         getRequestOptions('GET', credentials)
     )
-        .then(res => res.status != 200 ? null : res.json())
+        .then(res => res.status != 200 ? throwErrorFromResponse(res, 'Error while getting project') : res.json())
         .then(entity => {
-            if (!entity) return null
-
             return {
                 id: entity.properties.id,
                 name: entity.properties.name,
@@ -65,7 +61,7 @@ function getProject(projectId: number, credentials: Credentials): Promise<Projec
         })
 }
 
-function createProject(name: string, description: string, credentials: Credentials): Promise<boolean> {
+function createProject(name: string, description: string, credentials: Credentials): Promise<void> {
     return fetch(
         apiRoutes.project.getProjectsRoute.href, 
         getRequestOptions('POST', credentials, {
@@ -73,10 +69,10 @@ function createProject(name: string, description: string, credentials: Credentia
             description: description
         })
     )
-        .then(res => res.status == 201)
+        .then(res => { if (res.status != 201) return throwErrorFromResponse(res, 'Error while creating project') })
 }
 
-function editProject(projectId: number, name: string, description: string, credentials: Credentials): Promise<boolean> {
+function editProject(projectId: number, name: string, description: string, credentials: Credentials): Promise<void> {
     return fetch(
         apiRoutes.project.getProjectRoute.hrefTemplate.expandUriTemplate(projectId), 
         getRequestOptions('PUT', credentials, {
@@ -84,15 +80,15 @@ function editProject(projectId: number, name: string, description: string, crede
             description: description
         })
     )
-        .then(res => res.status == 200)
+        .then(res => { if (res.status != 200) return throwErrorFromResponse(res, 'Error while editing project') })
 }
 
-function deleteProject(projectId: number, credentials: Credentials): Promise<boolean> {
+function deleteProject(projectId: number, credentials: Credentials): Promise<void> {
     return fetch(
         apiRoutes.project.getProjectRoute.hrefTemplate.expandUriTemplate(projectId), 
         getRequestOptions('DELETE', credentials)
-    )
-        .then(res => res.status == 200)
+    )   
+        .then(res => { if (res.status != 200) return throwErrorFromResponse(res, 'Error while deleting project') })
 }
 
 export {

@@ -25,9 +25,8 @@ function EditComment({comment, onFinishEdit, onEdit, credentials}: EditCommentPr
         setMessage('Editing comment...')
         onEdit()
         editComment(comment.projectId, comment.issueNumber, comment.number, newName, credentials)
-            .then(res => {
-                onFinishEdit(res, 'Failed to edit comment!')
-            })
+            .then(() => onFinishEdit(true, null))
+            .catch(err => onFinishEdit(false, err.message))
     }
 
     return (

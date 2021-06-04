@@ -25,10 +25,12 @@ function CreateLabel({onFinishCreating, onCreating, credentials, projectId}: Cre
         setMessage('Creating label...')
         onCreating()
         createLabel(projectId, nameInput, credentials)
-            .then(res => {
-                if (!res) setMessage('Failed to create label!')
-
+            .then(() => {
                 setMessage(null)
+                onFinishCreating()
+            })
+            .catch(err => {
+                setMessage(err.message)
                 onFinishCreating()
             })
     }

@@ -1,13 +1,11 @@
 import React, { useContext, useEffect, useReducer, } from 'react'
 import { useParams } from 'react-router'
 import { Link, Redirect } from 'react-router-dom'
-import { Credentials, UserContext } from '../../utils/userSession'
+import { getLabel } from '../../api/labels'
+import { UserContext } from '../../utils/userSession'
 import { DeleteLabel } from './DeleteLabel'
 import { EditLabel } from './EditLabel'
 
-type LabelPageProps = {
-    getLabel: (projectId: number, labelNumber: number, credentials: Credentials) => Promise<Label>
-}
 type LabelProps = {
     label: Label
 }
@@ -50,7 +48,7 @@ function reducer(state: State, action: Action): State {
     }
 }
 
-function LabelPage({ getLabel }: LabelPageProps): JSX.Element {
+function LabelPage(): JSX.Element {
     const { projectId, labelNumber } = useParams<LabelPageParams>()
     const [{ state, label, message }, dispatch] = useReducer(reducer, {state: 'loading-label'} as State) 
     const ctx = useContext(UserContext)
@@ -58,10 +56,8 @@ function LabelPage({ getLabel }: LabelPageProps): JSX.Element {
     useEffect(() => {
         if (state == 'edited-label' || state == 'loading-label') {
             getLabel(Number(projectId), Number(labelNumber), ctx.credentials)
-                .then(label => {
-                    if (label) dispatch({ type: 'set-label', label: label, message: message })
-                    else dispatch({ type: 'set-message', message: 'Label Not Found' })
-                })
+                .then(label => dispatch({ type: 'set-label', label: label, message: message }))
+                .catch(err => dispatch({ type: 'set-message', message: err.message }))
         }
     }, [projectId, labelNumber, state])
 
@@ -117,7 +113,7 @@ function LabelPage({ getLabel }: LabelPageProps): JSX.Element {
     }
     return (
         <div>
-            <Link to={`/projects/${projectId}/labels`}>View all labels</Link>
+            <Link to={`/projects/${projectId}/labels`}>{'<< View all labels'}</Link>
             {body}
             {label == null ? <></> : <Label label={label}/>}
         </div>

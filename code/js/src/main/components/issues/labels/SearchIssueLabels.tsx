@@ -30,6 +30,7 @@ function SearchIssueLabels({ issue, onAdd, onFinishAdd, credentials }: SearchIss
                         setMessage(null)
                         setSearchResults(labels)
                     })
+                    .catch(err => setMessage(err.message))
             }, 500)
 
             return () => {
@@ -50,7 +51,8 @@ function SearchIssueLabels({ issue, onAdd, onFinishAdd, credentials }: SearchIss
     function addLabel(labelNumber: number) {
         onAdd()
         addLabelToIssue(issue.projectId, issue.number, labelNumber, credentials)
-            .then(success => onFinishAdd(success, success ? null : 'Error Adding label'))
+            .then(() => onFinishAdd(true, null))
+            .catch(err => onFinishAdd(false, err.message))
     }
 
     return (

@@ -1,5 +1,5 @@
 import { Credentials } from '../utils/userSession'
-import { apiRoutes, getRequestOptions } from '../api/apiRoutes'
+import { apiRoutes, getRequestOptions, throwErrorFromResponse } from '../api/apiRoutes'
 
 const COMMENTS_LIMIT = 10
 
@@ -8,10 +8,8 @@ function getComments(projectId: number, issueNumber: number, page: number, crede
         apiRoutes.comment.getCommentsRoute.hrefTemplate.expandUriTemplate(projectId, issueNumber).toPaginatedUri(page, COMMENTS_LIMIT), 
         getRequestOptions('GET', credentials)
     )
-        .then(res => res.status != 200 ? null : res.json())
+        .then(res => res.status != 200 ? throwErrorFromResponse(res, 'Error while getting comments') : res.json())
         .then(collection => {
-            if (!collection) return null
-
             const entities = Array.from(collection.entities) as any[]
             const actions: SirenAction[] = Array.from(collection.actions || [])
             const links: SirenLink[] = Array.from(collection.links)
@@ -53,10 +51,8 @@ function getComment(projectId: number, issueNumber: number, commentNumber: numbe
         apiRoutes.comment.getCommentRoute.hrefTemplate.expandUriTemplate(projectId, issueNumber, commentNumber), 
         getRequestOptions('GET', credentials)
     )
-        .then(res => res.status != 200 ? null : res.json())
+        .then(res => res.status != 200 ? throwErrorFromResponse(res, 'Error while getting comment') : res.json())
         .then(entity => {
-            if (!entity) return null
-
             return {
                 id: entity.properties.id,
                 number: entity.properties.number,
@@ -75,32 +71,32 @@ function getComment(projectId: number, issueNumber: number, commentNumber: numbe
         })
 }
 
-function createComment(projectId: number, issueNumber: number, content: string, credentials: Credentials): Promise<boolean> {
+function createComment(projectId: number, issueNumber: number, content: string, credentials: Credentials): Promise<void> {
     return fetch(
         apiRoutes.comment.getCommentsRoute.hrefTemplate.expandUriTemplate(projectId, issueNumber), 
         getRequestOptions('POST', credentials, {
             content: content
         })
     )
-        .then(res => res.status == 201)
+        .then(res => { if (res.status != 201) return throwErrorFromResponse(res, 'Error while creating comment') })
 }
 
-function editComment(projectId: number, issueNumber: number, commentNumber: number, content: string, credentials: Credentials): Promise<boolean> {
+function editComment(projectId: number, issueNumber: number, commentNumber: number, content: string, credentials: Credentials): Promise<void> {
     return fetch(
         apiRoutes.comment.getCommentRoute.hrefTemplate.expandUriTemplate(projectId, issueNumber, commentNumber), 
         getRequestOptions('PUT', credentials, {
             content: content
         })
     )
-        .then(res => res.status == 200)
+        .then(res => { if (res.status != 200) return throwErrorFromResponse(res, 'Error while editing comment') })
 }
 
-function deleteComment(projectId: number, issueNumber: number, commentNumber: number, credentials: Credentials): Promise<boolean> {
+function deleteComment(projectId: number, issueNumber: number, commentNumber: number, credentials: Credentials): Promise<void> {
     return fetch(
         apiRoutes.comment.getCommentRoute.hrefTemplate.expandUriTemplate(projectId, issueNumber, commentNumber), 
         getRequestOptions('DELETE', credentials)
     )
-        .then(res => res.status == 200)
+        .then(res => { if (res.status != 200) return throwErrorFromResponse(res, 'Error while deleting comment') })
 }
 
 export {

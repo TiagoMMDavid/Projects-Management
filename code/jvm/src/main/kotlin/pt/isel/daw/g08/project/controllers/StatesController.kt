@@ -241,19 +241,23 @@ class StatesController(val db: StatesDb) {
                             SirenLink(rel = listOf("nextStates"), href = getNextStatesUri(projectId, it.number)),
                             SirenLink(rel = listOf("states"), href = getStatesUri(projectId)),
                         ),
-                        actions = listOf(
-                            SirenAction(
-                                name = "delete-next-state",
-                                title = "Delete Next State",
-                                method = HttpMethod.DELETE,
-                                href = getNextStateByNumberUri(projectId, stateNumber, it.sid),
-                                type = INPUT_CONTENT_TYPE,
-                                fields = listOf(
-                                    SirenActionField(name = "projectId", type = hidden, value = projectId),
-                                    SirenActionField(name = "stateNumber", type = hidden, value = stateNumber),
-                                    SirenActionField(name = "nextStateNumber", type = hidden, value = it.sid),
-                                )
-                            )
+                        actions =
+                            if (state.name == "closed" && it.name == "archived")
+                                null
+                            else
+                                listOf(
+                                    SirenAction(
+                                        name = "delete-next-state",
+                                        title = "Delete Next State",
+                                        method = HttpMethod.DELETE,
+                                        href = getNextStateByNumberUri(projectId, stateNumber, it.sid),
+                                        type = INPUT_CONTENT_TYPE,
+                                        fields = listOf(
+                                            SirenActionField(name = "projectId", type = hidden, value = projectId),
+                                            SirenActionField(name = "stateNumber", type = hidden, value = stateNumber),
+                                            SirenActionField(name = "nextStateNumber", type = hidden, value = it.sid),
+                                        )
+                                    )
                         )
                     )
                 },

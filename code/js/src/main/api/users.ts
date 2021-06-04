@@ -1,5 +1,5 @@
 import { Credentials } from '../utils/userSession'
-import { apiRoutes, getRequestOptions } from '../api/apiRoutes'
+import { apiRoutes, getRequestOptions, throwErrorFromResponse } from '../api/apiRoutes'
 
 const USERS_LIMIT = 10
 
@@ -8,10 +8,8 @@ function getUsers(page: number, credentials: Credentials): Promise<Users> {
         apiRoutes.user.getUsersRoute.href.toPaginatedUri(page, USERS_LIMIT), 
         getRequestOptions('GET', credentials)
     )
-        .then(res => res.status != 200 ? null : res.json())
+        .then(res => res.status != 200 ? throwErrorFromResponse(res, 'Error while getting users') : res.json())
         .then(collection => {
-            if (!collection) return null
-
             const entities = Array.from(collection.entities) as any[]
             const actions: SirenAction[] = Array.from(collection.actions || [])
             const links: SirenLink[] = Array.from(collection.links)
@@ -46,10 +44,8 @@ function getUser(userId: number, credentials: Credentials): Promise<User> {
         apiRoutes.user.getUserRoute.hrefTemplate.expandUriTemplate(userId), 
         getRequestOptions('GET', credentials)
     )
-        .then(res => res.status != 200 ? null : res.json())
+        .then(res => res.status != 200 ? throwErrorFromResponse(res, 'Error while getting user') : res.json())
         .then(entity => {
-            if (!entity) return null
-
             return {
                 id: entity.properties.id,
                 name: entity.properties.name
@@ -62,10 +58,8 @@ function getAuthUser(credentials: Credentials): Promise<User> {
         apiRoutes.user.getAuthenticatedUserRoute.href, 
         getRequestOptions('GET', credentials)
     )
-        .then(res => res.status != 200 ? null : res.json())
+        .then(res => res.status != 200 ? throwErrorFromResponse(res, 'Error while getting user') : res.json())
         .then(entity => {
-            if (!entity) return null
-
             return {
                 id: entity.properties.id,
                 name: entity.properties.name

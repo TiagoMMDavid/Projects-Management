@@ -1,0 +1,223 @@
+body {
+    margin: 0px;
+    padding: 0px;
+    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+}
+.content {
+    margin: 7px;
+    padding: 5px;
+}
+
+.navbar {
+    background-color: #222222;
+    height: 50px;
+    overflow: hidden;
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+    box-shadow: 0px 3px 7px #00000033;
+}
+.navbar a {
+    color: #FFFFFF;
+    text-align: center;
+    padding: 17px;
+    text-align: center;
+    font-size: 17px;
+    transition: 0.1s;
+}
+.navbarContent {
+    padding: 15px;
+}
+
+.navbar a:hover {
+    background-color: #ddd;
+    color: black;
+}
+.navbar a.danger:hover {
+    background-color: #DF3344;
+    color: white;
+}
+.navbar a.danger.active {
+    background-color: #DF3344;
+    color: white;
+}
+.navbar a.active {
+    background-color: #707070;
+    color: white;
+    box-shadow: inset 0 0 5px #000000AA;
+}
+
+.navbar .right {
+    display: inline;
+    float: right;
+}
+.navbar .left {
+    display: inline;
+    float: left;
+}
+
+button {
+    font-family: inherit;
+    background-color: white;
+    color: #0079FF;
+    border-color: #0079FF;
+    border-radius: 5px;
+    border-width: 1px;
+    border-style: solid;
+    padding: 5px;
+    padding-left: 15px;
+    padding-right: 15px;
+    outline: none;
+    transition: 0.2s;
+    font-size: 1.25rem;
+    line-height: 1.5;
+}
+button:hover {
+    color: white;
+    background-color: #0079FF;
+    cursor:pointer;
+}
+button:focus {
+    color: white;
+    background-color: #0079FF;
+    cursor:pointer;
+}
+
+button.danger {
+    color: #DF3344;
+    border-color: #DF3344;
+}
+button.danger:hover {
+    color: white;
+    background-color: #DF3344;
+}
+button.danger:focus {
+    color: white;
+    background-color: #DF3344;
+}
+
+
+input {
+    font-family: inherit;
+    margin-right: 5px;
+    border-radius: 5px;
+    border-width: 1px;
+    border-style: solid;
+    padding: 5px;
+    padding-left: 8px;
+    padding-right: 8px;
+    font-size: 1.25rem;
+    line-height: 1.5;
+    transition: 0.2s;
+}
+input:focus {
+    box-shadow: 0px 0px 5px #007BFF;
+    outline: none;
+}
+
+.login {
+    background-color: ghostwhite;
+    border-width: 1px;
+    border-radius: 5px;
+    box-shadow: 0px 2px 20px #00000033;
+    padding-top: 50px;
+    width:900px;
+    max-width:900px;
+    height:450px;
+    max-height:500px;
+}
+
+a {
+    text-decoration: none;
+    color: #007BFF;
+}
+
+.center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+}
+
+.mt-1 {
+    margin-top: 2px
+}
+
+.mt-2 {
+    margin-top: 8px
+}
+
+.mt-3 {
+    margin-top: 16px
+}
+
+.mt-4 {
+    margin-top: 32px
+}
+
+.mt-5 {
+    margin-top: 40px
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+}
+
+.h1, h1 {
+    font-size: 2.5rem;
+}
+.h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6 {
+    margin-bottom: .5rem;
+    font-weight: 500;
+    line-height: 1.2;
+}
+
+.cube1, .cube2 {
+    background-color: #000000;
+    width: 15px;
+    height: 15px;
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    -webkit-animation: sk-cubemove 1.8s infinite ease-in-out;
+    animation: sk-cubemove 1.8s infinite ease-in-out;
+}
+  
+.cube2 {
+    -webkit-animation-delay: -0.9s;
+    animation-delay: -0.9s;
+}
+  
+@-webkit-keyframes sk-cubemove {
+    25% { -webkit-transform: translateX(42px) rotate(-90deg) scale(0.5) }
+    50% { -webkit-transform: translateX(42px) translateY(42px) rotate(-180deg) }
+    75% { -webkit-transform: translateX(0px) translateY(42px) rotate(-270deg) scale(0.5) }
+    100% { -webkit-transform: rotate(-360deg) }
+}
+  
+@keyframes sk-cubemove {
+    25% { 
+        transform: translateX(42px) rotate(-90deg) scale(0.5);
+        -webkit-transform: translateX(42px) rotate(-90deg) scale(0.5);
+    } 50% { 
+        transform: translateX(42px) translateY(42px) rotate(-179deg);
+        -webkit-transform: translateX(42px) translateY(42px) rotate(-179deg);
+    } 50.1% { 
+        transform: translateX(42px) translateY(42px) rotate(-180deg);
+        -webkit-transform: translateX(42px) translateY(42px) rotate(-180deg);
+    } 75% { 
+        transform: translateX(0px) translateY(42px) rotate(-270deg) scale(0.5);
+        -webkit-transform: translateX(0px) translateY(42px) rotate(-270deg) scale(0.5);
+    } 100% { 
+        transform: rotate(-360deg);
+        -webkit-transform: rotate(-360deg);
+    }
+}

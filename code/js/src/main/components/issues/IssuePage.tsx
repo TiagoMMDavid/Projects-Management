@@ -1,14 +1,12 @@
 import React, { useContext, useEffect, useReducer, } from 'react'
 import { useParams } from 'react-router'
 import { Link, Redirect } from 'react-router-dom'
-import { Credentials, UserContext } from '../../utils/userSession'
+import { getIssue } from '../../api/issues'
+import { getNextStates } from '../../api/states'
+import { UserContext } from '../../utils/userSession'
 import { DeleteIssue } from './DeleteIssue'
 import { EditIssue } from './EditIssue'
 
-type IssuePageProps = {
-    getIssue: (projectId: number, issueNumber: number, credentials: Credentials) => Promise<Issue>
-    getNextStates: (projectId: number, stateNumber: number, credentials: Credentials) => Promise<IssueStates>
-}
 type IssueProps = {
     issue: Issue
 }
@@ -28,7 +26,7 @@ function Issue({ issue }: IssueProps): JSX.Element {
             <p>Number: {issue.number}</p>
             <p>Name: {issue.name}</p>
             <p>Description: {issue.description}</p>
-            <p>Current State: {issue.state}</p>
+            <p>Current State: <Link to={`/projects/${issue.projectId}/states/${issue.stateNumber}`}>{issue.state}</Link></p>
             <p>Creation Date: {new Date(issue.createDate).toLocaleString()}</p>
             {issue.closeDate == null ? <></> : <p>Close Date: {new Date(issue.closeDate).toLocaleString()}</p>}
             <p>Author: <Link to={`/users/${issue.authorId}`}>{issue.author}</Link></p>
@@ -61,7 +59,7 @@ function reducer(state: State, action: Action): State {
     }
 }
 
-function IssuePage({ getIssue, getNextStates }: IssuePageProps): JSX.Element {
+function IssuePage(): JSX.Element {
     const { projectId, issueNumber } = useParams<IssuePageParams>()
     const [{ state, issueStates, message }, dispatch] = useReducer(reducer, {state: 'loading-issue'} as State) 
     const ctx = useContext(UserContext)
@@ -72,14 +70,11 @@ function IssuePage({ getIssue, getNextStates }: IssuePageProps): JSX.Element {
                 .then(async issue => {
                     return {
                         issue: issue,
-                        nextStates: issue == null ? null : await getNextStates(issue.projectId, issue.stateNumber, ctx.credentials)
+                        nextStates: await getNextStates(issue.projectId, issue.stateNumber, ctx.credentials)
                     } as IssueNextStates
                 })
-                .then(issueNextStates => {
-                    if (!issueNextStates.issue) dispatch({ type: 'set-message', message: 'Issue Not Found' })
-                    else if (!issueNextStates.nextStates) dispatch({ type: 'set-message', message: 'Error While Getting Issue' })
-                    else dispatch({type: 'set-issue', issueStates: issueNextStates, message: message})
-                })
+                .then(issueNextStates => dispatch({type: 'set-issue', issueStates: issueNextStates, message: message}))
+                .catch(err => dispatch({ type: 'set-message', message: err.message }))
         }
     }, [projectId, issueNumber, state])
 
@@ -136,7 +131,7 @@ function IssuePage({ getIssue, getNextStates }: IssuePageProps): JSX.Element {
     }
     return (
         <div>
-            <Link to={`/projects/${projectId}/issues`}>View all issues</Link>
+            <Link to={`/projects/${projectId}/issues`}>{'<< View all issues'}</Link>
             {body}
             {issueStates?.issue == null ? <></> :  <Issue issue={issueStates.issue}/>}
         </div>

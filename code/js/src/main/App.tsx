@@ -3,18 +3,13 @@ import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-d
 
 import { UserContext, Credentials, getInitialContext, getStoredCredentials } from './utils/userSession'
 import { ApiRoutes, fetchRoutes } from './api/apiRoutes'
-import { getProject, getProjects } from './api/projects'
-import { getUser, getAuthUser, getUsers } from './api/users'
+import { getAuthUser } from './api/users'
 
 import { RequiresAuth } from './components/RequiresAuth'
-import { Header } from './components/Header'
+import { Navbar } from './components/Navbar'
 import { LoginPage } from './components/LoginPage'
 import { ProjectsPage } from './components/projects/ProjectsPage'
 import { ProjectPage } from './components/projects/ProjectPage'
-import { getIssueLabels, getLabel, getProjectLabels, searchLabels } from './api/labels'
-import { getNextStates, getProjectStates, getState, searchStates } from './api/states'
-import { getIssue, getIssues } from './api/issues'
-import { getComment, getComments } from './api/comments'
 import { LabelsPage } from './components/labels/LabelsPage'
 import { LabelPage } from './components/labels/LabelPage'
 import { StatesPage } from './components/states/StatesPage'
@@ -27,6 +22,7 @@ import { UserPage } from './components/users/UserPage'
 import { UsersPage } from './components/users/UsersPage'
 import { IssueLabelsPage } from './components/issues/labels/IssueLabelsPage'
 import { NextStatesPage } from './components/states/nextStates/NextStatesPage'
+import { LoadingPage } from './components/LoadingPage'
 
 
 const LOGIN_PATH = '/login'
@@ -51,18 +47,13 @@ const COMMENT_PATH = `${COMMENTS_PATH}/:commentNumber`
 const USERS_PATH = '/users'
 const USER_PATH = `${USERS_PATH}/:userId`
 
-
-function LoadingPage() {
-    return (
-        <h1>Loading...</h1>
-    )
-}
-
 function NotFound() {
     return (
         <h1>Not Found</h1>
     )
 }
+
+const loadingMsg = 'Loading...'
 
 function App(): JSX.Element {
     const [resources, setResources] = useState<ApiRoutes>(null)
@@ -78,146 +69,148 @@ function App(): JSX.Element {
     return (
         <UserContext.Provider value={getInitialContext(userCredentials, setUserCredentials)}>
             <Router>
-                <Header></Header>
-                <Switch>
-                    <Route exact path={LOGIN_PATH}>
-                        {
-                            !resources ? <LoadingPage /> :
-                                <LoginPage redirectPath='/' getAuthUser={ getAuthUser }/> 
-                        }
-                    </Route>
+                <Navbar/>
+                <div className="content">
+                    <Switch>
+                        <Route exact path={LOGIN_PATH}>
+                            {
+                                !resources ? <LoadingPage loadingMsg={loadingMsg}/> :
+                                    <LoginPage redirectPath='/' getAuthUser={ getAuthUser }/> 
+                            }
+                        </Route>
 
-                    {/* Projects Routes*/}
-                    <Route exact path={PROJECTS_PATH}>
-                        <RequiresAuth loginPageRoute={LOGIN_PATH}>
-                            {
-                                !resources ? <LoadingPage /> :
-                                    <ProjectsPage getProjects={ getProjects }/>
-                            }
-                        </RequiresAuth>
-                    </Route>
-                    <Route exact path={PROJECT_PATH}>
-                        <RequiresAuth loginPageRoute={LOGIN_PATH}>
-                            {
-                                !resources ? <LoadingPage /> :
-                                    <ProjectPage getProject={ getProject }/>
-                            }
-                        </RequiresAuth>
-                    </Route>
+                        {/* Projects Routes*/}
+                        <Route exact path={PROJECTS_PATH}>
+                            <RequiresAuth loginPageRoute={LOGIN_PATH}>
+                                {
+                                    !resources ? <LoadingPage loadingMsg={loadingMsg}/> :
+                                        <ProjectsPage/>
+                                }
+                            </RequiresAuth>
+                        </Route>
+                        <Route exact path={PROJECT_PATH}>
+                            <RequiresAuth loginPageRoute={LOGIN_PATH}>
+                                {
+                                    !resources ? <LoadingPage loadingMsg={loadingMsg}/> :
+                                        <ProjectPage/>
+                                }
+                            </RequiresAuth>
+                        </Route>
 
-                    {/* Labels Routes*/}
-                    <Route exact path={LABELS_PATH}>
-                        <RequiresAuth loginPageRoute={LOGIN_PATH}>
-                            {
-                                !resources ? <LoadingPage /> :
-                                    <LabelsPage getLabels={ getProjectLabels }/>
-                            }
-                        </RequiresAuth>
-                    </Route>
-                    <Route exact path={LABEL_PATH}>
-                        <RequiresAuth loginPageRoute={LOGIN_PATH}>
-                            {
-                                !resources ? <LoadingPage /> :
-                                    <LabelPage getLabel={ getLabel }/>
-                            }
-                        </RequiresAuth>
-                    </Route>
+                        {/* Labels Routes*/}
+                        <Route exact path={LABELS_PATH}>
+                            <RequiresAuth loginPageRoute={LOGIN_PATH}>
+                                {
+                                    !resources ? <LoadingPage loadingMsg={loadingMsg}/> :
+                                        <LabelsPage/>
+                                }
+                            </RequiresAuth>
+                        </Route>
+                        <Route exact path={LABEL_PATH}>
+                            <RequiresAuth loginPageRoute={LOGIN_PATH}>
+                                {
+                                    !resources ? <LoadingPage loadingMsg={loadingMsg}/> :
+                                        <LabelPage/>
+                                }
+                            </RequiresAuth>
+                        </Route>
 
-                    {/* States Routes*/}
-                    <Route exact path={STATES_PATH}>
-                        <RequiresAuth loginPageRoute={LOGIN_PATH}>
-                            {
-                                !resources ? <LoadingPage /> :
-                                    <StatesPage getStates={ getProjectStates }/>
-                            }
-                        </RequiresAuth>
-                    </Route>
-                    <Route exact path={STATE_PATH}>
-                        <RequiresAuth loginPageRoute={LOGIN_PATH}>
-                            {
-                                !resources ? <LoadingPage /> :
-                                    <StatePage getState={ getState }/>
-                            }
-                        </RequiresAuth>
-                    </Route>
+                        {/* States Routes*/}
+                        <Route exact path={STATES_PATH}>
+                            <RequiresAuth loginPageRoute={LOGIN_PATH}>
+                                {
+                                    !resources ? <LoadingPage loadingMsg={loadingMsg}/> :
+                                        <StatesPage/>
+                                }
+                            </RequiresAuth>
+                        </Route>
+                        <Route exact path={STATE_PATH}>
+                            <RequiresAuth loginPageRoute={LOGIN_PATH}>
+                                {
+                                    !resources ? <LoadingPage loadingMsg={loadingMsg}/> :
+                                        <StatePage/>
+                                }
+                            </RequiresAuth>
+                        </Route>
 
-                    <Route exact path={NEXT_STATES_PATH}>
-                        <RequiresAuth loginPageRoute={LOGIN_PATH}>
-                            {
-                                !resources ? <LoadingPage /> :
-                                    <NextStatesPage getState={ getState } getNextStates = { getNextStates } />
-                            }
-                        </RequiresAuth>
-                    </Route>
+                        <Route exact path={NEXT_STATES_PATH}>
+                            <RequiresAuth loginPageRoute={LOGIN_PATH}>
+                                {
+                                    !resources ? <LoadingPage loadingMsg={loadingMsg}/> :
+                                        <NextStatesPage/>
+                                }
+                            </RequiresAuth>
+                        </Route>
 
-                    {/* Issues Routes*/}
-                    <Route exact path={ISSUES_PATH}>
-                        <RequiresAuth loginPageRoute={LOGIN_PATH}>
-                            {
-                                !resources ? <LoadingPage /> :
-                                    <IssuesPage getIssues={ getIssues }/>
-                            }
-                        </RequiresAuth>
-                    </Route>
-                    <Route exact path={ISSUE_PATH}>
-                        <RequiresAuth loginPageRoute={LOGIN_PATH}>
-                            {
-                                !resources ? <LoadingPage /> :
-                                    <IssuePage getIssue={ getIssue } getNextStates={ getNextStates }/>
-                            }
-                        </RequiresAuth>
-                    </Route>
-                    <Route exact path={ISSUE_LABELS_PATH}>
-                        <RequiresAuth loginPageRoute={LOGIN_PATH}>
-                            {
-                                !resources ? <LoadingPage /> :
-                                    <IssueLabelsPage getIssue={ getIssue } getIssueLabels={ getIssueLabels } />
-                            }
-                        </RequiresAuth>
-                    </Route>
+                        {/* Issues Routes*/}
+                        <Route exact path={ISSUES_PATH}>
+                            <RequiresAuth loginPageRoute={LOGIN_PATH}>
+                                {
+                                    !resources ? <LoadingPage loadingMsg={loadingMsg}/> :
+                                        <IssuesPage/>
+                                }
+                            </RequiresAuth>
+                        </Route>
+                        <Route exact path={ISSUE_PATH}>
+                            <RequiresAuth loginPageRoute={LOGIN_PATH}>
+                                {
+                                    !resources ? <LoadingPage loadingMsg={loadingMsg}/> :
+                                        <IssuePage/>
+                                }
+                            </RequiresAuth>
+                        </Route>
+                        <Route exact path={ISSUE_LABELS_PATH}>
+                            <RequiresAuth loginPageRoute={LOGIN_PATH}>
+                                {
+                                    !resources ? <LoadingPage loadingMsg={loadingMsg}/> :
+                                        <IssueLabelsPage/>
+                                }
+                            </RequiresAuth>
+                        </Route>
 
-                    {/* Comments Routes*/}
-                    <Route exact path={COMMENTS_PATH}>
-                        <RequiresAuth loginPageRoute={LOGIN_PATH}>
-                            {
-                                !resources ? <LoadingPage /> :
-                                    <CommentsPage getComments={ getComments }/>
-                            }
-                        </RequiresAuth>
-                    </Route>
-                    <Route exact path={COMMENT_PATH}>
-                        <RequiresAuth loginPageRoute={LOGIN_PATH}>
-                            {
-                                !resources ? <LoadingPage /> :
-                                    <CommentPage getComment={ getComment }/>
-                            }
-                        </RequiresAuth>
-                    </Route>
+                        {/* Comments Routes*/}
+                        <Route exact path={COMMENTS_PATH}>
+                            <RequiresAuth loginPageRoute={LOGIN_PATH}>
+                                {
+                                    !resources ? <LoadingPage loadingMsg={loadingMsg}/> :
+                                        <CommentsPage/>
+                                }
+                            </RequiresAuth>
+                        </Route>
+                        <Route exact path={COMMENT_PATH}>
+                            <RequiresAuth loginPageRoute={LOGIN_PATH}>
+                                {
+                                    !resources ? <LoadingPage loadingMsg={loadingMsg}/> :
+                                        <CommentPage/>
+                                }
+                            </RequiresAuth>
+                        </Route>
 
-                    {/* Users Routes*/}
-                    <Route exact path={USERS_PATH}>
-                        <RequiresAuth loginPageRoute={LOGIN_PATH}>
-                            {
-                                !resources ? <LoadingPage /> :
-                                    <UsersPage getUsers={ getUsers }/>
-                            }
-                        </RequiresAuth>
-                    </Route>
-                    <Route exact path={USER_PATH}>
-                        <RequiresAuth loginPageRoute={LOGIN_PATH}>
-                            {
-                                !resources ? <LoadingPage /> :
-                                    <UserPage getUser={ getUser }/>
-                            }
-                        </RequiresAuth>
-                    </Route>
-                    
-                    {/* 404 */}
-                    <Route exact path='/'>
-                        <Redirect to={PROJECTS_PATH} />
-                    </Route>
-                    <Route component={NotFound} />
-                </Switch>
+                        {/* Users Routes*/}
+                        <Route exact path={USERS_PATH}>
+                            <RequiresAuth loginPageRoute={LOGIN_PATH}>
+                                {
+                                    !resources ? <LoadingPage loadingMsg={loadingMsg}/> :
+                                        <UsersPage/>
+                                }
+                            </RequiresAuth>
+                        </Route>
+                        <Route exact path={USER_PATH}>
+                            <RequiresAuth loginPageRoute={LOGIN_PATH}>
+                                {
+                                    !resources ? <LoadingPage loadingMsg={loadingMsg}/> :
+                                        <UserPage/>
+                                }
+                            </RequiresAuth>
+                        </Route>
+                        
+                        {/* 404 */}
+                        <Route exact path='/'>
+                            <Redirect to={PROJECTS_PATH} />
+                        </Route>
+                        <Route component={NotFound} />
+                    </Switch>
+                </div>
             </Router>
         </UserContext.Provider>
     )

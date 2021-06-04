@@ -32,9 +32,8 @@ function EditIssue({issue, nextStates, onFinishEdit, onEdit, credentials}: EditI
         setMessage('Editing issue...')
         onEdit()
         editIssue(issue.projectId, issue.number, newName, newDesc, nextState, credentials)
-            .then(res => {
-                onFinishEdit(res, 'Failed to edit issue!')
-            })
+            .then(() => onFinishEdit(true, null))
+            .catch(err => onFinishEdit(false, err.message))
     }
 
     function changeStateHandle(e: React.ChangeEvent<HTMLSelectElement>) {

@@ -1,16 +1,12 @@
 import React, { useContext, useEffect, useReducer } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
-import { Credentials, UserContext } from '../../../utils/userSession'
+import { UserContext } from '../../../utils/userSession'
 import queryString from 'query-string'
 import { Paginated } from '../../Paginated'
 import { IssueLabelItem } from './IssueLabelItem'
 import { SearchIssueLabels } from './SearchIssueLabels'
-
-
-type LabelsPageProps = {
-    getIssue: (projectId: number, issueNumber: number, credentials: Credentials) => Promise<Issue>
-    getIssueLabels: (projectId: number, issueNumber: number, page: number, credentials: Credentials) => Promise<Labels>
-}
+import { getIssue } from '../../../api/issues'
+import { getIssueLabels } from '../../../api/labels'
 
 type LabelsPageParams = {
     projectId: string,
@@ -45,10 +41,11 @@ function reducer(state: State, action: Action): State {
     }
 }
 
-function IssueLabelsPage({ getIssue, getIssueLabels }: LabelsPageProps): JSX.Element {
+function IssueLabelsPage(): JSX.Element {
     const { projectId, issueNumber } = useParams<LabelsPageParams>()
 
-    const page = Number(queryString.parse(useLocation().search).page) || 0
+    const pageQuery = Number(queryString.parse(useLocation().search).page) || 0
+    const page = pageQuery < 0 ? 0 : pageQuery
 
     const [{ state, issueLabels, message }, dispatch] = useReducer(reducer, { state: 'page-reset' } as State)
     const ctx = useContext(UserContext)
@@ -59,14 +56,11 @@ function IssueLabelsPage({ getIssue, getIssueLabels }: LabelsPageProps): JSX.Ele
             .then(async issue => {
                 return {
                     issue: issue,
-                    labels: issue == null ? null : await getIssueLabels(Number(projectId), Number(issueNumber), page, ctx.credentials)
+                    labels: await getIssueLabels(Number(projectId), Number(issueNumber), page, ctx.credentials)
                 } as IssueLabels
             })
-            .then(issueLabels => {
-                if (!issueLabels.issue) dispatch({ type: 'set-message', message: 'Issue Not Found' })
-                else if (!issueLabels.labels) dispatch({ type: 'set-message', message: 'Error While Getting Labels' })
-                else dispatch({type: 'set-labels', issueLabels: issueLabels, message: message})
-            })
+            .then(issueLabels => dispatch({type: 'set-labels', issueLabels: issueLabels, message: message}))
+            .catch(err => dispatch({ type: 'set-message', message: err.message }))
     }
 
     useEffect(() => {
@@ -119,7 +113,7 @@ function IssueLabelsPage({ getIssue, getIssueLabels }: LabelsPageProps): JSX.Ele
 
     return (
         <div>
-            <Link to={`/projects/${projectId}/issues/${issueNumber}`}>Back to issue</Link>
+            <Link to={`/projects/${projectId}/issues/${issueNumber}`}>{'<< Back to issue'}</Link>
             { labelsView }
         </div>
     )

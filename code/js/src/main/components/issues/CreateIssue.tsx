@@ -30,9 +30,12 @@ function CreateIssue({onFinishCreating, onCreating, credentials, projectId}: Cre
         setMessage('Creating issue...')
         onCreating()
         createIssue(projectId, nameInput, descriptionInput, credentials)
-            .then(res => {
-                if (!res) setMessage('Failed to create issue!')
-                else setMessage(null)
+            .then(() => {
+                setMessage(null)
+                onFinishCreating()
+            })
+            .catch(err => {
+                setMessage(err.message)
                 onFinishCreating()
             })
     }

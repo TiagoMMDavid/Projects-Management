@@ -1,11 +1,9 @@
 import React, { useContext, useEffect, useReducer } from 'react'
 import { useParams } from 'react-router'
 import { Link } from 'react-router-dom'
-import { Credentials, UserContext } from '../../utils/userSession'
+import { getUser } from '../../api/users'
+import { UserContext } from '../../utils/userSession'
 
-type UserPageProps = {
-    getUser: (userId: number, credentials: Credentials) => Promise<User>
-}
 type UserProps = {
     user: User
 }
@@ -17,48 +15,52 @@ type UserPageParams = {
 function User({ user }: UserProps): JSX.Element {
     return (
         <div>
-            <p>Name: {user.name}</p>
             <p>Id: {user.id}</p>
+            <p>Name: {user.name}</p>
         </div>
     )
 }
 
 type State = {
-    state: 'has-user' | 'loading-user' | 'no-user'
+    state: 'has-user' | 'loading-user' | 'message'
     user: User
+    message: string
 }
   
 type Action =
     { type: 'set-loading' } |
     { type: 'set-user', user: User} |
-    { type: 'set-no-user' }
+    { type: 'set-message', message: string }
     
 function reducer(state: State, action: Action): State {
     switch (action.type) {
-        case 'set-loading': return { state: 'loading-user', user: null}
-        case 'set-user': return { state: 'has-user', user: action.user}
-        case 'set-no-user': return { state: 'no-user', user: null}
+        case 'set-loading': return { state: 'loading-user', user: null } as State
+        case 'set-user': return { state: 'has-user', user: action.user } as State
+        case 'set-message': return { state: 'message', message: action.message } as State
     }
 }
 
-function UserPage({ getUser }: UserPageProps): JSX.Element {
+function UserPage(): JSX.Element {
     const { userId } = useParams<UserPageParams>()
-    const [{ state, user }, dispatch] = useReducer(reducer, {state: 'loading-user', user: null})
+    const [{ state, user, message }, dispatch] = useReducer(reducer, { state: 'loading-user', user: null } as State)
     const ctx = useContext(UserContext)
 
     useEffect(() => {
         getUser(Number(userId), ctx.credentials)
-            .then(user => {
-                if (user) dispatch({ type: 'set-user', user: user })
-                else dispatch({ type: 'set-no-user' })
-            })
+            .then(user => dispatch({ type: 'set-user', user: user }))
+            .catch(err => dispatch({ type: 'set-message', message: err.message }))
     }, [userId])
 
     let toReturn: JSX.Element
     switch(state) {
+        case 'message':
+            toReturn = (
+                <h1>{message}</h1> 
+            )
+            break
         case 'loading-user': 
             toReturn = (
-                <h1> Loading user... </h1> 
+                <h1>Loading user...</h1> 
             )
             break
         case 'has-user':
@@ -66,15 +68,10 @@ function UserPage({ getUser }: UserPageProps): JSX.Element {
                 <User user={user}/>
             )
             break
-        case 'no-user':
-            toReturn = (
-                <h1> User not found </h1> 
-            )
-            break
     }
     return (
         <div>
-            <Link to="/users">View all users</Link>
+            <Link to="/users">{'<< View all users'}</Link>
             {toReturn}
         </div>
     )

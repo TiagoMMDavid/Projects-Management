@@ -16,14 +16,13 @@ function DeleteComment({comment, onFinishDelete, onDelete, credentials}: DeleteC
         setMessage('Deleting comment...')
         onDelete()
         deleteComment(comment.projectId, comment.issueNumber, comment.number, credentials)
-            .then(res => {
-                onFinishDelete(res, 'Failed to delete comment!')
-            })
+            .then(() => onFinishDelete(true, null))
+            .catch(err => onFinishDelete(false, err.message))
     }
 
     return (
         <div>
-            <button onClick={deleteCommentHandler}>Delete Comment</button>
+            <button className="danger" onClick={deleteCommentHandler}>Delete Comment</button>
             <p>{message}</p>
         </div>
     )

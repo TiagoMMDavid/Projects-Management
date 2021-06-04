@@ -1,47 +1,45 @@
 import React, { useContext, useEffect, useReducer } from 'react'
 import { useLocation } from 'react-router-dom'
-import { Credentials, UserContext } from '../../utils/userSession'
+import { UserContext } from '../../utils/userSession'
 import { Paginated } from '../Paginated'
 import queryString from 'query-string'
 import { UserItem } from './UserItem'
-
-type UsersGetter = (page: number, credentials: Credentials) => Promise<Users>
-
-type UsersPageProps = {
-    getUsers: UsersGetter
-}
+import { getUsers } from '../../api/users'
 
 type State = {
-    state: 'has-users' | 'loading-users' | 'page-reset'
+    state: 'has-users' | 'loading-users' | 'page-reset' | 'message'
     users: Users
+    message: string
 }
   
 type Action =
     { type: 'set-loading' } |
     { type: 'set-users', users: Users } |
-    { type: 'reset-page' }
+    { type: 'reset-page' } |
+    { type: 'set-message', message: string }
     
 function reducer(state: State, action: Action): State {
     switch (action.type) {
-        case 'set-loading': return { state: 'loading-users', users: null}
-        case 'set-users': return { state: 'has-users', users: action.users }
-        case 'reset-page': return { state: 'page-reset', users: null }
+        case 'set-loading': return { state: 'loading-users', users: null} as State
+        case 'set-users': return { state: 'has-users', users: action.users } as State
+        case 'reset-page': return { state: 'page-reset', users: null } as State
+        case 'set-message': return { state: 'message', message: action.message } as State
     }
 }
 
-function UsersPage({ getUsers }: UsersPageProps): JSX.Element {
+function UsersPage(): JSX.Element {
 
-    const page = Number(queryString.parse(useLocation().search).page) || 0
+    const pageQuery = Number(queryString.parse(useLocation().search).page) || 0
+    const page = pageQuery < 0 ? 0 : pageQuery
 
-    const [{ state, users }, dispatch] = useReducer(reducer, { state: 'page-reset', users: null })
+    const [{ state, users, message }, dispatch] = useReducer(reducer, { state: 'page-reset', users: null } as State)
     const ctx = useContext(UserContext)
 
     function getPage(page: number): void {
         dispatch({type: 'set-loading'})
         getUsers(page, ctx.credentials)
-            .then(users => {
-                dispatch({ type: 'set-users', users: users})
-            })
+            .then(users => dispatch({ type: 'set-users', users: users}))
+            .catch(err => dispatch({ type: 'set-message', message: err.message }))
     }
 
     useEffect(() => {
@@ -51,6 +49,8 @@ function UsersPage({ getUsers }: UsersPageProps): JSX.Element {
     }, [state])
 
     switch(state) {
+        case 'message':
+            return <h1>{message}</h1>
         case 'page-reset':
         case 'loading-users':
             return <h1>Loading users...</h1>

@@ -1,16 +1,11 @@
 import React, { useContext, useEffect, useReducer } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
-import { Credentials, UserContext } from '../../utils/userSession'
+import { UserContext } from '../../utils/userSession'
 import queryString from 'query-string'
 import { Paginated } from '../Paginated'
 import { LabelItem } from './LabelItem'
 import { CreateLabel } from './CreateLabel'
-
-type LabelsGetter = (projectId: number, page: number, credentials: Credentials) => Promise<Labels>
-
-type LabelsPageProps = {
-    getLabels: LabelsGetter
-}
+import { getProjectLabels } from '../../api/labels'
 
 type LabelsPageParams = {
     projectId: string
@@ -39,21 +34,20 @@ function reducer(state: State, action: Action): State {
     }
 }
 
-function LabelsPage({ getLabels }: LabelsPageProps): JSX.Element {
+function LabelsPage(): JSX.Element {
     const { projectId } = useParams<LabelsPageParams>()
 
-    const page = Number(queryString.parse(useLocation().search).page) || 0
+    const pageQuery = Number(queryString.parse(useLocation().search).page) || 0
+    const page = pageQuery < 0 ? 0 : pageQuery
 
     const [{ state, labels, message }, dispatch] = useReducer(reducer, { state: 'page-reset' } as State)
     const ctx = useContext(UserContext)
 
     function getPage(page: number): void {
         dispatch({type: 'set-loading'})
-        getLabels(Number(projectId), page, ctx.credentials)
-            .then(labels => {
-                if (!labels) dispatch({ type: 'set-message', message: 'Failed to get labels' } as Action)
-                else dispatch({ type: 'set-labels', labels: labels})
-            })
+        getProjectLabels(Number(projectId), page, ctx.credentials)
+            .then(labels => dispatch({ type: 'set-labels', labels: labels}))
+            .catch(err => dispatch({ type: 'set-message', message: err.message }))
     }
 
     useEffect(() => {
@@ -91,7 +85,7 @@ function LabelsPage({ getLabels }: LabelsPageProps): JSX.Element {
 
     return (
         <div>
-            <Link to={`/projects/${projectId}`}>Back to project</Link>
+            <Link to={`/projects/${projectId}`}>{'<< Back to project'}</Link>
             <CreateLabel
                 onFinishCreating={() => dispatch({type: 'reset-page'})} 
                 onCreating={() => dispatch({type: 'hide'})}

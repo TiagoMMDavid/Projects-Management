@@ -2,13 +2,11 @@ import React, { useContext, useEffect, useReducer, } from 'react'
 import { useParams } from 'react-router'
 import { Link, Redirect } from 'react-router-dom'
 import { getSirenAction } from '../../api/apiRoutes'
-import { Credentials, UserContext } from '../../utils/userSession'
+import { getState } from '../../api/states'
+import { UserContext } from '../../utils/userSession'
 import { DeleteState } from './DeleteState'
 import { EditState } from './EditState'
 
-type StatePageProps = {
-    getState: (projectId: number, stateNumber: number, credentials: Credentials) => Promise<IssueState>
-}
 type StateProps = {
     issueState: IssueState
 }
@@ -52,7 +50,7 @@ function reducer(state: State, action: Action): State {
     }
 }
 
-function StatePage({ getState }: StatePageProps): JSX.Element {
+function StatePage(): JSX.Element {
     const { projectId, stateNumber } = useParams<StatePageParams>()
     const [{ state, issueState, message }, dispatch] = useReducer(reducer, {state: 'loading-state'} as State) 
     const ctx = useContext(UserContext)
@@ -60,10 +58,8 @@ function StatePage({ getState }: StatePageProps): JSX.Element {
     useEffect(() => {
         if (state == 'edited-state' || state == 'loading-state') {
             getState(Number(projectId), Number(stateNumber), ctx.credentials)
-                .then(issueState => {
-                    if (issueState) dispatch({ type: 'set-state', issueState: issueState, message: message })
-                    else dispatch({ type: 'set-message', message: 'State Not Found' })
-                })
+                .then(issueState => dispatch({ type: 'set-state', issueState: issueState, message: message }))
+                .catch(err => dispatch({ type: 'set-message', message: err.message }))
         }
     }, [projectId, stateNumber, state])
 
@@ -125,7 +121,7 @@ function StatePage({ getState }: StatePageProps): JSX.Element {
     }
     return (
         <div>
-            <Link to={`/projects/${projectId}/states`}>View all states</Link>
+            <Link to={`/projects/${projectId}/states`}>{'<< View all states'}</Link>
             {body}
             {issueState == null ? <></> :  
                 <div>

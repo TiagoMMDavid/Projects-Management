@@ -1,13 +1,11 @@
 import React, { useContext, useEffect, useReducer, } from 'react'
 import { useParams } from 'react-router'
 import { Link, Redirect } from 'react-router-dom'
-import { Credentials, UserContext } from '../../utils/userSession'
+import { getProject } from '../../api/projects'
+import { UserContext } from '../../utils/userSession'
 import { DeleteProject } from './DeleteProject'
 import { EditProject } from './EditProject'
 
-type ProjectPageProps = {
-    getProject: (projectId: number, credentials: Credentials) => Promise<Project>
-}
 type ProjectProps = {
     project: Project
 }
@@ -53,7 +51,7 @@ function reducer(state: State, action: Action): State {
     }
 }
 
-function ProjectPage({ getProject }: ProjectPageProps): JSX.Element {
+function ProjectPage(): JSX.Element {
     const { projectId } = useParams<ProjectPageParams>()
     const [{ state, project, message }, dispatch] = useReducer(reducer, {state: 'loading-project'} as State) 
     const ctx = useContext(UserContext)
@@ -61,10 +59,8 @@ function ProjectPage({ getProject }: ProjectPageProps): JSX.Element {
     useEffect(() => {
         if (state == 'edited-project' || state == 'loading-project' || state == 'project-fail') {
             getProject(Number(projectId), ctx.credentials)
-                .then(project => {
-                    if (project) dispatch({ type: 'set-project', project: project, message: message })
-                    else dispatch({ type: 'set-message', message: 'Project Not Found' })
-                })
+                .then(project => dispatch({ type: 'set-project', project: project, message: message }))
+                .catch(err => dispatch({ type: 'set-message', message: err.message }))
         }
     }, [projectId, state])
 
@@ -120,7 +116,7 @@ function ProjectPage({ getProject }: ProjectPageProps): JSX.Element {
     }
     return (
         <div>
-            <Link to="/projects">View all projects</Link>
+            <Link to="/projects">{'<< View all projects'}</Link>
             {body}
             {project == null ? <></> :  <Project project={project}/>}
         </div>

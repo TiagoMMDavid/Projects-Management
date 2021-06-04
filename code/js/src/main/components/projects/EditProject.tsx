@@ -29,9 +29,8 @@ function EditProject({project, onFinishEdit, onEdit, credentials}: EditProjectPr
         setMessage('Editing project...')
         onEdit()
         editProject(project.id, newName, newDesc, credentials)
-            .then(res => {
-                onFinishEdit(res, 'Failed to edit project!')
-            })
+            .then(() => onFinishEdit(true, null))
+            .catch(err => onFinishEdit(false, err.message))
     }
 
     return (

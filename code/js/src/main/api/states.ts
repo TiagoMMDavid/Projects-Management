@@ -1,5 +1,5 @@
 import { Credentials } from '../utils/userSession'
-import { apiRoutes, getRequestOptions } from '../api/apiRoutes'
+import { apiRoutes, getRequestOptions, throwErrorFromResponse } from '../api/apiRoutes'
 
 const STATES_LIMIT = 10
 const MAX_NEXT_STATES = 50
@@ -29,10 +29,8 @@ function searchStates(projectId: number, searchName: string, excludeStateId: num
 
 function getStates(promise: Promise<Response>, page = 0): Promise<IssueStates> {
     return promise
-        .then(res => res.status != 200 ? null : res.json())
+        .then(res => res.status != 200 ? throwErrorFromResponse(res, 'Error while getting states') : res.json())
         .then(collection => {
-            if (!collection) return null
-
             const entities = Array.from(collection.entities) as any[]
             const actions: SirenAction[] = Array.from(collection.actions || [])
             const links: SirenLink[] = Array.from(collection.links)
@@ -75,10 +73,8 @@ function getNextStates(projectId: number, stateNumber: number, credentials: Cred
         uri, 
         getRequestOptions('GET', credentials)
     )
-        .then(res => res.status != 200 ? null : res.json())
+        .then(res => res.status != 200 ? throwErrorFromResponse(res, 'Error while getting next states') : res.json())
         .then(collection => {
-            if (!collection) return null
-
             const entities = Array.from(collection.entities) as any[]
             const actions: SirenAction[] = Array.from(collection.actions || [])
             const links: SirenLink[] = Array.from(collection.links)
@@ -118,10 +114,8 @@ function getState(projectId: number, stateNumber: number, credentials: Credentia
         apiRoutes.state.getStateRoute.hrefTemplate.expandUriTemplate(projectId, stateNumber), 
         getRequestOptions('GET', credentials)
     )
-        .then(res => res.status != 200 ? null : res.json())
+        .then(res => res.status != 200 ? throwErrorFromResponse(res, 'Error while getting state') : res.json())
         .then(entity => {
-            if (!entity) return null
-
             return {
                 id: entity.properties.id,
                 number: entity.properties.number,
@@ -138,7 +132,7 @@ function getState(projectId: number, stateNumber: number, credentials: Credentia
         })
 }
 
-function createState(projectId: number, name: string, isStartState: boolean, credentials: Credentials): Promise<boolean> {
+function createState(projectId: number, name: string, isStartState: boolean, credentials: Credentials): Promise<void> {
     return fetch(
         apiRoutes.state.getStatesRoute.hrefTemplate.expandUriTemplate(projectId), 
         getRequestOptions('POST', credentials, {
@@ -146,18 +140,18 @@ function createState(projectId: number, name: string, isStartState: boolean, cre
             isStart: isStartState
         })
     )
-        .then(res => res.status == 201)
+        .then(res => { if (res.status != 201) return throwErrorFromResponse(res, 'Error while creating state') })
 }
 
-function addNextState(projectId: number, stateNumber: number, nextStateNumber: number, credentials: Credentials): Promise<boolean> {
+function addNextState(projectId: number, stateNumber: number, nextStateNumber: number, credentials: Credentials): Promise<void> {
     return fetch(
         `${apiRoutes.state.getNextStatesRoute.hrefTemplate.expandUriTemplate(projectId, stateNumber)}/${nextStateNumber}`,
         getRequestOptions('PUT', credentials)
     )
-        .then(res => res.status == 201)
+        .then(res => { if (res.status != 201) return throwErrorFromResponse(res, 'Error while adding next state') })
 }
 
-function editState(projectId: number, stateNumber: number, name: string, isStartState: boolean, credentials: Credentials): Promise<boolean> {
+function editState(projectId: number, stateNumber: number, name: string, isStartState: boolean, credentials: Credentials): Promise<void> {
     return fetch(
         apiRoutes.state.getStateRoute.hrefTemplate.expandUriTemplate(projectId, stateNumber), 
         getRequestOptions('PUT', credentials, {
@@ -165,23 +159,23 @@ function editState(projectId: number, stateNumber: number, name: string, isStart
             isStartState: isStartState
         })
     )
-        .then(res => res.status == 200)
+        .then(res => { if (res.status != 200) return throwErrorFromResponse(res, 'Error while editing state') })
 }
 
-function deleteState(projectId: number, stateNumber: number, credentials: Credentials): Promise<boolean> {
+function deleteState(projectId: number, stateNumber: number, credentials: Credentials): Promise<void> {
     return fetch(
         apiRoutes.state.getStateRoute.hrefTemplate.expandUriTemplate(projectId, stateNumber), 
         getRequestOptions('DELETE', credentials)
     )
-        .then(res => res.status == 200)
+        .then(res => { if (res.status != 200) return throwErrorFromResponse(res, 'Error while deleting state') })
 }
 
-function deleteNextState(projectId: number, stateNumber: number, nextStateNumber: number, credentials: Credentials): Promise<boolean> {
+function deleteNextState(projectId: number, stateNumber: number, nextStateNumber: number, credentials: Credentials): Promise<void> {
     return fetch(
         `${apiRoutes.state.getNextStatesRoute.hrefTemplate.expandUriTemplate(projectId, stateNumber)}/${nextStateNumber}`,
         getRequestOptions('DELETE', credentials)
     )
-        .then(res => res.status == 200)
+        .then(res => { if (res.status != 200) return throwErrorFromResponse(res, 'Error while deleting next state') })
 }
 
 export {

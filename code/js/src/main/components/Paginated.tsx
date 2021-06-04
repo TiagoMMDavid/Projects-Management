@@ -10,6 +10,7 @@ type PaginatedProps = {
 
 function Paginated({ children, onChangePage, page, isLastPage }: PaginatedProps): JSX.Element {
     const history = useHistory()
+    page = page < 0 ? 0 : page
 
     function handlePageChange(page: number) {
         const params = new URLSearchParams()

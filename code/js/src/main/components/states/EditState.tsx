@@ -25,9 +25,8 @@ function EditState({state, onFinishEdit, onEdit, credentials}: EditStateProps): 
         setMessage('Editing state...')
         onEdit()
         editState(state.projectId, state.number, newName, null, credentials)
-            .then(res => {
-                onFinishEdit(res, 'Failed to edit state!')
-            })
+            .then(() => onFinishEdit(true, null))
+            .catch(err => onFinishEdit(false, err.message))
     }
 
     return (

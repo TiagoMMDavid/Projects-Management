@@ -43,10 +43,8 @@ function LoginPage({ redirectPath, getAuthUser }: LoginPageProps): JSX.Element {
 
             const credentials = generateCredentials(username, password)
             getAuthUser(credentials)
-                .then(user => {
-                    if (user) ctx.logIn(username, password, user.id)
-                    else dispatch({type: 'set-invalid'})
-                })
+                .then(user => ctx.logIn(username, password, user.id))
+                .catch(() => dispatch({type: 'set-invalid'}))
         } else {
             dispatch({type: 'set-invalid'})
         }
@@ -54,12 +52,12 @@ function LoginPage({ redirectPath, getAuthUser }: LoginPageProps): JSX.Element {
 
     return (
         isLoggedIn ? <Redirect to={redirectPath}></Redirect> :
-            <div>
-                Username: <input type='text' placeholder='username' ref={userNameRef}></input>
-                <br></br>
-                Password: <input type='password' placeholder='password' ref={passwordRef}></input>
-                <br></br>
-                <button onClick = {handleLogin}>LOGIN</button>
+            <div className="center login">
+                <h2>Username</h2>
+                <input type='text' placeholder='username' className="mt-2" ref={userNameRef}></input>
+                <h2 className="mt-3">Password</h2>
+                <input type='password' placeholder='password' className="mt-2" ref={passwordRef}></input>
+                <button className="mt-3" onClick={handleLogin}>Login</button>
                 <h1>{state}</h1>
             </div>
     )

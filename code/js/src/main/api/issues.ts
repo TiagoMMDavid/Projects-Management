@@ -1,5 +1,5 @@
 import { Credentials } from '../utils/userSession'
-import { apiRoutes, getRequestOptions } from '../api/apiRoutes'
+import { apiRoutes, getRequestOptions, throwErrorFromResponse } from '../api/apiRoutes'
 
 const ISSUES_LIMIT = 10
 
@@ -8,10 +8,8 @@ function getIssues(projectId: number, page: number, credentials: Credentials): P
         apiRoutes.issue.getIssuesRoute.hrefTemplate.expandUriTemplate(projectId).toPaginatedUri(page, ISSUES_LIMIT), 
         getRequestOptions('GET', credentials)
     )
-        .then(res => res.status != 200 ? null : res.json())
+        .then(res => res.status != 200 ? throwErrorFromResponse(res, 'Error while getting issues') : res.json())
         .then(collection => {
-            if (!collection) return null
-
             const entities = Array.from(collection.entities) as any[]
             const actions: SirenAction[] = Array.from(collection.actions || [])
             const links: SirenLink[] = Array.from(collection.links)
@@ -55,10 +53,8 @@ function getIssue(projectId: number, issueNumber: number, credentials: Credentia
         apiRoutes.issue.getIssueRoute.hrefTemplate.expandUriTemplate(projectId, issueNumber), 
         getRequestOptions('GET', credentials)
     )
-        .then(res => res.status != 200 ? null : res.json())
+        .then(res => res.status != 200 ? throwErrorFromResponse(res, 'Error while getting issue') : res.json())
         .then(entity => {
-            if (!entity) return null
-
             return {
                 id: entity.properties.id,
                 number: entity.properties.number,
@@ -79,7 +75,7 @@ function getIssue(projectId: number, issueNumber: number, credentials: Credentia
         })
 }
 
-function createIssue(projectId: number, name: string, description: string, credentials: Credentials): Promise<boolean> {
+function createIssue(projectId: number, name: string, description: string, credentials: Credentials): Promise<void> {
     return fetch(
         apiRoutes.issue.getIssuesRoute.hrefTemplate.expandUriTemplate(projectId), 
         getRequestOptions('POST', credentials, {
@@ -87,10 +83,10 @@ function createIssue(projectId: number, name: string, description: string, crede
             description: description
         })
     )
-        .then(res => res.status == 201)
+        .then(res => { if (res.status != 201) return throwErrorFromResponse(res, 'Error while creating issue') })
 }
 
-function editIssue(projectId: number, issueNumber: number, name: string, description: string, state: string, credentials: Credentials): Promise<boolean> {
+function editIssue(projectId: number, issueNumber: number, name: string, description: string, state: string, credentials: Credentials): Promise<void> {
     return fetch(
         apiRoutes.issue.getIssueRoute.hrefTemplate.expandUriTemplate(projectId, issueNumber), 
         getRequestOptions('PUT', credentials, {
@@ -99,15 +95,15 @@ function editIssue(projectId: number, issueNumber: number, name: string, descrip
             state: state
         })
     )
-        .then(res => res.status == 200)
+        .then(res => { if (res.status != 200) return throwErrorFromResponse(res, 'Error while editing issue') })
 }
 
-function deleteIssue(projectId: number, issueNumber: number, credentials: Credentials): Promise<boolean> {
+function deleteIssue(projectId: number, issueNumber: number, credentials: Credentials): Promise<void> {
     return fetch(
         apiRoutes.issue.getIssueRoute.hrefTemplate.expandUriTemplate(projectId, issueNumber), 
         getRequestOptions('DELETE', credentials)
     )
-        .then(res => res.status == 200)
+        .then(res => { if (res.status != 200) return throwErrorFromResponse(res, 'Error while deleting issue') })
 }
 
 export {

@@ -29,6 +29,7 @@ function SearchIssueStates({ state, onAdd, onFinishAdd, credentials }: SearchSta
                         setMessage(null)
                         setSearchResults(states)
                     })
+                    .catch(err => setMessage(err.message))
             }, 500)
 
             return () => {
@@ -49,7 +50,8 @@ function SearchIssueStates({ state, onAdd, onFinishAdd, credentials }: SearchSta
     function addState(nextStateNumber: number) {
         onAdd()
         addNextState(state.projectId, state.number, nextStateNumber, credentials)
-            .then(success => onFinishAdd(success, success ? null : 'Error Adding state'))
+            .then(() => onFinishAdd(true, null))
+            .catch(err => onFinishAdd(false, err.message))
     }
 
     return (

@@ -16,14 +16,13 @@ function DeleteIssue({issue, onFinishDelete, onDelete, credentials}: DeleteIssue
         setMessage('Deleting issue...')
         onDelete()
         deleteIssue(issue.projectId, issue.number, credentials)
-            .then(res => {
-                onFinishDelete(res, 'Failed to delete issue!')
-            })
+            .then(() => onFinishDelete(true, null))
+            .catch(err => onFinishDelete(false, err.message))
     }
 
     return (
         <div>
-            <button onClick={deleteIssueHandler}>Delete Issue</button>
+            <button className="danger" onClick={deleteIssueHandler}>Delete Issue</button>
             <p>{message}</p>
         </div>
     )

@@ -28,9 +28,12 @@ function CreateState({onFinishCreating, onCreating, credentials, projectId}: Cre
         setMessage('Creating state...')
         onCreating()
         createState(projectId, nameInput, isStartChecked, credentials)
-            .then(res => {
-                if (!res) setMessage('Failed to create state!')
-                else setMessage(null)
+            .then(() => {
+                setMessage(null)
+                onFinishCreating()
+            })
+            .catch(err => {
+                setMessage(err.message)
                 onFinishCreating()
             })
     }
