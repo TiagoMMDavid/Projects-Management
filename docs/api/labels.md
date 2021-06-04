@@ -23,11 +23,21 @@ A label is a name that classifies an issue. Issues can have zero or more labels.
     * non editable, auto-assigned
     * type: **text**
     * example: `"My Project"`
+* `projectId` - Id of the project where the label is contained
+    * mandatory
+    * non editable, auto-assigned
+    * type: **nuymber**
+    * example: `1`
 * `author` - Name of the label's creator
     * mandatory
     * non editable, auto-assigned
     * type: **text**
     * example: `"John Doe"`
+* `authorId` - Id of the label's creator
+    * mandatory
+    * non editable, auto-assigned
+    * type: **number**
+    * example: `1`
 
 ## Link Relations
 * [self](#get-label)
@@ -82,7 +92,9 @@ Status: 200 OK
         "number": 1,
         "name": "label 1",
         "project": "project 1",
-        "author": "user1"
+        "projectId": 1,
+        "author": "user1",
+        "authorId": 1
       },
       "links": [
         {
@@ -111,7 +123,9 @@ Status: 200 OK
         "number": 2,
         "name": "label 2",
         "project": "project 1",
-        "author": "user1"
+        "projectId": 1,
+        "author": "user1",
+        "authorId": 1
       },
       "links": [
         {
@@ -137,7 +151,7 @@ Status: 200 OK
     {
       "name": "create-label",
       "title": "Create Label",
-      "method": "PUT",
+      "method": "POST",
       "href": "http://localhost:8080/api/projects/1/labels",
       "type": "application/x-www-form-urlencoded",
       "fields": [
@@ -211,7 +225,9 @@ Status: 200 OK
     "number": 1,
     "name": "label 1",
     "project": "project 1",
-    "author": "user1"
+    "projectId": 1,
+    "author": "user1",
+    "authorId": 1
   },
   "actions": [
     {
@@ -444,7 +460,9 @@ Status: 200 OK
         "number": 1,
         "name": "label 1",
         "project": "project 1",
-        "author": "user1"
+        "projectId": 1,
+        "author": "user1",
+        "authorId": 1
       },
       "actions": [
         {
@@ -502,7 +520,9 @@ Status: 200 OK
         "number": 2,
         "name": "label 2",
         "project": "project 1",
-        "author": "user1"
+        "projectId": 1,
+        "author": "user1",
+        "authorId": 1
       },
       "actions": [
         {
