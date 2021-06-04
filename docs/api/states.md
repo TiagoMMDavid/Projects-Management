@@ -23,16 +23,21 @@ A state characterizes the particular condition of an issue in a given time. A se
     * editable
     * type: **boolean**
     * example: `false`    
-* `project` - Name of the project where the state is inserted
+* `projectId` - Id of the project where the label is contained
     * mandatory
     * non editable, auto-assigned
-    * type: **text**
-    * example: `"This is my project"`
-* `author` - Name of the state's creator
+    * type: **nuymber**
+    * example: `1`
+* `author` - Name of the label's creator
     * mandatory
     * non editable, auto-assigned
     * type: **text**
     * example: `"John Doe"`
+* `authorId` - Id of the label's creator
+    * mandatory
+    * non editable, auto-assigned
+    * type: **number**
+    * example: `1`
 
 ## Link Relations
 * [self](#get-state)
@@ -92,7 +97,9 @@ Status: 200 OK
         "name": "closed",
         "isStartState": false,
         "project": "project 1",
-        "author": "user1"
+        "projectId": 1,
+        "author": "user1",
+        "authorId": 1
       },
       "links": [
         {
@@ -126,7 +133,9 @@ Status: 200 OK
         "name": "archived",
         "isStartState": false,
         "project": "project 1",
-        "author": "user1"
+        "projectId": 1,
+        "author": "user1",
+        "authorId": 1
       },
       "links": [
         {
@@ -156,7 +165,7 @@ Status: 200 OK
     {
       "name": "create-state",
       "title": "Create State",
-      "method": "PUT",
+      "method": "POST",
       "href": "http://localhost:8080/api/projects/1/states",
       "type": "application/x-www-form-urlencoded",
       "fields": [
@@ -184,7 +193,9 @@ Status: 200 OK
         "name": "start state",
         "isStartState": true,
         "project": "project 1",
-        "author": "user1"
+        "projectId": 1,
+        "author": "user1",
+        "authorId": 1
       },
       "links": [
         {
@@ -265,19 +276,21 @@ Status: 200 OK
 {
   "class": ["state"],
   "properties": {
-    "id": 1,
-    "number": 1,
-    "name": "closed",
+    "id": 3,
+    "number": 3,
+    "name": "example state",
     "isStartState": false,
     "project": "project 1",
-    "author": "user1"
+    "projectId": 1,
+    "author": "user1",
+    "authorId": 1
   },
   "actions": [
     {
       "name": "edit-state",
       "title": "Edit State",
       "method": "PUT",
-      "href": "http://localhost:8080/api/projects/1/states/1",
+      "href": "http://localhost:8080/api/projects/1/states/3",
       "type": "application/x-www-form-urlencoded",
       "fields": [
         {
@@ -288,7 +301,7 @@ Status: 200 OK
         {
           "name": "stateNumber",
           "type": "hidden",
-          "value": 1
+          "value": 3
         },
         {
           "name": "name",
@@ -304,7 +317,7 @@ Status: 200 OK
       "name": "delete-state",
       "title": "Delete State",
       "method": "DELETE",
-      "href": "http://localhost:8080/api/projects/1/states/1",
+      "href": "http://localhost:8080/api/projects/1/states/3",
       "fields": [
         {
           "name": "projectId",
@@ -314,7 +327,7 @@ Status: 200 OK
         {
           "name": "stateNumber",
           "type": "hidden",
-          "value": 1
+          "value": 3
         }
       ]
     }
@@ -396,48 +409,14 @@ Status: 200 OK
       "class": ["state"],
       "rel": ["item"],
       "properties": {
-        "id": 2,
-        "number": 2,
-        "name": "archived",
-        "isStartState": false,
-        "project": "project 1",
-        "author": "user1"
-      },
-      "actions": [
-        {
-          "name": "delete-next-state",
-          "title": "Delete Next State",
-          "method": "DELETE",
-          "href": "/api/projects/1/states/1/nextStates/2",
-          "type": "application/x-www-form-urlencoded",
-          "fields": [
-            {
-              "name": "projectId",
-              "type": "hidden",
-              "value": 1
-            },
-            {
-              "name": "stateNumber",
-              "type": "hidden",
-              "value": 1
-            },
-            {
-              "name": "nextStateNumber",
-              "type": "hidden",
-              "value": 2
-            }
-          ]
-        },
-        {
-      "class": ["state"],
-      "rel": ["item"],
-      "properties": {
         "id": 3,
         "number": 3,
-        "name": "another state",
+        "name": "example state",
         "isStartState": false,
         "project": "project 1",
-        "author": "user1"
+        "projectId": 1,
+        "author": "user1",
+        "authorId": 1
       },
       "actions": [
         {
@@ -461,6 +440,44 @@ Status: 200 OK
               "name": "nextStateNumber",
               "type": "hidden",
               "value": 3
+            }
+          ]
+        },
+        {
+      "class": ["state"],
+      "rel": ["item"],
+      "properties": {
+        "id": 4,
+        "number": 4,
+        "name": "another state",
+        "isStartState": false,
+        "project": "project 1",
+        "projectId": 1,
+        "author": "user1",
+        "authorId": 1
+      },
+      "actions": [
+        {
+          "name": "delete-next-state",
+          "title": "Delete Next State",
+          "method": "DELETE",
+          "href": "/api/projects/1/states/1/nextStates/4",
+          "type": "application/x-www-form-urlencoded",
+          "fields": [
+            {
+              "name": "projectId",
+              "type": "hidden",
+              "value": 1
+            },
+            {
+              "name": "stateNumber",
+              "type": "hidden",
+              "value": 1
+            },
+            {
+              "name": "nextStateNumber",
+              "type": "hidden",
+              "value": 4
             }
           ]
         }
@@ -556,7 +573,7 @@ Status: 404 Not Found
 Create a state in a project.
 
 ```http
-PUT /api/projects/{projectId}/states
+POST /api/projects/{projectId}/states
 ```
 
 #### Parameters
