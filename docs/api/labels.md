@@ -99,19 +99,19 @@ Status: 200 OK
       "links": [
         {
           "rel": ["self"],
-          "href": "http://localhost:8080/api/projects/1/labels/1"
+          "href": "/api/projects/1/labels/1"
         },
         {
           "rel": ["project"],
-          "href": "http://localhost:8080/api/projects/1"
+          "href": "/api/projects/1"
         },
         {
           "rel": ["author"],
-          "href": "http://localhost:8080/api/users/1"
+          "href": "/api/users/1"
         },
         {
           "rel": ["labels"],
-          "href": "http://localhost:8080/api/projects/1/labels"
+          "href": "/api/projects/1/labels"
         }
       ]
     },
@@ -130,19 +130,19 @@ Status: 200 OK
       "links": [
         {
           "rel": ["self"],
-          "href": "http://localhost:8080/api/projects/1/labels/2"
+          "href": "/api/projects/1/labels/2"
         },
         {
           "rel": ["project"],
-          "href": "http://localhost:8080/api/projects/1"
+          "href": "/api/projects/1"
         },
         {
           "rel": ["author"],
-          "href": "http://localhost:8080/api/users/1"
+          "href": "/api/users/1"
         },
         {
           "rel": ["labels"],
-          "href": "http://localhost:8080/api/projects/1/labels"
+          "href": "/api/projects/1/labels"
         }
       ]
     }
@@ -152,8 +152,8 @@ Status: 200 OK
       "name": "create-label",
       "title": "Create Label",
       "method": "POST",
-      "href": "http://localhost:8080/api/projects/1/labels",
-      "type": "application/x-www-form-urlencoded",
+      "href": "/api/projects/1/labels",
+      "type": "application/json",
       "fields": [
         {
           "name": "projectId",
@@ -170,15 +170,15 @@ Status: 200 OK
   "links": [
     {
       "rel": ["self"],
-      "href": "http://localhost:8080/api/projects/1/labels?page=0&limit=10"
+      "href": "/api/projects/1/labels?page=0&limit=10"
     },
     {
       "rel": ["page"],
-      "hrefTemplate": "http://localhost:8080/api/projects/1/labels{?page,limit}"
+      "hrefTemplate": "/api/projects/1/labels{?page,limit}"
     },
     {
       "rel": ["project"],
-      "href": "http://localhost:8080/api/projects/1"
+      "href": "/api/projects/1"
     }
   ]
 }
@@ -234,8 +234,8 @@ Status: 200 OK
       "name": "edit-label",
       "title": "Edit Label",
       "method": "PUT",
-      "href": "http://localhost:8080/api/projects/1/labels/1",
-      "type": "application/x-www-form-urlencoded",
+      "href": "/api/projects/1/labels/1",
+      "type": "application/json",
       "fields": [
         {
           "name": "projectId",
@@ -257,7 +257,7 @@ Status: 200 OK
       "name": "delete-label",
       "title": "Delete Label",
       "method": "DELETE",
-      "href": "http://localhost:8080/api/projects/1/labels/1",
+      "href": "/api/projects/1/labels/1",
       "fields": [
         {
           "name": "projectId",
@@ -275,19 +275,19 @@ Status: 200 OK
   "links": [
     {
       "rel": ["self"],
-      "href": "http://localhost:8080/api/projects/1/labels/1"
+      "href": "/api/projects/1/labels/1"
     },
     {
       "rel": ["project"],
-      "href": "http://localhost:8080/api/projects/1"
+      "href": "/api/projects/1"
     },
     {
       "rel": ["author"],
-      "href": "http://localhost:8080/api/users/1"
+      "href": "/api/users/1"
     },
     {
       "rel": ["labels"],
-      "href": "http://localhost:8080/api/projects/1/labels"
+      "href": "/api/projects/1/labels"
     }
   ]
 }
@@ -312,14 +312,14 @@ Status: 404 Not Found
 Create a project label.
 
 ```http
-PUT /api/projects/{projectId}/labels
+POST /api/projects/{projectId}/labels
 ```
 
 #### Parameters
 | Name         | Type        | In         | Description                                                                           |
 | ------------ | ----------- | ---------- | ------------------------------------------------------------------------------------- |
 | accept       | string      | header     | Should be set to either `application/json` or `application/vnd.siren+json`            |
-| content-type | string      | header     | Should be set to `application/x-www-form-urlencoded`                                  |
+| content-type | string      | header     | Should be set to `application/json`                                                   |
 | projectId    | integer     | path       | The project's unique identifier                                                       |
 | name         | string      | body       | **Required**. Unique (within the project) and short name that defines the label       |
 
@@ -356,7 +356,7 @@ PUT /api/projects/{projectId}/labels/{labelNumber}
 | Name         | Type        | In         | Description                                                                                                                          |
 | ------------ | ----------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------ |
 | accept       | string      | header     | Should be set to either `application/json` or `application/vnd.siren+json`                                                           |
-| content-type | string      | header     | Should be set to `application/x-www-form-urlencoded`                                                                                 |
+| content-type | string      | header     | Should be set to `application/json`                                                                                                  |
 | projectId    | integer     | path       | The project's unique identifier                                                                                                      |
 | labelNumber  | integer     | path       | The label's identifier relative to the project                                                                                       |
 | name         | string      | body       | **Required**. Unique and short name that defines the label                                                                           |
@@ -422,6 +422,11 @@ Status: 401 Unauthorized
 Status: 404 Not Found
 ```
 
+#### Conflict
+```
+Status: 409 Conflict
+```
+
 ------
 ### List Issue Labels
 List the issue's current labels, in the order that they were created.
@@ -469,7 +474,7 @@ Status: 200 OK
           "name": "delete-label-from-issue",
           "title": "Delete Label From Issue",
           "method": "DELETE",
-          "href": "http://localhost:8080/api/projects/1/issues/1/labels/1",
+          "href": "/api/projects/1/issues/1/labels/1",
           "fields": [
             {
               "name": "projectId",
@@ -492,23 +497,23 @@ Status: 200 OK
       "links": [
         {
           "rel": ["self"],
-          "href": "http://localhost:8080/api/projects/1/issues/1/labels/1"
+          "href": "/api/projects/1/issues/1/labels/1"
         },
         {
           "rel": ["issue"],
-          "href": "http://localhost:8080/api/projects/1/issues/1"
+          "href": "/api/projects/1/issues/1"
         },
         {
           "rel": ["project"],
-          "href": "http://localhost:8080/api/projects/1"
+          "href": "/api/projects/1"
         },
         {
           "rel": ["author"],
-          "href": "http://localhost:8080/api/users/1"
+          "href": "/api/users/1"
         },
         {
           "rel": ["labels"],
-          "href": "http://localhost:8080/api/projects/1/issues/1/labels"
+          "href": "/api/projects/1/issues/1/labels"
         }
       ]
     },
@@ -529,7 +534,7 @@ Status: 200 OK
           "name": "delete-label-from-issue",
           "title": "Delete Label From Issue",
           "method": "DELETE",
-          "href": "http://localhost:8080/api/projects/1/issues/1/labels/2",
+          "href": "/api/projects/1/issues/1/labels/2",
           "fields": [
             {
               "name": "projectId",
@@ -552,23 +557,23 @@ Status: 200 OK
       "links": [
         {
           "rel": ["self"],
-          "href": "http://localhost:8080/api/projects/1/issues/1/labels/2"
+          "href": "/api/projects/1/issues/1/labels/2"
         },
         {
           "rel": ["issue"],
-          "href": "http://localhost:8080/api/projects/1/issues/1"
+          "href": "/api/projects/1/issues/1"
         },
         {
           "rel": ["project"],
-          "href": "http://localhost:8080/api/projects/1"
+          "href": "/api/projects/1"
         },
         {
           "rel": ["author"],
-          "href": "http://localhost:8080/api/users/1"
+          "href": "/api/users/1"
         },
         {
           "rel": ["labels"],
-          "href": "http://localhost:8080/api/projects/1/issues/1/labels"
+          "href": "/api/projects/1/issues/1/labels"
         }
       ]
     }
@@ -578,8 +583,8 @@ Status: 200 OK
       "name": "add-label-to-issue",
       "title": "Add Label To Issue",
       "method": "PUT",
-      "href": "http://localhost:8080/api/projects/1/issues/1/labels",
-      "type": "application/x-www-form-urlencoded",
+      "href": "/api/projects/1/issues/1/labels",
+      "type": "application/json",
       "fields": [
         {
           "name": "projectId",
@@ -601,19 +606,19 @@ Status: 200 OK
   "links": [
     {
       "rel": ["self"],
-      "href": "http://localhost:8080/api/projects/1/issues/1/labels?page=0&limit=10"
+      "href": "/api/projects/1/issues/1/labels?page=0&limit=10"
     },
     {
       "rel": ["page"],
-      "hrefTemplate": "http://localhost:8080/api/projects/1/issues/1/labels{?page,limit}"
+      "hrefTemplate": "/api/projects/1/issues/1/labels{?page,limit}"
     },
     {
       "rel": ["project"],
-      "href": "http://localhost:8080/api/projects/1"
+      "href": "/api/projects/1"
     },
     {
       "rel": ["issue"],
-      "href": "http://localhost:8080/api/projects/1/issues/1"
+      "href": "/api/projects/1/issues/1"
     }
   ]
 }
@@ -645,7 +650,7 @@ PUT /api/projects/{projectId}/issues/{issueNumber}/labels
 | Name         | Type        | In         | Description                                                                           |
 | ------------ | ----------- | ---------- | ------------------------------------------------------------------------------------- |
 | accept       | string      | header     | Should be set to either `application/json` or `application/vnd.siren+json`            |
-| content-type | string      | header     | Should be set to `application/x-www-form-urlencoded`                                  |
+| content-type | string      | header     | Should be set to `application/json`                                                   |
 | projectId    | integer     | path       | The project's unique identifier                                                       |
 | issueNumber  | integer     | path       | The issue's identifier relative to the project                                        |
 | name         | string      | body       | **Required**. Unique (within the project) and short name that defines the label       |

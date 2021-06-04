@@ -124,31 +124,31 @@ Status: 200 OK
       "links": [
         {
           "rel": ["self"],
-          "href": "http://localhost:8080/api/projects/1/issues/1"
+          "href": "/api/projects/1/issues/1"
         },
         {
           "rel": ["state"],
-          "href": "http://localhost:8080/api/projects/1/states/3"
+          "href": "/api/projects/1/states/3"
         },
         {
           "rel": ["comments"],
-          "href": "http://localhost:8080/api/projects/1/issues/1/comments"
+          "href": "/api/projects/1/issues/1/comments"
         },
         {
           "rel": ["labels"],
-          "href": "http://localhost:8080/api/projects/1/issues/1/labels"
+          "href": "/api/projects/1/issues/1/labels"
         },
         {
           "rel": ["author"],
-          "href": "http://localhost:8080/api/users/1"
+          "href": "/api/users/1"
         },
         {
           "rel": ["project"],
-          "href": "http://localhost:8080/api/projects/1"
+          "href": "/api/projects/1"
         },
         {
           "rel": ["issues"],
-          "href": "http://localhost:8080/api/projects/1/issues"
+          "href": "/api/projects/1/issues"
         }
       ]
     },
@@ -172,31 +172,31 @@ Status: 200 OK
       "links": [
         {
           "rel": ["self"],
-          "href": "http://localhost:8080/api/projects/1/issues/2"
+          "href": "/api/projects/1/issues/2"
         },
         {
           "rel": ["state"],
-          "href": "http://localhost:8080/api/projects/1/states/3"
+          "href": "/api/projects/1/states/3"
         },
         {
           "rel": ["comments"],
-          "href": "http://localhost:8080/api/projects/1/issues/2/comments"
+          "href": "/api/projects/1/issues/2/comments"
         },
         {
           "rel": ["labels"],
-          "href": "http://localhost:8080/api/projects/1/issues/2/labels"
+          "href": "/api/projects/1/issues/2/labels"
         },
         {
           "rel": ["author"],
-          "href": "http://localhost:8080/api/users/2"
+          "href": "/api/users/2"
         },
         {
           "rel": ["project"],
-          "href": "http://localhost:8080/api/projects/1"
+          "href": "/api/projects/1"
         },
         {
           "rel": ["issues"],
-          "href": "http://localhost:8080/api/projects/1/issues"
+          "href": "/api/projects/1/issues"
         }
       ]
     }
@@ -205,8 +205,8 @@ Status: 200 OK
     {
       "name": "create-issue",
       "title": "Create Issue",
-      "method": "PUT",
-      "href": "http://localhost:8080/api/projects/1/issues",
+      "method": "POST",
+      "href": "/api/projects/1/issues",
       "type": "application/json",
       "fields": [
         {
@@ -228,15 +228,15 @@ Status: 200 OK
   "links": [
     {
       "rel": ["self"],
-      "href": "http://localhost:8080/api/projects/1/issues?page=0&limit=10"
+      "href": "/api/projects/1/issues?page=0&limit=10"
     },
     {
       "rel": ["page"],
-      "hrefTemplate": "http://localhost:8080/api/projects/1/issues{?page,limit}"
+      "hrefTemplate": "/api/projects/1/issues{?page,limit}"
     },
     {
       "rel": ["project"],
-      "href": "http://localhost:8080/api/projects/1"
+      "href": "/api/projects/1"
     }
   ]
 }
@@ -298,7 +298,7 @@ Status: 200 OK
       "name": "edit-issue",
       "title": "Edit Issue",
       "method": "PUT",
-      "href": "http://localhost:8080/api/projects/1/issues/1",
+      "href": "/api/projects/1/issues/1",
       "type": "application/json",
       "fields": [
         {
@@ -329,7 +329,7 @@ Status: 200 OK
       "name": "delete-issue",
       "title": "Delete Issue",
       "method": "DELETE",
-      "href": "http://localhost:8080/api/projects/1/issues/1",
+      "href": "/api/projects/1/issues/1",
       "fields": [
         {
           "name": "projectId",
@@ -347,31 +347,31 @@ Status: 200 OK
   "links": [
     {
       "rel": ["self"],
-      "href": "http://localhost:8080/api/projects/1/issues/1"
+      "href": "/api/projects/1/issues/1"
     },
     {
       "rel": ["state"],
-      "href": "http://localhost:8080/api/projects/1/states/3"
+      "href": "/api/projects/1/states/3"
     },
     {
       "rel": ["comments"],
-      "href": "http://localhost:8080/api/projects/1/issues/1/comments"
+      "href": "/api/projects/1/issues/1/comments"
     },
     {
       "rel": ["labels"],
-      "href": "http://localhost:8080/api/projects/1/issues/1/labels"
+      "href": "/api/projects/1/issues/1/labels"
     },
     {
       "rel": ["author"],
-      "href": "http://localhost:8080/api/users/1"
+      "href": "/api/users/1"
     },
     {
       "rel": ["project"],
-      "href": "http://localhost:8080/api/projects/1"
+      "href": "/api/projects/1"
     },
     {
       "rel": ["issues"],
-      "href": "http://localhost:8080/api/projects/1/issues"
+      "href": "/api/projects/1/issues"
     }
   ]
 }
@@ -422,6 +422,11 @@ Status: 400 Bad Request
 #### Requires Authentication
 ```
 Status: 401 Unauthorized
+```
+
+#### Forbidden
+```
+Status: 403 Forbidden
 ```
 
 ------

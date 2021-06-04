@@ -115,19 +115,19 @@ Status: 200 OK
       "links": [
         {
           "rel": ["self"],
-          "href": "http://localhost:8080/api/projects/1/issues/1/comments/1"
+          "href": "/api/projects/1/issues/1/comments/1"
         },
         {
           "rel": ["issue"],
-          "href": "http://localhost:8080/api/projects/1/issues/1"
+          "href": "/api/projects/1/issues/1"
         },
         {
           "rel": ["author"],
-          "href": "http://localhost:8080/api/users/1"
+          "href": "/api/users/1"
         },
         {
           "rel": ["comments"],
-          "href": "http://localhost:8080/api/projects/1/issues/1/comments"
+          "href": "/api/projects/1/issues/1/comments"
         }
       ]
     },
@@ -149,19 +149,19 @@ Status: 200 OK
       "links": [
         {
           "rel": ["self"],
-          "href": "http://localhost:8080/api/projects/1/issues/1/comments/2"
+          "href": "/api/projects/1/issues/1/comments/2"
         },
         {
           "rel": ["issue"],
-          "href": "http://localhost:8080/api/projects/1/issues/1"
+          "href": "/api/projects/1/issues/1"
         },
         {
           "rel": ["author"],
-          "href": "http://localhost:8080/api/users/1"
+          "href": "/api/users/1"
         },
         {
           "rel": ["comments"],
-          "href": "http://localhost:8080/api/projects/1/issues/1/comments"
+          "href": "/api/projects/1/issues/1/comments"
         }
       ]
     }
@@ -171,7 +171,7 @@ Status: 200 OK
       "name": "create-comment",
       "title": "Create Comment",
       "method": "POST",
-      "href": "http://localhost:8080/api/projects/1/issues/1/comments",
+      "href": "/api/projects/1/issues/1/comments",
       "type": "application/json",
       "fields": [
         {
@@ -194,19 +194,19 @@ Status: 200 OK
   "links": [
     {
       "rel": ["self"],
-      "href": "http://localhost:8080/api/projects/1/issues/1/comments?page=0&limit=10"
+      "href": "/api/projects/1/issues/1/comments?page=0&limit=10"
     },
     {
       "rel": ["page"],
-      "hrefTemplate": "http://localhost:8080/api/projects/1/issues/1/comments{?page,limit}"
+      "hrefTemplate": "/api/projects/1/issues/1/comments{?page,limit}"
     },
     {
       "rel": ["project"],
-      "href": "http://localhost:8080/api/projects/1"
+      "href": "/api/projects/1"
     },
     {
       "rel": ["issue"],
-      "href": "http://localhost:8080/api/projects/1/issues/1"
+      "href": "/api/projects/1/issues/1"
     }
   ]
 }
@@ -267,7 +267,7 @@ Status: 200 OK
       "name": "edit-comment",
       "title": "Edit Comment",
       "method": "PUT",
-      "href": "http://localhost:8080/api/projects/1/issues/1/comments/1",
+      "href": "/api/projects/1/issues/1/comments/1",
       "type": "application/json",
       "fields": [
         {
@@ -295,7 +295,7 @@ Status: 200 OK
       "name": "delete-comment",
       "title": "Delete Comment",
       "method": "DELETE",
-      "href": "http://localhost:8080/api/projects/1/issues/1/comments/1",
+      "href": "/api/projects/1/issues/1/comments/1",
       "fields": [
         {
           "name": "projectId",
@@ -318,19 +318,19 @@ Status: 200 OK
   "links": [
     {
       "rel": ["self"],
-      "href": "http://localhost:8080/api/projects/1/issues/1/comments/1"
+      "href": "/api/projects/1/issues/1/comments/1"
     },
     {
       "rel": ["issue"],
-      "href": "http://localhost:8080/api/projects/1/issues/1"
+      "href": "/api/projects/1/issues/1"
     },
     {
       "rel": ["author"],
-      "href": "http://localhost:8080/api/users/1"
+      "href": "/api/users/1"
     },
     {
       "rel": ["comments"],
-      "href": "http://localhost:8080/api/projects/1/issues/1/comments"
+      "href": "/api/projects/1/issues/1/comments"
     }
   ]
 }
@@ -389,6 +389,11 @@ Status: 401 Unauthorized
 Status: 404 Not Found
 ```
 
+#### Forbidden
+```
+Status: 403 Forbidden
+```
+
 ------
 ### Edit Comment
 Edit an already existing comment.
@@ -427,6 +432,11 @@ Status: 401 Unauthorized
 Status: 404 Not Found
 ```
 
+#### Forbidden
+```
+Status: 403 Forbidden
+```
+
 ------
 ### Delete Comment
 Delete an existing comment.
@@ -462,7 +472,6 @@ Status: 401 Unauthorized
 ```
 Status: 403 Forbidden
 ```
-
 
 #### Resource Not Found
 ```

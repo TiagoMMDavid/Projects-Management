@@ -85,27 +85,27 @@ Status: 200 OK
       "links": [
         {
           "rel": ["self"],
-          "href": "http://localhost:8080/api/projects/1"
+          "href": "/api/projects/1"
         },
         {
           "rel": ["labels"],
-          "href": "http://localhost:8080/api/projects/1/labels"
+          "href": "/api/projects/1/labels"
         },
         {
           "rel": ["issues"],
-          "href": "http://localhost:8080/api/projects/1/issues"
+          "href": "/api/projects/1/issues"
         },
         {
           "rel": ["states"],
-          "href": "http://localhost:8080/api/projects/1/states"
+          "href": "/api/projects/1/states"
         },
         {
           "rel": ["author"],
-          "href": "http://localhost:8080/api/users/1"
+          "href": "/api/users/1"
         },
         {
           "rel": ["projects"],
-          "href": "http://localhost:8080/api/projects"
+          "href": "/api/projects"
         }
       ]
     },
@@ -122,27 +122,27 @@ Status: 200 OK
       "links": [
         {
           "rel": ["self"],
-          "href": "http://localhost:8080/api/projects/2"
+          "href": "/api/projects/2"
         },
         {
           "rel": ["labels"],
-          "href": "http://localhost:8080/api/projects/2/labels"
+          "href": "/api/projects/2/labels"
         },
         {
           "rel": ["issues"],
-          "href": "http://localhost:8080/api/projects/2/issues"
+          "href": "/api/projects/2/issues"
         },
         {
           "rel": ["states"],
-          "href": "http://localhost:8080/api/projects/2/states"
+          "href": "/api/projects/2/states"
         },
         {
           "rel": ["author"],
-          "href": "http://localhost:8080/api/users/2"
+          "href": "/api/users/2"
         },
         {
           "rel": ["projects"],
-          "href": "http://localhost:8080/api/projects"
+          "href": "/api/projects"
         }
       ]
     }
@@ -152,7 +152,7 @@ Status: 200 OK
       "name": "create-project",
       "title": "Create Project",
       "method": "POST",
-      "href": "http://localhost:8080/api/projects",
+      "href": "/api/projects",
       "type": "application/json",
       "fields": [
         {
@@ -169,11 +169,11 @@ Status: 200 OK
   "links": [
     {
       "rel": ["self"],
-      "href": "http://localhost:8080/api/projects?page=0&limit=10"
+      "href": "/api/projects?page=0&limit=10"
     },
     {
       "rel": ["page"],
-      "hrefTemplate": "http://localhost:8080/api/projects{?page,limit}"
+      "hrefTemplate": "/api/projects{?page,limit}"
     }
   ]
 }
@@ -221,7 +221,7 @@ Status: 200 OK
       "name": "edit-project",
       "title": "Edit Project",
       "method": "PUT",
-      "href": "http://localhost:8080/api/projects/1",
+      "href": "/api/projects/1",
       "type": "application/json",
       "fields": [
         {
@@ -243,7 +243,7 @@ Status: 200 OK
       "name": "delete-project",
       "title": "Delete Project",
       "method": "DELETE",
-      "href": "http://localhost:8080/api/projects/1",
+      "href": "/api/projects/1",
       "fields": [
         {
           "name": "projectId",
@@ -256,27 +256,27 @@ Status: 200 OK
   "links": [
     {
       "rel": ["self"],
-      "href": "http://localhost:8080/api/projects/1"
+      "href": "/api/projects/1"
     },
     {
       "rel": ["labels"],
-      "href": "http://localhost:8080/api/projects/1/labels"
+      "href": "/api/projects/1/labels"
     },
     {
       "rel": ["issues"],
-      "href": "http://localhost:8080/api/projects/1/issues"
+      "href": "/api/projects/1/issues"
     },
     {
       "rel": ["states"],
-      "href": "http://localhost:8080/api/projects/1/states"
+      "href": "/api/projects/1/states"
     },
     {
       "rel": ["author"],
-      "href": "http://localhost:8080/api/users/1"
+      "href": "/api/users/1"
     },
     {
       "rel": ["projects"],
-      "href": "http://localhost:8080/api/projects"
+      "href": "/api/projects"
     }
   ]
 }

@@ -53,7 +53,7 @@ A state characterizes the particular condition of an issue in a given time. A se
 * [Create State](#create-state)
 * [Edit State](#edit-state)
 * [Delete State](#delete-state)
-* [Create Next State](#create-next-state)
+* [Add Next State](#add-next-state)
 * [Delete Next State](#delete-next-state)
 
 ------
@@ -104,23 +104,23 @@ Status: 200 OK
       "links": [
         {
           "rel": ["self"],
-          "href": "http://localhost:8080/api/projects/1/states/1"
+          "href": "/api/projects/1/states/1"
         },
         {
           "rel": ["author"],
-          "href": "http://localhost:8080/api/users/1"
+          "href": "/api/users/1"
         },
         {
           "rel": ["project"],
-          "href": "http://localhost:8080/api/projects/1"
+          "href": "/api/projects/1"
         },
         {
           "rel": ["nextStates"],
-          "href": "http://localhost:8080/api/projects/1/states/1/nextStates"
+          "href": "/api/projects/1/states/1/nextStates"
         },
         {
           "rel": ["states"],
-          "href": "http://localhost:8080/api/projects/1/states"
+          "href": "/api/projects/1/states"
         }
       ]
     },
@@ -140,23 +140,23 @@ Status: 200 OK
       "links": [
         {
           "rel": ["self"],
-          "href": "http://localhost:8080/api/projects/1/states/2"
+          "href": "/api/projects/1/states/2"
         },
         {
           "rel": ["author"],
-          "href": "http://localhost:8080/api/users/1"
+          "href": "/api/users/1"
         },
         {
           "rel": ["project"],
-          "href": "http://localhost:8080/api/projects/1"
+          "href": "/api/projects/1"
         },
         {
           "rel": ["nextStates"],
-          "href": "http://localhost:8080/api/projects/1/states/2/nextStates"
+          "href": "/api/projects/1/states/2/nextStates"
         },
         {
           "rel": ["states"],
-          "href": "http://localhost:8080/api/projects/1/states"
+          "href": "/api/projects/1/states"
         }
       ]
     },
@@ -166,8 +166,8 @@ Status: 200 OK
       "name": "create-state",
       "title": "Create State",
       "method": "POST",
-      "href": "http://localhost:8080/api/projects/1/states",
-      "type": "application/x-www-form-urlencoded",
+      "href": "/api/projects/1/states",
+      "type": "application/json",
       "fields": [
         {
           "name": "projectId",
@@ -200,23 +200,23 @@ Status: 200 OK
       "links": [
         {
           "rel": ["self"],
-          "href": "http://localhost:8080/api/projects/1/states/3"
+          "href": "/api/projects/1/states/3"
         },
         {
           "rel": ["author"],
-          "href": "http://localhost:8080/api/users/1"
+          "href": "/api/users/1"
         },
         {
           "rel": ["project"],
-          "href": "http://localhost:8080/api/projects/1"
+          "href": "/api/projects/1"
         },
         {
           "rel": ["nextStates"],
-          "href": "http://localhost:8080/api/projects/1/states/3/nextStates"
+          "href": "/api/projects/1/states/3/nextStates"
         },
         {
           "rel": ["states"],
-          "href": "http://localhost:8080/api/projects/1/states"
+          "href": "/api/projects/1/states"
         }
       ]
     }
@@ -224,15 +224,15 @@ Status: 200 OK
   "links": [
     {
       "rel": ["self"],
-      "href": "http://localhost:8080/api/projects/1/states?page=0&limit=10"
+      "href": "/api/projects/1/states?page=0&limit=10"
     },
     {
       "rel": ["page"],
-      "hrefTemplate": "http://localhost:8080/api/projects/1/states{?page,limit}"
+      "hrefTemplate": "/api/projects/1/states{?page,limit}"
     },
     {
       "rel": ["project"],
-      "href": "http://localhost:8080/api/projects/1"
+      "href": "/api/projects/1"
     }
   ]
 }
@@ -290,8 +290,8 @@ Status: 200 OK
       "name": "edit-state",
       "title": "Edit State",
       "method": "PUT",
-      "href": "http://localhost:8080/api/projects/1/states/3",
-      "type": "application/x-www-form-urlencoded",
+      "href": "/api/projects/1/states/3",
+      "type": "application/json",
       "fields": [
         {
           "name": "projectId",
@@ -317,7 +317,7 @@ Status: 200 OK
       "name": "delete-state",
       "title": "Delete State",
       "method": "DELETE",
-      "href": "http://localhost:8080/api/projects/1/states/3",
+      "href": "/api/projects/1/states/3",
       "fields": [
         {
           "name": "projectId",
@@ -335,23 +335,23 @@ Status: 200 OK
   "links": [
     {
       "rel": ["self"],
-      "href": "http://localhost:8080/api/projects/1/states/1"
+      "href": "/api/projects/1/states/1"
     },
     {
       "rel": ["author"],
-      "href": "http://localhost:8080/api/users/1"
+      "href": "/api/users/1"
     },
     {
       "rel": ["project"],
-      "href": "http://localhost:8080/api/projects/1"
+      "href": "/api/projects/1"
     },
     {
       "rel": ["nextStates"],
-      "href": "http://localhost:8080/api/projects/1/states/1/nextStates"
+      "href": "/api/projects/1/states/1/nextStates"
     },
     {
       "rel": ["states"],
-      "href": "http://localhost:8080/api/projects/1/states"
+      "href": "/api/projects/1/states"
     }
   ]
 }
@@ -424,7 +424,7 @@ Status: 200 OK
           "title": "Delete Next State",
           "method": "DELETE",
           "href": "/api/projects/1/states/1/nextStates/3",
-          "type": "application/x-www-form-urlencoded",
+          "type": "application/json",
           "fields": [
             {
               "name": "projectId",
@@ -462,7 +462,7 @@ Status: 200 OK
           "title": "Delete Next State",
           "method": "DELETE",
           "href": "/api/projects/1/states/1/nextStates/4",
-          "type": "application/x-www-form-urlencoded",
+          "type": "application/json",
           "fields": [
             {
               "name": "projectId",
@@ -486,39 +486,39 @@ Status: 200 OK
       "links": [
         {
           "rel": ["self"],
-          "href": "http://localhost:8080/api/projects/1/states/3"
+          "href": "/api/projects/1/states/3"
         },
         {
           "rel": ["author"],
-          "href": "http://localhost:8080/api/users/1"
+          "href": "/api/users/1"
         },
         {
           "rel": ["project"],
-          "href": "http://localhost:8080/api/projects/1"
+          "href": "/api/projects/1"
         },
         {
           "rel": ["nextStates"],
-          "href": "http://localhost:8080/api/projects/1/states/3/nextStates"
+          "href": "/api/projects/1/states/3/nextStates"
         },
         {
           "rel": ["states"],
-          "href": "http://localhost:8080/api/projects/1/states"
+          "href": "/api/projects/1/states"
         }
       ]
     }
   ],
   "actions": [
     {
-      "name": "create-next-state",
-      "title": "Create Next State",
+      "name": "add-next-state",
+      "title": "Add Next State",
       "method": "PUT",
-      "href": "http://localhost:8080/api/projects/1/states/1/nextStates",
-      "type": "application/x-www-form-urlencoded",
+      "hrefTemplate": "/api/projects/2/states/1/nextStates/{nextStateNumber}",
+      "type": "application/json",
       "fields": [
         {
           "name": "projectId",
           "type": "hidden",
-          "value": 1
+          "value": 2
         },
         {
           "name": "stateNumber",
@@ -526,8 +526,8 @@ Status: 200 OK
           "value": 1
         },
         {
-          "name": "state",
-          "type": "text"
+          "name": "nextStateNumber",
+          "type": "number"
         }
       ]
     }
@@ -535,19 +535,19 @@ Status: 200 OK
   "links": [
     {
       "rel": ["self"],
-      "href": "http://localhost:8080/api/projects/1/states/1/nextStates?page=0&limit=10"
+      "href": "/api/projects/1/states/1/nextStates?page=0&limit=10"
     },
     {
       "rel": ["page"],
-      "hrefTemplate": "http://localhost:8080/api/projects/1/states/1/nextStates{?page,limit}"
+      "hrefTemplate": "/api/projects/1/states/1/nextStates{?page,limit}"
     },
     {
       "rel": ["project"],
-      "href": "http://localhost:8080/api/projects/1"
+      "href": "/api/projects/1"
     },
     {
       "rel": ["state"],
-      "href": "http://localhost:8080/api/projects/1/states/1"
+      "href": "/api/projects/1/states/1"
     }
   ]
 }
@@ -580,7 +580,7 @@ POST /api/projects/{projectId}/states
 | Name         | Type        | In         | Description                                                                           |
 | ------------ | ----------- | ---------- | ------------------------------------------------------------------------------------- |
 | accept       | string      | header     | Should be set to either `application/json` or `application/vnd.siren+json`            |
-| content-type | string      | header     | Should be set to `application/x-www-form-urlencoded`                                  |
+| content-type | string      | header     | Should be set to `application/json`                                                   |
 | projectId    | integer     | path       | The project's unique identifier                                                       |
 | name         | string      | body       | **Required**. Unique name (within the project) that defines the state                 |
 | isStart      | boolean     | body       | **Required**. Indicates if the state is a start state or not                          |
@@ -618,7 +618,7 @@ PUT /api/projects/{projectId}/states/{stateNumber}
 | Name         | Type        | In         | Description                                                                                         |
 | ------------ | ----------- | ---------- | ----------------------------------------------------------------------------------------------------|
 | accept       | string      | header     | Should be set to either `application/json` or `application/vnd.siren+json`                          |
-| content-type | string      | header     | Should be set to `application/x-www-form-urlencoded`                                                |
+| content-type | string      | header     | Should be set to `application/json`                                                                 |
 | projectId    | integer     | path       | The project's unique identifier                                                                     |
 | stateNumber  | integer     | path       | The state's unique identifier relative to the project                                               |
 | name         | string      | body       | **Required unless you provide `isStart`** Unique name (within the project) that defines the state   |
@@ -640,6 +640,11 @@ Status: 400 Bad Request
 Status: 401 Unauthorized
 ```
 
+#### Forbidden
+```
+Status: 403 Forbidden
+```
+
 #### Conflict
 ```
 Status: 409 Conflict
@@ -657,7 +662,7 @@ DELETE /api/projects/{projectId}/states/{stateNumber}
 | Name         | Type        | In         | Description                                                                                         |
 | ------------ | ----------- | ---------- | ----------------------------------------------------------------------------------------------------|
 | accept       | string      | header     | Should be set to either `application/json` or `application/vnd.siren+json`                          |
-| content-type | string      | header     | Should be set to `application/x-www-form-urlencoded`                                                |
+| content-type | string      | header     | Should be set to `application/json`                                                                 |
 | projectId    | integer     | path       | The project's unique identifier                                                                     |
 | stateNumber  | integer     | path       | The state's unique identifier relative to the project                                               |
 
@@ -676,22 +681,33 @@ Status: 400 Bad Request
 Status: 401 Unauthorized
 ```
 
+#### Forbidden
+```
+Status: 403 Forbidden
+```
+
+#### Conflict
+```
+Status: 403 Forbidden
+```
+
 ------
-### Create Next State
+### Add Next State
 Add a state transition to a given state.
 
 ```http
-PUT /api/projects/{projectId}/states/{stateNumber}/nextStates
+PUT /api/projects/{projectId}/states/{stateNumber}/nextStates/{nextStateNumber}
 ```
 
 #### Parameters
-| Name         | Type        | In         | Description                                                                                         |
-| ------------ | ----------- | ---------- | ----------------------------------------------------------------------------------------------------|
-| accept       | string      | header     | Should be set to either `application/json` or `application/vnd.siren+json`                          |
-| content-type | string      | header     | Should be set to `application/x-www-form-urlencoded`                                                |
-| projectId    | integer     | path       | The project's unique identifier                                                                     |
-| stateNumber  | integer     | path       | The state's unique identifier relative to the project                                               |
-| state        | string      | body       | **Required** Name of the state to add                                                               |        
+| Name             | Type        | In         | Description                                                                                         |
+| ---------------- | ----------- | ---------- | ----------------------------------------------------------------------------------------------------|
+| accept           | string      | header     | Should be set to either `application/json` or `application/vnd.siren+json`                          |
+| content-type     | string      | header     | Should be set to `application/json`                                                                 |
+| projectId        | integer     | path       | The project's unique identifier                                                                     |
+| stateNumber      | integer     | path       | The state's unique identifier relative to the project                                               |
+| nextStateNumber  | integer     | path       | The state transition's unique identifier relative to the project                                    |
+| state            | string      | body       | **Required** Name of the state to add                                                               |        
 
 #### Default Response
 ```
@@ -707,6 +723,11 @@ Status: 400 Bad Request
 #### Requires Authentication
 ```
 Status: 401 Unauthorized
+```
+
+#### Forbidden
+```
+Status: 403 Forbidden
 ```
 
 #### Conflict
@@ -726,7 +747,7 @@ DELETE /api/projects/{projectId}/states/{stateNumber}/nextStates/{nextStateNumbe
 | Name              | Type        | In         | Description                                                                                         |
 | ----------------- | ----------- | ---------- | ----------------------------------------------------------------------------------------------------|
 | accept            | string      | header     | Should be set to either `application/json` or `application/vnd.siren+json`                          |
-| content-type      | string      | header     | Should be set to `application/x-www-form-urlencoded`                                                |
+| content-type      | string      | header     | Should be set to `application/json`                                                                 |
 | projectId         | integer     | path       | The project's unique identifier                                                                     |
 | stateNumber       | integer     | path       | The state's unique identifier relative to the project                                               |
 | nextStateNumber   | integer     | path       | The state transition's unique identifier relative to the project                                    |
@@ -744,4 +765,9 @@ Status: 400 Bad Request
 #### Requires Authentication
 ```
 Status: 401 Unauthorized
+```
+
+#### Forbidden
+```
+Status: 403 Forbidden
 ```

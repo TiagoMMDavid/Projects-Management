@@ -40,59 +40,59 @@ Status: 200 OK
   "links": [
     {
       "rel": ["projects"],
-      "href": "http://localhost:8080/api/projects"
+      "href": "/api/projects"
     },
     {
       "rel": ["users"],
-      "href": "http://localhost:8080/api/users"
+      "href": "/api/users"
     },
     {
       "rel": ["project"],
-      "hrefTemplate": "http://localhost:8080/api/projects/{projectId}"
+      "hrefTemplate": "/api/projects/{projectId}"
     },
     {
       "rel": ["labels"],
-      "hrefTemplate": "http://localhost:8080/api/projects/{projectId}/labels"
+      "hrefTemplate": "/api/projects/{projectId}/labels"
     },
     {
       "rel": ["label"],
-      "hrefTemplate": "http://localhost:8080/api/projects/{projectId}/labels/{labelNumber}"
+      "hrefTemplate": "/api/projects/{projectId}/labels/{labelNumber}"
     },
     {
       "rel": ["states"],
-      "hrefTemplate": "http://localhost:8080/api/projects/{projectId}/states"
+      "hrefTemplate": "/api/projects/{projectId}/states"
     },
     {
       "rel": ["state"],
-      "hrefTemplate": "http://localhost:8080/api/projects/{projectId}/states/{stateNumber}"
+      "hrefTemplate": "/api/projects/{projectId}/states/{stateNumber}"
     },
     {
       "rel": ["nextStates"],
-      "hrefTemplate": "http://localhost:8080/api/projects/{projectId}/states/{stateNumber}/nextStates"
+      "hrefTemplate": "/api/projects/{projectId}/states/{stateNumber}/nextStates"
     },
     {
       "rel": ["issues"],
-      "hrefTemplate": "http://localhost:8080/api/projects/{projectId}/issues"
+      "hrefTemplate": "/api/projects/{projectId}/issues"
     },
     {
       "rel": ["issue"],
-      "hrefTemplate": "http://localhost:8080/api/projects/{projectId}/issues/{issueNumber}"
+      "hrefTemplate": "/api/projects/{projectId}/issues/{issueNumber}"
     },
     {
       "rel": ["issueLabels"],
-      "hrefTemplate": "http://localhost:8080/api/projects/{projectId}/issues/{issueNumber}/labels"
+      "hrefTemplate": "/api/projects/{projectId}/issues/{issueNumber}/labels"
     },
     {
       "rel": ["comments"],
-      "hrefTemplate": "http://localhost:8080/api/projects/{projectId}/issues/{issueNumber}/comments"
+      "hrefTemplate": "/api/projects/{projectId}/issues/{issueNumber}/comments"
     },
     {
       "rel": ["comment"],
-      "hrefTemplate": "http://localhost:8080/api/projects/{projectId}/issues/{issueNumber}/comments/{commentNumber}"
+      "hrefTemplate": "/api/projects/{projectId}/issues/{issueNumber}/comments/{commentNumber}"
     },
     {
       "rel": ["user"],
-      "hrefTemplate": "http://localhost:8080/api/users/{userId}"
+      "hrefTemplate": "/api/users/{userId}"
     }
   ]
 }

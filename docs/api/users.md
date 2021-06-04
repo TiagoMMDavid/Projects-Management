@@ -61,11 +61,11 @@ Status: 200 OK
       "links": [
         {
           "rel": ["self"],
-          "href": "http://localhost:8080/api/users/1"
+          "href": "/api/users/1"
         },
         {
           "rel": ["users"],
-          "href": "http://localhost:8080/api/users"
+          "href": "/api/users"
         }
       ]
     },
@@ -79,11 +79,11 @@ Status: 200 OK
       "links": [
         {
           "rel": ["self"],
-          "href": "http://localhost:8080/api/users/2"
+          "href": "/api/users/2"
         },
         {
           "rel": ["users"],
-          "href": "http://localhost:8080/api/users"
+          "href": "/api/users"
         }
       ]
     }
@@ -91,11 +91,11 @@ Status: 200 OK
   "links": [
     {
       "rel": ["self"],
-      "href": "http://localhost:8080/api/users?page=0&limit=10"
+      "href": "/api/users?page=0&limit=10"
     },
     {
       "rel": ["page"],
-      "hrefTemplate": "http://localhost:8080/api/users{?page,limit}"
+      "hrefTemplate": "/api/users{?page,limit}"
     }
   ]
 }
@@ -138,11 +138,11 @@ Status: 200 OK
   "links": [
     {
       "rel": ["self"],
-      "href": "http://localhost:8080/api/users/1"
+      "href": "/api/users/1"
     },
     {
       "rel": ["users"],
-      "href": "http://localhost:8080/api/users"
+      "href": "/api/users"
     }
   ]
 }
@@ -189,11 +189,11 @@ Status: 200 OK
   "links": [
     {
       "rel": ["self"],
-      "href": "http://localhost:8080/api/users/1"
+      "href": "/api/users/1"
     },
     {
       "rel": ["users"],
-      "href": "http://localhost:8080/api/users"
+      "href": "/api/users"
     }
   ]
 }

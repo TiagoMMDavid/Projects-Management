@@ -207,8 +207,8 @@ class StatesController(val db: StatesDb) {
             } else {
                 listOf(
                     SirenAction(
-                        name = "create-next-state",
-                        title = "Create Next State",
+                        name = "add-next-state",
+                        title = "Add Next State",
                         method = HttpMethod.PUT,
                         hrefTemplate = UriTemplate("$nextStatesUri/{$NEXT_STATE_PARAM}"),
                         type = INPUT_CONTENT_TYPE,
