@@ -24,32 +24,52 @@ function User({ user }: UserProps): JSX.Element {
 type State = {
     state: 'has-user' | 'loading-user' | 'message'
     user: User
+    currUserId: number
     message: string
 }
   
 type Action =
-    { type: 'set-loading' } |
+    { type: 'set-loading', currUserId: number } |
     { type: 'set-user', user: User} |
     { type: 'set-message', message: string }
     
 function reducer(state: State, action: Action): State {
     switch (action.type) {
-        case 'set-loading': return { state: 'loading-user', user: null } as State
-        case 'set-user': return { state: 'has-user', user: action.user } as State
-        case 'set-message': return { state: 'message', message: action.message } as State
+        case 'set-loading': return { state: 'loading-user', user: null, currUserId: action.currUserId } as State
+        case 'set-user': return { state: 'has-user', user: action.user, currUserId: action.user.id } as State
+        case 'set-message': return { state: 'message', message: action.message, currUserId: state.currUserId } as State
     }
 }
 
 function UserPage(): JSX.Element {
     const { userId } = useParams<UserPageParams>()
-    const [{ state, user, message }, dispatch] = useReducer(reducer, { state: 'loading-user', user: null } as State)
+    const [{ state, user, currUserId, message }, dispatch] = useReducer(reducer, { state: 'loading-user', user: null } as State)
     const ctx = useContext(UserContext)
 
     useEffect(() => {
-        getUser(Number(userId), ctx.credentials)
-            .then(user => dispatch({ type: 'set-user', user: user }))
-            .catch(err => dispatch({ type: 'set-message', message: err.message }))
-    }, [userId])
+        let isCancelled = false
+        const id = Number(userId)
+
+        if (!isNaN(id) && currUserId != id) {
+            dispatch({type: 'set-loading', currUserId: id})
+        }
+
+        if (state == 'loading-user') {
+            getUser(id, ctx.credentials)
+                .then(user => {
+                    if (isCancelled) return
+                    dispatch({ type: 'set-user', user: user })
+                })
+                .catch(err => {
+                    if (isCancelled) return
+                    dispatch({ type: 'set-message', message: err.message })
+                })
+        }
+        
+        return () => {
+            isCancelled = true
+        }
+    }, [state, userId])
 
     let toReturn: JSX.Element
     switch(state) {
@@ -65,7 +85,10 @@ function UserPage(): JSX.Element {
             break
         case 'has-user':
             toReturn = (
-                <User user={user}/>
+                <div>
+                    <h1>User</h1>
+                    <User user={user}/>
+                </div>
             )
             break
     }

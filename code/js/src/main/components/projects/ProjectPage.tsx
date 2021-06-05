@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useReducer, } from 'react'
 import { useParams } from 'react-router'
 import { Link, Redirect } from 'react-router-dom'
+import { getSirenAction } from '../../api/apiRoutes'
 import { getProject } from '../../api/projects'
 import { UserContext } from '../../utils/userSession'
 import { DeleteProject } from './DeleteProject'
@@ -29,7 +30,7 @@ function Project({ project }: ProjectProps): JSX.Element {
 }
 
 type State = {
-    state: 'has-project' | 'loading-project' | 'deleted-project' | 'edited-project' | 'project-fail' | 'message'
+    state: 'has-project' | 'loading-project' | 'deleted-project' | 'edited-project' | 'message'
     message: string
     project: Project
 }
@@ -57,12 +58,23 @@ function ProjectPage(): JSX.Element {
     const ctx = useContext(UserContext)
 
     useEffect(() => {
-        if (state == 'edited-project' || state == 'loading-project' || state == 'project-fail') {
+        let isCancelled = false
+        if (state == 'edited-project' || state == 'loading-project') {
             getProject(Number(projectId), ctx.credentials)
-                .then(project => dispatch({ type: 'set-project', project: project, message: message }))
-                .catch(err => dispatch({ type: 'set-message', message: err.message }))
+                .then(project => {
+                    if (isCancelled) return
+                    dispatch({ type: 'set-project', project: project, message: message })
+                })
+                .catch(err => {
+                    if (isCancelled) return
+                    dispatch({ type: 'set-message', message: err.message })
+                })
         }
-    }, [projectId, state])
+
+        return () => {
+            isCancelled = true
+        }
+    }, [state])
 
     if (state == 'deleted-project')
         return (
@@ -86,30 +98,35 @@ function ProjectPage(): JSX.Element {
             body = (
                 <div>
                     <h4>{message}</h4>
-                    <EditProject
-                        project={project}
-                        onFinishEdit={(success, message) => {
-                            if (success) {
-                                dispatch({ type: 'set-edited-project' })
-                            } else {
-                                dispatch({ type: 'loading-project', message: message })
-                            }
-                        }}
-                        onEdit={() => dispatch({ type: 'set-message', message: 'Editing Project...' })}
-                        credentials={ctx.credentials} 
-                    />
-                    <DeleteProject
-                        project={project}
-                        onFinishDelete={(success, message) => {
-                            if (success) {
-                                dispatch({ type: 'set-deleted-project' })
-                            } else {
-                                dispatch({ type: 'loading-project', message: message })
-                            }
-                        }}
-                        onDelete={() => dispatch({ type: 'set-message', message: 'Deleting Project...' })}
-                        credentials={ctx.credentials}
-                    />
+                    { getSirenAction(project.actions, 'edit-project') != null ?
+                        <EditProject
+                            project={project}
+                            onFinishEdit={(success, message) => {
+                                if (success) {
+                                    dispatch({ type: 'set-edited-project' })
+                                } else {
+                                    dispatch({ type: 'loading-project', message: message })
+                                }
+                            }}
+                            credentials={ctx.credentials} 
+                        />
+                        : <></>
+                    }
+                    { getSirenAction(project.actions, 'delete-project') != null ?
+                        <DeleteProject
+                            project={project}
+                            onFinishDelete={(success, message) => {
+                                if (success) {
+                                    dispatch({ type: 'set-deleted-project' })
+                                } else {
+                                    dispatch({ type: 'loading-project', message: message })
+                                }
+                            }}
+                            credentials={ctx.credentials}
+                        />
+                        : <></>
+                    }
+                    <hr/>
                 </div>
             )
             break
@@ -118,7 +135,13 @@ function ProjectPage(): JSX.Element {
         <div>
             <Link to="/projects">{'<< View all projects'}</Link>
             {body}
-            {project == null ? <></> :  <Project project={project}/>}
+            {project == null ? 
+                <></> :
+                <div>
+                    <h1>Project</h1>
+                    <Project project={project}/>
+                </div>
+            }
         </div>
     )
 }

@@ -1,28 +1,41 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { deleteState } from '../../api/states'
 import { Credentials } from '../../utils/userSession'
 
 type DeleteStateProps = {
     state: IssueState
     onFinishDelete: (success: boolean, message: string) => void
-    onDelete: () => void
     credentials: Credentials
 }
 
-function DeleteState({state, onFinishDelete, onDelete, credentials}: DeleteStateProps): JSX.Element {
+function DeleteState({state, onFinishDelete, credentials}: DeleteStateProps): JSX.Element {
     const [message, setMessage] = useState(null)
+    const [toDelete, setToDelete] = useState(false)
 
-    function deleteStateHandler() {
-        setMessage('Deleting state...')
-        onDelete()
-        deleteState(state.projectId, state.number, credentials)
-            .then(() => onFinishDelete(true, null))
-            .catch(err => onFinishDelete(false, err.message))
-    }
+    useEffect(() => {
+        let isCancelled = false
+
+        if (toDelete) {
+            setMessage('Deleting state...')
+            deleteState(state.projectId, state.number, credentials)
+                .then(() => {
+                    if (isCancelled) return
+                    onFinishDelete(true, null)
+                })
+                .catch(err => {
+                    if (isCancelled) return
+                    onFinishDelete(false, err.message)
+                })
+        }
+
+        return () => {
+            isCancelled = true
+        }
+    }, [toDelete])
 
     return (
         <div>
-            <button onClick={deleteStateHandler}>Delete State</button>
+            <button className="danger" onClick={() => setToDelete(true)}>Delete State</button>
             <p>{message}</p>
         </div>
     )

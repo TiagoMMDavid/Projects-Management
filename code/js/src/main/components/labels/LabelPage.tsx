@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useReducer, } from 'react'
 import { useParams } from 'react-router'
 import { Link, Redirect } from 'react-router-dom'
+import { getSirenAction } from '../../api/apiRoutes'
 import { getLabel } from '../../api/labels'
 import { UserContext } from '../../utils/userSession'
 import { DeleteLabel } from './DeleteLabel'
@@ -54,10 +55,22 @@ function LabelPage(): JSX.Element {
     const ctx = useContext(UserContext)
 
     useEffect(() => {
+        let isCancelled = false
+
         if (state == 'edited-label' || state == 'loading-label') {
             getLabel(Number(projectId), Number(labelNumber), ctx.credentials)
-                .then(label => dispatch({ type: 'set-label', label: label, message: message }))
-                .catch(err => dispatch({ type: 'set-message', message: err.message }))
+                .then(label => {
+                    if (isCancelled) return
+                    dispatch({ type: 'set-label', label: label, message: message })
+                })
+                .catch(err => {
+                    if (isCancelled) return
+                    dispatch({ type: 'set-message', message: err.message })
+                })
+        }
+
+        return () => {
+            isCancelled = true
         }
     }, [projectId, labelNumber, state])
 
@@ -83,30 +96,35 @@ function LabelPage(): JSX.Element {
             body = (
                 <div>
                     <h4>{message}</h4>
-                    <EditLabel
-                        label={label}
-                        onFinishEdit={(success, message) => {
-                            if (success) {
-                                dispatch({ type: 'set-edited-label' })
-                            } else {
-                                dispatch({ type: 'loading-label', message: message })
-                            }
-                        }}
-                        onEdit={() => dispatch({ type: 'set-message', message: 'Editing Label...' })}
-                        credentials={ctx.credentials} 
-                    />
-                    <DeleteLabel
-                        label={label}
-                        onFinishDelete={(success, message) => {
-                            if (success) {
-                                dispatch({ type: 'set-deleted-label' })
-                            } else {
-                                dispatch({ type: 'loading-label', message: message })
-                            }
-                        }}
-                        onDelete={() => dispatch({ type: 'set-message', message: 'Deleting Label...' })}
-                        credentials={ctx.credentials}
-                    />
+                    { getSirenAction(label.actions, 'edit-label') != null ?
+                        <EditLabel
+                            label={label}
+                            onFinishEdit={(success, message) => {
+                                if (success) {
+                                    dispatch({ type: 'set-edited-label' })
+                                } else {
+                                    dispatch({ type: 'loading-label', message: message })
+                                }
+                            }}
+                            credentials={ctx.credentials} 
+                        />
+                        : <></>
+                    }
+                    { getSirenAction(label.actions, 'delete-label') != null ?
+                        <DeleteLabel
+                            label={label}
+                            onFinishDelete={(success, message) => {
+                                if (success) {
+                                    dispatch({ type: 'set-deleted-label' })
+                                } else {
+                                    dispatch({ type: 'loading-label', message: message })
+                                }
+                            }}
+                            credentials={ctx.credentials}
+                        />
+                        : <></>
+                    }
+                    <hr/>
                 </div>
             )
             break
@@ -115,7 +133,13 @@ function LabelPage(): JSX.Element {
         <div>
             <Link to={`/projects/${projectId}/labels`}>{'<< View all labels'}</Link>
             {body}
-            {label == null ? <></> : <Label label={label}/>}
+            {label == null ? 
+                <></> :
+                <div>
+                    <h1>Label</h1>
+                    <Label label={label}/>
+                </div>
+            }
         </div>
     )
 }

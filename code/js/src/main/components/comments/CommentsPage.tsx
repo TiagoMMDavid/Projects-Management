@@ -14,22 +14,20 @@ type CommentsPageParams = {
 }
 
 type State = {
-    state: 'has-comments' | 'loading-comments' | 'page-reset' | 'message'
+    state: 'has-comments' | 'page-set' | 'message'
     comments: IssueComments
     message: string
 }
   
 type Action =
-    { type: 'set-loading', message: string } |
     { type: 'set-comments', comments: IssueComments, message: string } |
-    { type: 'reset-page', message: string} |
+    { type: 'set-page', message: string } |
     { type: 'set-message', message: string }
     
 function reducer(state: State, action: Action): State {
     switch (action.type) {
-        case 'set-loading': return { state: 'loading-comments', comments: null, message: action.message } as State
         case 'set-comments': return { state: 'has-comments', comments: action.comments, message: action.message } as State
-        case 'reset-page': return { state: 'page-reset', comments: null, message: action.message } as State
+        case 'set-page': return { state: 'page-set', comments: null, message: action.message } as State
         case 'set-message': return { state: 'message', message: action.message} as State
     }
 }
@@ -40,19 +38,25 @@ function CommentsPage(): JSX.Element {
     const pageQuery = Number(queryString.parse(useLocation().search).page) || 0
     const page = pageQuery < 0 ? 0 : pageQuery
 
-    const [{ state, comments, message }, dispatch] = useReducer(reducer, { state: 'page-reset' } as State)
+    const [{ state, comments, message }, dispatch] = useReducer(reducer, { state: 'page-set' } as State)
     const ctx = useContext(UserContext)
 
-    function getPage(page: number): void {
-        dispatch({type: 'set-loading'} as Action)
-        getComments(Number(projectId), Number(issueNumber), page, ctx.credentials)
-            .then(comments => dispatch({ type: 'set-comments', comments: comments, message: message}))
-            .catch(err => dispatch({ type: 'set-message', message: err.message }))
-    }
-
     useEffect(() => {
-        if (state == 'page-reset') {
-            getPage(page)
+        let isCancelled = false
+        if (state == 'page-set') {
+            getComments(Number(projectId), Number(issueNumber), page, ctx.credentials)
+                .then(comments => {
+                    if (isCancelled) return
+                    dispatch({ type: 'set-comments', comments: comments, message: message})
+                })
+                .catch(err => {
+                    if (isCancelled) return
+                    dispatch({ type: 'set-message', message: err.message })
+                })
+        }
+
+        return () => {
+            isCancelled = true
         }
     }, [state])
 
@@ -61,8 +65,7 @@ function CommentsPage(): JSX.Element {
         case 'message':
             commentsView = <h1>{message}</h1>
             break
-        case 'page-reset':
-        case 'loading-comments':
+        case 'page-set':
             commentsView = <h1>Loading comments...</h1>
             break
         case 'has-comments':
@@ -71,15 +74,17 @@ function CommentsPage(): JSX.Element {
                     <h4>{message}</h4>
                     { getSirenAction(comments.actions, 'create-comment') != null ?
                         <CreateComment
-                            onFinishCreating={(success, message) => dispatch({ type: 'reset-page', message: message } as Action)}
-                            onCreating={() => dispatch({type: 'set-message', message: 'Creating comment...'})}
+                            onFinishCreating={(success, message) => dispatch({ type: 'set-page', message: message, page: page } as Action)}
                             credentials={ctx.credentials} 
                             projectId={Number(projectId)}
                             issueNumber={Number(issueNumber)}
                         />
                         : <> </>
                     }
-                    <Paginated onChangePage={getPage} isLastPage={comments.isLastPage} page={comments.page}>
+                    <hr/>
+                    <Paginated 
+                        onChangePage={() => dispatch({ type: 'set-page', message: message })} 
+                        isLastPage={comments.isLastPage} page={comments.page}>
                         <h1>Comments</h1>
                         { comments.comments.length == 0 ? 
                             <p> No comments found </p> :

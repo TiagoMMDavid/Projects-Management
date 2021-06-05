@@ -8,7 +8,13 @@ type StateProps = {
 function StateItem({ state }: StateProps): JSX.Element {
     return (
         <li>
-            <p>Name: <Link to={`/projects/${state.projectId}/states/${state.number}`}>{state.name}</Link></p>
+            <p>
+                Name: <Link to={`/projects/${state.projectId}/states/${state.number}`}>{state.name}</Link> 
+                {state.isStartState ? 
+                    <span className="startState ml-2">start state</span>
+                    : <></>
+                }
+            </p>
             <p>Author: <Link to={`/users/${state.authorId}`}>{state.author}</Link></p>
         </li>
     )

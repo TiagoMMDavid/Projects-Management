@@ -19,16 +19,19 @@ type StatePageParams = {
 function State({ issueState }: StateProps): JSX.Element {
     return (
         <div>
+            {issueState.isStartState ? 
+                <span className="startState">start state</span>
+                : <></>
+            }
             <p>Number: {issueState.number}</p>
             <p>Name: {issueState.name}</p>
-            <p>Start State: {issueState.isStartState ? 'Yes' : 'No' }</p>
             <p>Author: <Link to={`/users/${issueState.authorId}`}>{issueState.author}</Link></p>
         </div>
     )
 }
 
 type State = {
-    state: 'has-state' | 'loading-state' | 'deleted-state' | 'edited-state' | 'state-fail' | 'message'
+    state: 'has-state' | 'loading-state' | 'deleted-state' | 'edited-state' | 'message'
     message: string
     issueState: IssueState
 }
@@ -56,12 +59,23 @@ function StatePage(): JSX.Element {
     const ctx = useContext(UserContext)
 
     useEffect(() => {
+        let isCancelled = false
         if (state == 'edited-state' || state == 'loading-state') {
             getState(Number(projectId), Number(stateNumber), ctx.credentials)
-                .then(issueState => dispatch({ type: 'set-state', issueState: issueState, message: message }))
-                .catch(err => dispatch({ type: 'set-message', message: err.message }))
+                .then(issueState => {
+                    if (isCancelled) return
+                    dispatch({ type: 'set-state', issueState: issueState, message: message })
+                })
+                .catch(err => {
+                    if (isCancelled) return
+                    dispatch({ type: 'set-message', message: err.message })
+                })
         }
-    }, [projectId, stateNumber, state])
+
+        return () => {
+            isCancelled = true
+        }
+    }, [state])
 
     if (state == 'deleted-state')
         return (
@@ -95,7 +109,6 @@ function StatePage(): JSX.Element {
                                     dispatch({ type: 'loading-state', message: message })
                                 }
                             }}
-                            onEdit={() => dispatch({ type: 'set-message', message: 'Editing State...' })}
                             credentials={ctx.credentials} 
                         />
                         : <></>
@@ -110,7 +123,6 @@ function StatePage(): JSX.Element {
                                     dispatch({ type: 'loading-state', message: message })
                                 }
                             }}
-                            onDelete={() => dispatch({ type: 'set-message', message: 'Deleting State...' })}
                             credentials={ctx.credentials}
                         />
                         : <></>
@@ -125,6 +137,7 @@ function StatePage(): JSX.Element {
             {body}
             {issueState == null ? <></> :  
                 <div>
+                    <h1>State</h1>
                     <State issueState={issueState}/>
                     <Link to={`/projects/${projectId}/states/${issueState.number}/nextStates`}>View state transitions</Link>
                 </div>

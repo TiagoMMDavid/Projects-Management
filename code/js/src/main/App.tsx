@@ -47,24 +47,35 @@ const COMMENT_PATH = `${COMMENTS_PATH}/:commentNumber`
 const USERS_PATH = '/users'
 const USER_PATH = `${USERS_PATH}/:userId`
 
+
+const LOADING_MESSAGE = 'Loading...'
+const MAX_NUMBER_OF_RETRIES = 5
+
 function NotFound() {
     return (
         <h1>Not Found</h1>
     )
 }
 
-const loadingMsg = 'Loading...'
-
 function App(): JSX.Element {
     const [resources, setResources] = useState<ApiRoutes>(null)
+    const [retries, setRetries] = useState(MAX_NUMBER_OF_RETRIES)
+    const [message, setMessage] = useState(LOADING_MESSAGE)
     const [userCredentials, setUserCredentials] = useState<Credentials>(getStoredCredentials())
 
     useEffect(() => {
+        if (retries <= 0) {
+            return setMessage('Failed to load App. Please try again later')
+        }
+
         if (!resources) {
             fetchRoutes()
-                .then(apiResources => setResources(apiResources))
+                .then(apiResources => {
+                    if (!apiResources) setRetries(retries - 1)
+                    else setResources(apiResources)
+                })
         }
-    }, [resources])
+    }, [resources, retries])
 
     return (
         <UserContext.Provider value={getInitialContext(userCredentials, setUserCredentials)}>
@@ -74,7 +85,7 @@ function App(): JSX.Element {
                     <Switch>
                         <Route exact path={LOGIN_PATH}>
                             {
-                                !resources ? <LoadingPage loadingMsg={loadingMsg}/> :
+                                !resources ? <LoadingPage loadingMsg={message} loadFailed={retries <= 0} /> :
                                     <LoginPage redirectPath='/' getAuthUser={ getAuthUser }/> 
                             }
                         </Route>
@@ -83,7 +94,7 @@ function App(): JSX.Element {
                         <Route exact path={PROJECTS_PATH}>
                             <RequiresAuth loginPageRoute={LOGIN_PATH}>
                                 {
-                                    !resources ? <LoadingPage loadingMsg={loadingMsg}/> :
+                                    !resources ? <LoadingPage loadingMsg={message} loadFailed={retries <= 0}/> :
                                         <ProjectsPage/>
                                 }
                             </RequiresAuth>
@@ -91,7 +102,7 @@ function App(): JSX.Element {
                         <Route exact path={PROJECT_PATH}>
                             <RequiresAuth loginPageRoute={LOGIN_PATH}>
                                 {
-                                    !resources ? <LoadingPage loadingMsg={loadingMsg}/> :
+                                    !resources ? <LoadingPage loadingMsg={message} loadFailed={retries <= 0}/> :
                                         <ProjectPage/>
                                 }
                             </RequiresAuth>
@@ -101,7 +112,7 @@ function App(): JSX.Element {
                         <Route exact path={LABELS_PATH}>
                             <RequiresAuth loginPageRoute={LOGIN_PATH}>
                                 {
-                                    !resources ? <LoadingPage loadingMsg={loadingMsg}/> :
+                                    !resources ? <LoadingPage loadingMsg={message} loadFailed={retries <= 0}/> :
                                         <LabelsPage/>
                                 }
                             </RequiresAuth>
@@ -109,7 +120,7 @@ function App(): JSX.Element {
                         <Route exact path={LABEL_PATH}>
                             <RequiresAuth loginPageRoute={LOGIN_PATH}>
                                 {
-                                    !resources ? <LoadingPage loadingMsg={loadingMsg}/> :
+                                    !resources ? <LoadingPage loadingMsg={message} loadFailed={retries <= 0}/> :
                                         <LabelPage/>
                                 }
                             </RequiresAuth>
@@ -119,7 +130,7 @@ function App(): JSX.Element {
                         <Route exact path={STATES_PATH}>
                             <RequiresAuth loginPageRoute={LOGIN_PATH}>
                                 {
-                                    !resources ? <LoadingPage loadingMsg={loadingMsg}/> :
+                                    !resources ? <LoadingPage loadingMsg={message} loadFailed={retries <= 0}/> :
                                         <StatesPage/>
                                 }
                             </RequiresAuth>
@@ -127,7 +138,7 @@ function App(): JSX.Element {
                         <Route exact path={STATE_PATH}>
                             <RequiresAuth loginPageRoute={LOGIN_PATH}>
                                 {
-                                    !resources ? <LoadingPage loadingMsg={loadingMsg}/> :
+                                    !resources ? <LoadingPage loadingMsg={message} loadFailed={retries <= 0}/> :
                                         <StatePage/>
                                 }
                             </RequiresAuth>
@@ -136,7 +147,7 @@ function App(): JSX.Element {
                         <Route exact path={NEXT_STATES_PATH}>
                             <RequiresAuth loginPageRoute={LOGIN_PATH}>
                                 {
-                                    !resources ? <LoadingPage loadingMsg={loadingMsg}/> :
+                                    !resources ? <LoadingPage loadingMsg={message} loadFailed={retries <= 0}/> :
                                         <NextStatesPage/>
                                 }
                             </RequiresAuth>
@@ -146,7 +157,7 @@ function App(): JSX.Element {
                         <Route exact path={ISSUES_PATH}>
                             <RequiresAuth loginPageRoute={LOGIN_PATH}>
                                 {
-                                    !resources ? <LoadingPage loadingMsg={loadingMsg}/> :
+                                    !resources ? <LoadingPage loadingMsg={message} loadFailed={retries <= 0}/> :
                                         <IssuesPage/>
                                 }
                             </RequiresAuth>
@@ -154,7 +165,7 @@ function App(): JSX.Element {
                         <Route exact path={ISSUE_PATH}>
                             <RequiresAuth loginPageRoute={LOGIN_PATH}>
                                 {
-                                    !resources ? <LoadingPage loadingMsg={loadingMsg}/> :
+                                    !resources ? <LoadingPage loadingMsg={message} loadFailed={retries <= 0}/> :
                                         <IssuePage/>
                                 }
                             </RequiresAuth>
@@ -162,7 +173,7 @@ function App(): JSX.Element {
                         <Route exact path={ISSUE_LABELS_PATH}>
                             <RequiresAuth loginPageRoute={LOGIN_PATH}>
                                 {
-                                    !resources ? <LoadingPage loadingMsg={loadingMsg}/> :
+                                    !resources ? <LoadingPage loadingMsg={message} loadFailed={retries <= 0}/> :
                                         <IssueLabelsPage/>
                                 }
                             </RequiresAuth>
@@ -172,7 +183,7 @@ function App(): JSX.Element {
                         <Route exact path={COMMENTS_PATH}>
                             <RequiresAuth loginPageRoute={LOGIN_PATH}>
                                 {
-                                    !resources ? <LoadingPage loadingMsg={loadingMsg}/> :
+                                    !resources ? <LoadingPage loadingMsg={message} loadFailed={retries <= 0}/> :
                                         <CommentsPage/>
                                 }
                             </RequiresAuth>
@@ -180,7 +191,7 @@ function App(): JSX.Element {
                         <Route exact path={COMMENT_PATH}>
                             <RequiresAuth loginPageRoute={LOGIN_PATH}>
                                 {
-                                    !resources ? <LoadingPage loadingMsg={loadingMsg}/> :
+                                    !resources ? <LoadingPage loadingMsg={message} loadFailed={retries <= 0}/> :
                                         <CommentPage/>
                                 }
                             </RequiresAuth>
@@ -190,7 +201,7 @@ function App(): JSX.Element {
                         <Route exact path={USERS_PATH}>
                             <RequiresAuth loginPageRoute={LOGIN_PATH}>
                                 {
-                                    !resources ? <LoadingPage loadingMsg={loadingMsg}/> :
+                                    !resources ? <LoadingPage loadingMsg={message} loadFailed={retries <= 0}/> :
                                         <UsersPage/>
                                 }
                             </RequiresAuth>
@@ -198,7 +209,7 @@ function App(): JSX.Element {
                         <Route exact path={USER_PATH}>
                             <RequiresAuth loginPageRoute={LOGIN_PATH}>
                                 {
-                                    !resources ? <LoadingPage loadingMsg={loadingMsg}/> :
+                                    !resources ? <LoadingPage loadingMsg={message} loadFailed={retries <= 0}/> :
                                         <UserPage/>
                                 }
                             </RequiresAuth>

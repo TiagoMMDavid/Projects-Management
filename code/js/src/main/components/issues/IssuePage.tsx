@@ -76,7 +76,7 @@ function IssuePage(): JSX.Element {
                 .then(issueNextStates => dispatch({type: 'set-issue', issueStates: issueNextStates, message: message}))
                 .catch(err => dispatch({ type: 'set-message', message: err.message }))
         }
-    }, [projectId, issueNumber, state])
+    }, [state])
 
     if (state == 'deleted-issue')
         return (
@@ -110,7 +110,6 @@ function IssuePage(): JSX.Element {
                                 dispatch({ type: 'loading-issue', message: message })
                             }
                         }}
-                        onEdit={() => dispatch({ type: 'set-message', message: 'Editing Issue...' })}
                         credentials={ctx.credentials} 
                     />
                     <DeleteIssue
@@ -122,9 +121,9 @@ function IssuePage(): JSX.Element {
                                 dispatch({ type: 'loading-issue', message: message })
                             }
                         }}
-                        onDelete={() => dispatch({ type: 'set-message', message: 'Deleting Issue...' })}
                         credentials={ctx.credentials}
                     />
+                    <hr/>
                 </div>
             )
             break
@@ -133,7 +132,13 @@ function IssuePage(): JSX.Element {
         <div>
             <Link to={`/projects/${projectId}/issues`}>{'<< View all issues'}</Link>
             {body}
-            {issueStates?.issue == null ? <></> :  <Issue issue={issueStates.issue}/>}
+            {issueStates?.issue == null ? 
+                <></> :
+                <div>
+                    <h1>Issue</h1>
+                    <Issue issue={issueStates.issue}/>
+                </div>
+            }
         </div>
     )
 }

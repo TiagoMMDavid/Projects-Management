@@ -19,25 +19,21 @@ type IssueLabels = {
 }
 
 type State = {
-    state: 'has-labels' | 'loading-labels' | 'page-reset' | 'hide' | 'message'
+    state: 'has-labels' | 'page-set' | 'message'
     issueLabels: IssueLabels
     message: string
 }
   
 type Action =
-    { type: 'set-loading', message: string } |
     { type: 'set-labels', issueLabels: IssueLabels, message: string } |
-    { type: 'reset-page', message: string } |
-    { type: 'hide'} | 
+    { type: 'set-page', message: string } |
     { type: 'set-message', message: string }
     
 function reducer(state: State, action: Action): State {
     switch (action.type) {
-        case 'set-loading': return { state: 'loading-labels', issueLabels: null, message: action.message } as State
         case 'set-labels': return { state: 'has-labels', issueLabels: action.issueLabels, message: action.message } as State
-        case 'reset-page': return { state: 'page-reset', issueLabels: null, message: action.message } as State
+        case 'set-page': return { state: 'page-set', issueLabels: null, message: action.message } as State
         case 'set-message': return { state: 'message', message: action.message} as State
-        case 'hide': return { state: 'hide' } as State
     }
 }
 
@@ -47,25 +43,33 @@ function IssueLabelsPage(): JSX.Element {
     const pageQuery = Number(queryString.parse(useLocation().search).page) || 0
     const page = pageQuery < 0 ? 0 : pageQuery
 
-    const [{ state, issueLabels, message }, dispatch] = useReducer(reducer, { state: 'page-reset' } as State)
+    const [{ state, issueLabels, message }, dispatch] = useReducer(reducer, { state: 'page-set' } as State)
     const ctx = useContext(UserContext)
 
-    function getPage(page: number): void {
-        dispatch({type: 'set-loading', message: message})
-        getIssue(Number(projectId), Number(issueNumber), ctx.credentials)
-            .then(async issue => {
-                return {
-                    issue: issue,
-                    labels: await getIssueLabels(Number(projectId), Number(issueNumber), page, ctx.credentials)
-                } as IssueLabels
-            })
-            .then(issueLabels => dispatch({type: 'set-labels', issueLabels: issueLabels, message: message}))
-            .catch(err => dispatch({ type: 'set-message', message: err.message }))
-    }
-
     useEffect(() => {
-        if (state == 'page-reset') {
-            getPage(page)
+        let isCancelled = false
+        if (state == 'page-set') {
+            getIssue(Number(projectId), Number(issueNumber), ctx.credentials)
+                .then(async issue => {
+                    if (isCancelled) return null
+
+                    return {
+                        issue: issue,
+                        labels: await getIssueLabels(Number(projectId), Number(issueNumber), page, ctx.credentials)
+                    } as IssueLabels
+                })
+                .then(issueLabels => {
+                    if (isCancelled) return
+                    dispatch({type: 'set-labels', issueLabels: issueLabels, message: message})
+                })
+                .catch(err => {
+                    if (isCancelled) return
+                    dispatch({ type: 'set-message', message: err.message })
+                })
+        }
+
+        return () => {
+            isCancelled = true
         }
     }, [state])
 
@@ -74,10 +78,7 @@ function IssueLabelsPage(): JSX.Element {
         case 'message':
             labelsView = <h1>{message}</h1>
             break
-        case 'hide':
-            break
-        case 'page-reset':
-        case 'loading-labels':
+        case 'page-set':
             labelsView = <h1>Loading labels...</h1>
             break
         case 'has-labels':
@@ -86,11 +87,13 @@ function IssueLabelsPage(): JSX.Element {
                     <h4>{message}</h4>
                     <SearchIssueLabels
                         issue={issueLabels.issue}
-                        onAdd={() => dispatch({ type: 'set-message', message: 'Adding label...' })}
-                        onFinishAdd={(success, message) => dispatch({ type: 'reset-page', message: message})}
+                        onFinishAdd={(success, message) => dispatch({ type: 'set-page', message: message })}
                         credentials={ctx.credentials}
                     />
-                    <Paginated onChangePage={getPage} isLastPage={issueLabels.labels.isLastPage} page={issueLabels.labels.page}>
+                    <hr/>
+                    <Paginated 
+                        onChangePage={() => dispatch({ type: 'set-page', message: message })} 
+                        isLastPage={issueLabels.labels.isLastPage} page={issueLabels.labels.page}>
                         <h1>Labels</h1>
                         { issueLabels.labels.labels.length == 0 ? 
                             <p> No labels found </p> :
@@ -100,8 +103,7 @@ function IssueLabelsPage(): JSX.Element {
                                         key={label.id} 
                                         label={label} 
                                         issue={issueLabels.issue}
-                                        onRemove={() => dispatch({ type: 'set-message', message: 'Removing label...' })}
-                                        onFinishRemove={(success, message) => dispatch({ type: 'reset-page', message: message})}
+                                        onFinishRemove={(success, message) => dispatch({ type: 'set-page', message: message })}
                                         credentials={ctx.credentials}
                                     />)}
                             </ul>

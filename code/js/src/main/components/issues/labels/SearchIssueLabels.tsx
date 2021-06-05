@@ -5,25 +5,25 @@ import { Credentials } from '../../../utils/userSession'
 
 type SearchIssueLabelsProps = {
     issue: Issue
-    onAdd: () => void
     onFinishAdd: (success: boolean, message: string) => void
     credentials: Credentials
 }
 
 
-function SearchIssueLabels({ issue, onAdd, onFinishAdd, credentials }: SearchIssueLabelsProps): JSX.Element {
+function SearchIssueLabels({ issue, onFinishAdd, credentials }: SearchIssueLabelsProps): JSX.Element {
     const [searchResults, setSearchResults] = useState<Labels>(null)
     const [search, setSearch] = useState<string>(null)
+    const [toAdd, setToAdd] = useState<number>(null)
     const [message, setMessage] = useState(null)
 
     useEffect(() => {
         if (search && search.length > 0) {
             setMessage('Searching...')
-            let cancelled = false
+            let isCancelled = false
             const tid = setTimeout(() => {
                 searchLabels(issue.projectId, search, issue.id, credentials)
                     .then(labels => {
-                        if (cancelled) return
+                        if (isCancelled) return
 
                         if (labels.labels.length == 0) return setMessage('No labels found')
 
@@ -35,10 +35,31 @@ function SearchIssueLabels({ issue, onAdd, onFinishAdd, credentials }: SearchIss
 
             return () => {
                 clearTimeout(tid)
-                cancelled = true
+                isCancelled = true
             }
         }
     }, [search])
+
+    useEffect(() => {
+        let isCancelled = false
+
+        if (toAdd != null) {
+            setMessage('Adding label...')
+            addLabelToIssue(issue.projectId, issue.number, toAdd, credentials)
+                .then(() => {
+                    if (isCancelled) return
+                    onFinishAdd(true, null)
+                })
+                .catch(err => {
+                    if (isCancelled) return
+                    onFinishAdd(false, err.message)
+                })
+        }
+
+        return () => {
+            isCancelled = true
+        }
+    }, [toAdd])
 
     function handleSearch(e: React.ChangeEvent<HTMLInputElement>) {
         const input = e.target.value
@@ -46,13 +67,6 @@ function SearchIssueLabels({ issue, onAdd, onFinishAdd, credentials }: SearchIss
 
         if (input.length == 0) return
         setSearch(input)
-    }
-
-    function addLabel(labelNumber: number) {
-        onAdd()
-        addLabelToIssue(issue.projectId, issue.number, labelNumber, credentials)
-            .then(() => onFinishAdd(true, null))
-            .catch(err => onFinishAdd(false, err.message))
     }
 
     return (
@@ -67,12 +81,11 @@ function SearchIssueLabels({ issue, onAdd, onFinishAdd, credentials }: SearchIss
                             searchResults.labels.map(label =>
                                 <li key={label.id}>
                                     <p>Name: <Link to={`/projects/${issue.projectId}/labels/${label.number}`}>{label.name}</Link></p>
-                                    <button onClick={() => addLabel(label.number)}>Add label</button>
+                                    <button onClick={() => setToAdd(label.number)}>Add label</button>
                                 </li>
                             )
                         }
                     </ul>
-                    <hr></hr>
                 </div>
                 : <> </>
             }

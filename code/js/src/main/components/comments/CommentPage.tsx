@@ -57,12 +57,23 @@ function CommentPage(): JSX.Element {
     const ctx = useContext(UserContext)
 
     useEffect(() => {
+        let isCancelled = false
         if (state == 'edited-comment' || state == 'loading-comment') {
             getComment(Number(projectId), Number(issueNumber), Number(commentNumber), ctx.credentials)
-                .then(comment => dispatch({ type: 'set-comment', comment: comment, message: message }))
-                .catch(err => dispatch({ type: 'set-message', message: err.message }))
+                .then(comment => {
+                    if (isCancelled) return
+                    dispatch({ type: 'set-comment', comment: comment, message: message })
+                })
+                .catch(err => {
+                    if (isCancelled) return
+                    dispatch({ type: 'set-message', message: err.message })
+                })
         }
-    }, [projectId, commentNumber, state])
+
+        return () => {
+            isCancelled = true
+        }
+    }, [state])
 
     if (state == 'deleted-comment')
         return (
@@ -96,7 +107,6 @@ function CommentPage(): JSX.Element {
                                     dispatch({ type: 'loading-comment', message: message })
                                 }
                             }}
-                            onEdit={() => dispatch({ type: 'set-message', message: 'Editing Comment...' })}
                             credentials={ctx.credentials} 
                         /> 
                         : <></>
@@ -111,11 +121,11 @@ function CommentPage(): JSX.Element {
                                     dispatch({ type: 'loading-comment', message: message })
                                 }
                             }}
-                            onDelete={() => dispatch({ type: 'set-message', message: 'Deleting Comment...' })}
                             credentials={ctx.credentials}
                         /> 
                         : <></>
                     }
+                    <hr/>
                 </div>
             )
             break
@@ -124,7 +134,13 @@ function CommentPage(): JSX.Element {
         <div>
             <Link to={`/projects/${projectId}/issues/${issueNumber}/comments`}>{'<< View all comments'}</Link>
             {body}
-            {comment == null ? <></> :  <Comment comment={comment}/>}
+            {comment == null ? 
+                <></> :  
+                <div>
+                    <h1>Comment</h1>
+                    <Comment comment={comment}/>
+                </div>
+            }
         </div>
     )
 }

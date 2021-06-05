@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { removeLabelFromIssue } from '../../../api/labels'
 import { Credentials } from '../../../utils/userSession'
@@ -6,24 +6,40 @@ import { Credentials } from '../../../utils/userSession'
 type IssueLabelProps = {
     issue: Issue
     label: Label
-    onRemove: () => void
     onFinishRemove: (success: boolean, message: string) => void
     credentials: Credentials
 }
 
-function IssueLabelItem({ label, issue, onRemove, onFinishRemove, credentials }: IssueLabelProps): JSX.Element {
-    function removeLabel() {
-        onRemove()
+function IssueLabelItem({ label, issue, onFinishRemove, credentials }: IssueLabelProps): JSX.Element {
+    const [message, setMessage] = useState(null)
+    const [toRemove, setToRemove] = useState(false)
 
-        removeLabelFromIssue(issue.projectId, issue.number, label.number, credentials)
-            .then(() => onFinishRemove(true, null))
-            .catch(err => onFinishRemove(false, err.message))
-    }
+    useEffect(() => {
+        let isCancelled = false
+
+        if (toRemove) {
+            setMessage('Removing label...')
+            removeLabelFromIssue(issue.projectId, issue.number, label.number, credentials)
+                .then(() => {
+                    if (isCancelled) return
+                    onFinishRemove(true, null)
+                })
+                .catch(err => {
+                    if (isCancelled) return
+                    onFinishRemove(false, err.message)
+                })
+        }
+
+        return () => {
+            isCancelled = true
+        }
+    }, [toRemove])
 
     return (
         <li>
             <p>Name: <Link to={`/projects/${issue.projectId}/labels/${label.number}`}>{label.name}</Link></p>
-            <button onClick={removeLabel}>Remove label</button>
+            <button className="danger" onClick={() => setToRemove(true)}>Remove label</button>
+            <p>{message}</p>
         </li>
     )
 }

@@ -156,7 +156,7 @@ function editState(projectId: number, stateNumber: number, name: string, isStart
         apiRoutes.state.getStateRoute.hrefTemplate.expandUriTemplate(projectId, stateNumber), 
         getRequestOptions('PUT', credentials, {
             name: name,
-            isStartState: isStartState
+            isStart: isStartState
         })
     )
         .then(res => { if (res.status != 200) return throwErrorFromResponse(res, 'Error while editing state') })
