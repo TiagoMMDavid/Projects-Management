@@ -8,3 +8,4 @@
 ## Documentation
 * [How to Build and Run the App](code/jvm/README.md)
 * [API Documentation](docs/README.md)
+* [Phase 2 Presentation Guide](docs/presentation-guide.md)
