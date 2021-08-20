@@ -8,7 +8,7 @@ Each project can hold the information of its name, description and the issues as
 ## Table of Contents
 - [Functionalities](#functionalities)
 - [Preview](#preview)
-- [Documentation](#requirements)
+- [Documentation](#documentation)
 - [Credits](#credits)
 
 ## Functionalities
@@ -28,6 +28,7 @@ The following functionalities are exposed:
 
 ## Preview
 
+https://user-images.githubusercontent.com/44146594/130253147-213a1236-1608-40ea-96e2-89e725864982.mp4
 
 ## Documentation
 - Server Application
